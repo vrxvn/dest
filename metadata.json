@@ -1,0 +1,7 @@
+{
+  "name": "Fintech Icon Sidebar Navigation Schema",
+  "description": "Icon-only sidebar menu schema with interactive tooltips and JSON/Array export styled after modern glassmorphism fintech design.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
