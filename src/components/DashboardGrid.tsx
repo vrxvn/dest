@@ -14,50 +14,92 @@ import {
   ShieldCheck,
   Search,
   Activity,
+  Zap,
+  Globe,
+  Clock,
+  Building2,
 } from 'lucide-react';
+import {
+  EmployeeTrade,
+  INITIAL_EMPLOYEE_TRADES,
+  TRADE_STREAM_POOL,
+  CHART_DATASETS as chartDatasets,
+  DUMMY_WALLET_ADDRESS as walletAddress,
+  GLOBAL_INSTITUTIONAL_INVESTMENTS,
+  LIVE_MARKET_TICKERS,
+} from '../data/dummyData';
 
 export const DashboardGrid: React.FC = () => {
   const [activeTimeframe, setActiveTimeframe] = useState<'1D' | '1W' | '1M' | '1Y' | 'ALL'>('1M');
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
 
+  // Live Employee Global Trading Desk state
+  const [employeeTrades, setEmployeeTrades] = useState<EmployeeTrade[]>(INITIAL_EMPLOYEE_TRADES);
+  const [tradeCount, setTradeCount] = useState(148);
+
+  useEffect(() => {
+    let poolIndex = 0;
+    const interval = setInterval(() => {
+      const template = TRADE_STREAM_POOL[poolIndex % TRADE_STREAM_POOL.length];
+      poolIndex++;
+
+      setEmployeeTrades((prev) => {
+        const newTrade: EmployeeTrade = {
+          id: `trade-${Date.now()}-${Math.random()}`,
+          ...template,
+          timestamp: 'Baru saja',
+        };
+        const updatedPrev = prev.slice(0, 5).map((t, idx) => ({
+          ...t,
+          timestamp: idx === 0 ? '3 dtk lalu' : idx === 1 ? '8 dtk lalu' : idx === 2 ? '15 dtk lalu' : '26 dtk lalu',
+        }));
+        return [newTrade, ...updatedPrev];
+      });
+
+      setTradeCount((c) => c + 1);
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Quick Action Modal state
   const [activeModal, setActiveModal] = useState<'send' | 'add_funds' | 'pay_bills' | 'qr' | null>(null);
   const [copiedAddress, setCopiedAddress] = useState(false);
 
-  // Synchronized baseline alignment between Left Column (Treasury blocks) and Chart card
-  const leftColRef = useRef<HTMLDivElement>(null);
-  const topKpiRef = useRef<HTMLDivElement>(null);
-  const [chartHeight, setChartHeight] = useState<number | undefined>(undefined);
+  // Synchronize bottom of Capital Flow card with bottom of Treasury & Staking blocks
+  const treasuryRef = useRef<HTMLDivElement>(null);
+  const capitalRef = useRef<HTMLDivElement>(null);
+  const topRowRef = useRef<HTMLDivElement>(null);
+  const [capitalHeight, setCapitalHeight] = useState<number | undefined>(undefined);
 
   useEffect(() => {
-    const syncBottomAlignment = () => {
-      if (leftColRef.current && topKpiRef.current && window.innerWidth >= 1024) {
-        const leftBottom = leftColRef.current.getBoundingClientRect().bottom;
-        const topKpiBottom = topKpiRef.current.getBoundingClientRect().bottom;
-        // The Chart card starts 12px (gap-3) below Top KPI cards
-        const targetHeight = leftBottom - topKpiBottom - 12;
-        if (targetHeight > 180) {
-          setChartHeight(Math.round(targetHeight));
+    const syncAlignment = () => {
+      if (treasuryRef.current && capitalRef.current && window.innerWidth >= 1024) {
+        const treasuryBottom = treasuryRef.current.getBoundingClientRect().bottom;
+        const capitalTop = capitalRef.current.getBoundingClientRect().top;
+        const targetHeight = treasuryBottom - capitalTop;
+        if (targetHeight > 100) {
+          const newH = Math.round(targetHeight);
+          setCapitalHeight((prev) => (prev === newH ? prev : newH));
           return;
         }
       }
-      setChartHeight(undefined);
+      setCapitalHeight(undefined);
     };
 
-    syncBottomAlignment();
-    window.addEventListener('resize', syncBottomAlignment);
+    const rafId = requestAnimationFrame(syncAlignment);
+    window.addEventListener('resize', syncAlignment);
 
-    const observer = new ResizeObserver(syncBottomAlignment);
-    if (leftColRef.current) observer.observe(leftColRef.current);
-    if (topKpiRef.current) observer.observe(topKpiRef.current);
+    const observer = new ResizeObserver(syncAlignment);
+    if (treasuryRef.current) observer.observe(treasuryRef.current);
+    if (topRowRef.current) observer.observe(topRowRef.current);
 
     return () => {
-      window.removeEventListener('resize', syncBottomAlignment);
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', syncAlignment);
       observer.disconnect();
     };
   }, []);
-
-  const walletAddress = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
 
   const handleCopy = () => {
     navigator.clipboard?.writeText(walletAddress);
@@ -65,50 +107,26 @@ export const DashboardGrid: React.FC = () => {
     setTimeout(() => setCopiedAddress(false), 2000);
   };
 
-  // Timeframe chart datasets
-  const chartDatasets: Record<string, { pts1: number[]; pts2: number[] }> = {
-    '1D': {
-      pts1: [14, 16, 15, 18, 17, 19, 21, 20, 23, 22, 25, 27],
-      pts2: [10, 11, 12, 13, 13, 15, 16, 15, 17, 16, 18, 20],
-    },
-    '1W': {
-      pts1: [12, 15, 14, 17, 16, 20, 19, 24, 22, 26, 25, 29],
-      pts2: [9, 10, 12, 11, 14, 13, 15, 17, 18, 20, 19, 22],
-    },
-    '1M': {
-      pts1: [10, 13, 16, 14, 19, 23, 21, 27, 24, 30, 28, 34],
-      pts2: [7, 10, 12, 11, 14, 17, 16, 19, 18, 22, 20, 25],
-    },
-    '1Y': {
-      pts1: [8, 12, 16, 20, 18, 25, 29, 27, 34, 39, 44, 52],
-      pts2: [6, 8, 11, 13, 15, 18, 21, 20, 24, 28, 31, 36],
-    },
-    'ALL': {
-      pts1: [5, 9, 14, 18, 24, 30, 36, 43, 50, 58, 66, 76],
-      pts2: [4, 7, 9, 13, 16, 21, 26, 30, 35, 41, 47, 54],
-    },
-  };
-
   const currentDataset = chartDatasets[activeTimeframe] || chartDatasets['1M'];
 
-  // Modern minimalist light glassmorphism matching the 3D solid sidebar
+  // Super Solid 3D Ceramic Glass aesthetic matching the 3D solid sidebar
   const glassCard =
-    'bg-gradient-to-b from-white/95 via-white/85 to-[#eef4fb]/90 backdrop-blur-xl rounded-[22px] sm:rounded-[26px] border-t-2 border-t-white border-x-[1.5px] border-white/80 border-b-[3.5px] border-b-slate-300/80 shadow-[0_12px_28px_-4px_rgba(15,23,42,0.1),0_4px_10px_rgba(15,23,42,0.04),inset_0_2px_1px_rgba(255,255,255,1),inset_0_-2px_3px_rgba(148,163,184,0.2)] p-3.5 sm:p-4 flex flex-col justify-between transition-all';
+    'bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] backdrop-blur-xl rounded-[22px] sm:rounded-[26px] border-t-[2.5px] border-t-white border-x-[1.5px] border-slate-200/90 border-b-[4px] border-b-slate-300 shadow-[0_16px_34px_-6px_rgba(15,23,42,0.14),0_6px_14px_-2px_rgba(15,23,42,0.06),inset_0_2px_1px_rgba(255,255,255,1),inset_0_-2.5px_3px_rgba(148,163,184,0.35)] p-3.5 sm:p-4 flex flex-col justify-between transition-all';
 
-  // 3D Solid Button Class
+  // Super Solid 3D Tactile Button
   const solid3DButton =
-    'relative flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-2xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] text-slate-700 hover:text-slate-950 border-t-2 border-t-white border-x-[1.5px] border-slate-200/90 border-b-[3px] border-b-slate-300 shadow-[0_4px_8px_rgba(0,0,0,0.08),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-1px_1px_rgba(148,163,184,0.3)] hover:brightness-105 active:border-b-[1px] active:translate-y-[1.5px] transition-all cursor-pointer group outline-none';
+    'relative flex flex-col items-center justify-center p-2.5 sm:p-3 rounded-2xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e4eaf4] text-slate-700 hover:text-slate-950 border-t-2 border-t-white border-x-[1.5px] border-slate-200/90 border-b-[3.5px] border-b-slate-300 shadow-[0_5px_10px_rgba(0,0,0,0.08),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-1.5px_2px_rgba(148,163,184,0.35)] hover:brightness-105 active:border-b-[1.5px] active:translate-y-[1.5px] transition-all cursor-pointer group outline-none';
 
   return (
     <div className="w-full h-full flex flex-col justify-between overflow-hidden">
       {/* ============================================================== */}
       {/* SECTION 1: TOP AREA (TALL VERTICAL CARD ON LEFT + RIGHT CARDS) */}
       {/* ============================================================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start h-full flex-1 min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 h-full flex-1 min-h-0">
         {/* ------------------------------------------------------------ */}
-        {/* LEFT COLUMN: TOTAL AUM & 2 SQUARE TREASURY BLOCKS (SEJAJAR ATAS) */}
+        {/* LEFT COLUMN: TOTAL AUM & 2 SQUARE TREASURY BLOCKS + NEW VAULT BLOCK */}
         {/* ------------------------------------------------------------ */}
-        <div ref={leftColRef} className="lg:col-span-4 xl:col-span-4 flex flex-col gap-2.5 sm:gap-3">
+        <div className="lg:col-span-4 xl:col-span-4 flex flex-col gap-2.5 sm:gap-3 h-full min-h-0">
           {/* Card 1: TOTAL AUM & Balance */}
           <div className={`${glassCard} flex flex-col justify-between flex-shrink-0`}>
             {/* Top: Total AUM & Balance */}
@@ -211,7 +229,7 @@ export const DashboardGrid: React.FC = () => {
           </div>
 
           {/* Treasury Section Divided into 2 Blocks (Side-by-Side Under Total AUM - Square Shape) */}
-          <div className="grid grid-cols-2 gap-2 sm:gap-2.5">
+          <div ref={treasuryRef} className="grid grid-cols-2 gap-2 sm:gap-2.5">
             {/* Block 1: Treasury Arbitrage Settlement (Square 1:1) */}
             <div className={`${glassCard} w-full aspect-square flex flex-col justify-between overflow-hidden p-2.5 sm:p-3`}>
               <div>
@@ -284,6 +302,84 @@ export const DashboardGrid: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Block Tambahan Di Bawah Treasury: Singkatan Perusahaan Financial Global & Jumlah Investasi */}
+          <div className={`${glassCard} flex-1 min-h-0 flex flex-col justify-between overflow-hidden p-3 sm:p-3.5`}>
+            {/* Header */}
+            <div>
+              <div className="flex items-center justify-between gap-1 mb-1">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                  <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase font-mono truncate">
+                    INSTITUSI FINANCIAL GLOBAL
+                  </span>
+                </div>
+                <span className="text-[8px] font-bold text-indigo-700 bg-indigo-500/10 px-1.5 py-0.5 rounded-full border border-indigo-200/80 font-mono flex-shrink-0">
+                  {GLOBAL_INSTITUTIONAL_INVESTMENTS.totalCount}
+                </span>
+              </div>
+
+              {/* Total Dana Investasi */}
+              <div className="flex items-baseline justify-between gap-2 mt-0.5 mb-1.5">
+                <div>
+                  <div className="text-[9px] font-bold text-slate-400 uppercase font-mono">
+                    TOTAL INVESTASI INSTITUSIONAL
+                  </div>
+                  <div className="text-xl sm:text-2xl font-black text-slate-800 font-mono tracking-tight">
+                    {GLOBAL_INSTITUTIONAL_INVESTMENTS.totalInvestment}
+                  </div>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <span className="text-[9px] font-bold text-emerald-600 bg-emerald-500/10 px-1.5 py-0.5 rounded-md font-mono border border-emerald-500/20">
+                    {GLOBAL_INSTITUTIONAL_INVESTMENTS.growth}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* List Singkatan Perusahaan Financial Global & Jumlah Investasi */}
+            <div className="flex-1 overflow-y-auto space-y-1.5 pr-0.5 min-h-0">
+              {GLOBAL_INSTITUTIONAL_INVESTMENTS.investors.map((company, idx) => (
+                <div
+                  key={company.code}
+                  className={`py-1.5 px-2.5 rounded-xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#edf3fa] border-t border-t-white border-x border-slate-200/90 border-b-2 border-b-slate-300 shadow-[0_2px_4px_rgba(15,23,42,0.04),inset_0_1px_1px_white] flex items-center justify-between gap-2 transition-all font-mono ${
+                    idx === 0 ? 'ring-1 ring-indigo-500/30' : ''
+                  }`}
+                >
+                  {/* Singkatan Nama Perusahaan Finansial Global */}
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-8 h-7 rounded-lg bg-gradient-to-b from-indigo-50 to-indigo-100/70 border border-indigo-200/80 text-indigo-700 font-black text-xs flex items-center justify-center shadow-xs flex-shrink-0">
+                      {company.code}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-extrabold text-slate-800 truncate leading-tight">
+                        {company.name}
+                      </div>
+                      <div className="text-[8px] text-slate-400 font-medium">
+                        PORTOFOLIO {company.share}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Jumlah Investasi */}
+                  <div className="text-right flex-shrink-0">
+                    <div className="text-xs sm:text-[13px] font-black text-slate-900 tracking-tight">
+                      {company.investment}
+                    </div>
+                    <span className="text-[8px] font-bold text-emerald-600 uppercase">
+                      {company.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer Bar */}
+            <div className="flex items-center justify-between pt-1.5 border-t border-slate-200/70 text-[9px] font-mono text-slate-500 mt-1 flex-shrink-0">
+              <span className="text-slate-400">KONSORSIUM RESMI</span>
+              <span className="text-emerald-600 font-bold">100% TERVERIFIKASI</span>
+            </div>
+          </div>
         </div>
 
         {/* ------------------------------------------------------------ */}
@@ -291,7 +387,7 @@ export const DashboardGrid: React.FC = () => {
         {/* ------------------------------------------------------------ */}
         <div className="lg:col-span-8 xl:col-span-8 flex flex-col gap-3 h-full flex-1 min-h-0">
           {/* Top Row in Right Column: 3 Split Executive KPI Cards */}
-          <div ref={topKpiRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div ref={topRowRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {/* 1. Net PnL + Micro Sparkline */}
             <div className={glassCard}>
               <div className="flex items-center justify-between mb-1">
@@ -398,157 +494,297 @@ export const DashboardGrid: React.FC = () => {
             </div>
           </div>
 
-          {/* Middle Row in Right Column: Flowing Chart (Taller, Unaligned) + Compact Square Donut Card */}
-          <div className="flex flex-col lg:flex-row gap-3 items-start flex-1">
-            {/* Visual 1: Chart Mengalir (Sejajar Bagian Bawah dengan Blok Treasury Kiri) */}
-            <div
-              className={`${glassCard} flex-1 min-w-0 flex flex-col justify-between`}
-              style={chartHeight ? { height: `${chartHeight}px` } : undefined}
-            >
-              <div className="flex items-center justify-between gap-1 mb-1">
-                <div>
-                  <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase font-mono flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-ping" />
-                    CAPITAL FLOW STREAM • REAL-TIME
-                  </span>
-                  <div className="flex items-baseline gap-1.5 mt-0.5">
-                    <span className="text-xl sm:text-2xl font-black text-slate-800 font-mono truncate">
-                      $18,420,000
+          {/* Middle Row in Right Column: Flowing Chart (Posisi Semula) + Block Tambahan Di Bawahnya + Square Donut Column */}
+          <div className="flex flex-col lg:flex-row gap-3 items-stretch flex-1 min-h-0">
+            {/* Center Column: Flowing Chart (Posisi Semula) + 1 Block Tambahan Di Bawahnya */}
+            <div className="flex-1 min-w-0 flex flex-col gap-3 h-full justify-between min-h-0">
+              {/* Visual 1: Chart Mengalir (Sejajar Bawah dengan Treasury & Staking) */}
+              <div
+                ref={capitalRef}
+                className={`${glassCard} flex-shrink-0 flex flex-col justify-between`}
+                style={capitalHeight ? { height: `${capitalHeight}px` } : undefined}
+              >
+                <div className="flex items-center justify-between gap-1 mb-1">
+                  <div>
+                    <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase font-mono flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-ping" />
+                      CAPITAL FLOW STREAM • REAL-TIME
                     </span>
-                    <span className="text-[11px] font-bold text-indigo-600 bg-indigo-500/10 px-1.5 py-0.2 rounded-full border border-indigo-500/20 font-mono">
-                      +24.8% FLOW
-                    </span>
+                    <div className="flex items-baseline gap-1.5 mt-0.5">
+                      <span className="text-xl sm:text-2xl font-black text-slate-800 font-mono truncate">
+                        $18,420,000
+                      </span>
+                      <span className="text-[11px] font-bold text-indigo-600 bg-indigo-500/10 px-1.5 py-0.2 rounded-full border border-indigo-500/20 font-mono">
+                        +24.8% FLOW
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Timeframe Pills */}
+                  <div className="flex items-center gap-0.5 p-0.5 bg-slate-200/70 rounded-full border border-slate-300/60 shadow-inner">
+                    {(['1D', '1W', '1M', '1Y', 'ALL'] as const).map((tf) => (
+                      <button
+                        key={tf}
+                        type="button"
+                        onClick={() => setActiveTimeframe(tf)}
+                        className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold font-mono transition-all cursor-pointer ${
+                          activeTimeframe === tf
+                            ? 'bg-gradient-to-b from-[#2d3748] to-[#0f172a] text-white shadow-xs'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        {tf}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                {/* Timeframe Pills */}
-                <div className="flex items-center gap-0.5 p-0.5 bg-slate-200/70 rounded-full border border-slate-300/60 shadow-inner">
-                  {(['1D', '1W', '1M', '1Y', 'ALL'] as const).map((tf) => (
-                    <button
-                      key={tf}
-                      type="button"
-                      onClick={() => setActiveTimeframe(tf)}
-                      className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold font-mono transition-all cursor-pointer ${
-                        activeTimeframe === tf
-                          ? 'bg-gradient-to-b from-[#2d3748] to-[#0f172a] text-white shadow-xs'
-                          : 'text-slate-600 hover:text-slate-900'
-                      }`}
-                    >
-                      {tf}
-                    </button>
-                  ))}
+                {/* Dedicated Flowing Stream Chart SVG (Scales to fill synchronized card height) */}
+                <div className="w-full flex-1 min-h-[120px] relative my-1">
+                  <svg viewBox="0 0 320 150" className="w-full h-full overflow-visible">
+                    <defs>
+                      {/* Primary Flow Gradient */}
+                      <linearGradient id="flowStreamGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.4" />
+                        <stop offset="60%" stopColor="#06b6d4" stopOpacity="0.15" />
+                        <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.0" />
+                      </linearGradient>
+
+                      {/* Secondary Ambient Flow Gradient */}
+                      <linearGradient id="flowAmbientGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+                        <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                      </linearGradient>
+                    </defs>
+
+                    {/* Flow Guide Gridlines */}
+                    <line x1="0" y1="30" x2="320" y2="30" stroke="#cbd5e1" strokeDasharray="3 3" opacity="0.5" />
+                    <line x1="0" y1="75" x2="320" y2="75" stroke="#cbd5e1" strokeDasharray="3 3" opacity="0.5" />
+                    <line x1="0" y1="115" x2="320" y2="115" stroke="#cbd5e1" strokeDasharray="3 3" opacity="0.5" />
+                    <line x1="0" y1="145" x2="320" y2="145" stroke="#94a3b8" opacity="0.7" />
+
+                    {/* Secondary Undercurrent Wave */}
+                    <path
+                      d="M 0,120 Q 40,95 80,105 T 160,85 T 240,100 T 320,65 L 320,145 L 0,145 Z"
+                      fill="url(#flowAmbientGrad)"
+                    />
+                    <path
+                      d="M 0,120 Q 40,95 80,105 T 160,85 T 240,100 T 320,65"
+                      fill="none"
+                      stroke="#10b981"
+                      strokeWidth="1.5"
+                      strokeDasharray="4 3"
+                      opacity="0.7"
+                    />
+
+                    {/* Primary Flowing Stream Wave (Active dataset) */}
+                    {(() => {
+                      const pts = currentDataset.pts1;
+                      const stepX = 320 / (pts.length - 1);
+                      const maxVal = 85;
+                      const pointsCoord = pts.map((val, i) => ({
+                        x: i * stepX,
+                        y: 145 - (val / maxVal) * 125,
+                      }));
+
+                      const dCurve = pointsCoord.reduce((acc, curr, i, arr) => {
+                        if (i === 0) return `M ${curr.x},${curr.y}`;
+                        const prev = arr[i - 1];
+                        const cx1 = prev.x + (curr.x - prev.x) / 2;
+                        const cy1 = prev.y;
+                        const cx2 = prev.x + (curr.x - prev.x) / 2;
+                        const cy2 = curr.y;
+                        return `${acc} C ${cx1},${cy1} ${cx2},${cy2} ${curr.x},${curr.y}`;
+                      }, '');
+
+                      const dArea = `${dCurve} L 320,145 L 0,145 Z`;
+
+                      return (
+                        <>
+                          <path d={dArea} fill="url(#flowStreamGrad)" />
+                          <path
+                            d={dCurve}
+                            fill="none"
+                            stroke="#4f46e5"
+                            strokeWidth="2.8"
+                            strokeLinecap="round"
+                          />
+                          {pointsCoord.map((p, i) => (
+                            <g key={i}>
+                              <circle
+                                cx={p.x}
+                                cy={p.y}
+                                r={hoveredPoint === i ? 5 : 2.5}
+                                fill="#4f46e5"
+                                stroke="#ffffff"
+                                strokeWidth="1.5"
+                                className="cursor-pointer transition-all"
+                                onMouseEnter={() => setHoveredPoint(i)}
+                                onMouseLeave={() => setHoveredPoint(null)}
+                              />
+                              {hoveredPoint === i && (
+                                <text
+                                  x={p.x}
+                                  y={Math.max(18, p.y - 10)}
+                                  textAnchor="middle"
+                                  className="text-[10px] font-mono font-bold fill-indigo-700"
+                                >
+                                  ${(pts[i] * 0.23).toFixed(2)}M
+                                </text>
+                              )}
+                            </g>
+                          ))}
+                        </>
+                      );
+                    })()}
+                  </svg>
+                </div>
+
+                <div className="flex items-center justify-between pt-1.5 border-t border-slate-200/70 text-[11px] font-mono text-slate-500">
+                  <span>PEAK FLOW $19.10M</span>
+                  <span className="text-indigo-600 font-bold">VELOCITY 94.2%</span>
                 </div>
               </div>
 
-              {/* Dedicated Flowing Stream Chart SVG (Scales to align bottom) */}
-              <div className="w-full flex-1 min-h-[140px] relative my-1">
-                <svg viewBox="0 0 320 150" className="w-full h-full overflow-visible">
-                  <defs>
-                    {/* Primary Flow Gradient */}
-                    <linearGradient id="flowStreamGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.4" />
-                      <stop offset="60%" stopColor="#06b6d4" stopOpacity="0.15" />
-                      <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.0" />
-                    </linearGradient>
+              {/* Bagian Bawah Chart: 2 Blok Berdampingan + 1 Blok Lebar Penuh untuk 1 Nama Skill & Profit */}
+              <div className="flex-1 min-h-0 flex flex-col gap-2 sm:gap-2.5 justify-between">
+                {/* 2 Blok Berdampingan: Live Ticker Pasar Global Utama */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 flex-1 min-h-0">
+                  {/* Blok 1: Pasar Kripto Utama (BTC & ETH) */}
+                  <div className={`${glassCard} flex flex-col justify-between overflow-hidden p-2.5 sm:p-3`}>
+                    <div>
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                          <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase font-mono truncate">
+                            {LIVE_MARKET_TICKERS.crypto.title}
+                          </span>
+                        </div>
+                        <span className="text-[8px] font-bold text-emerald-600 bg-emerald-500/10 px-1.5 py-0.2 rounded-full border border-emerald-500/20 font-mono flex-shrink-0">
+                          {LIVE_MARKET_TICKERS.crypto.status}
+                        </span>
+                      </div>
 
-                    {/* Secondary Ambient Flow Gradient */}
-                    <linearGradient id="flowAmbientGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
-                      <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
-                    </linearGradient>
-                  </defs>
+                      {/* 2 Live Tickers (BTC & ETH) */}
+                      <div className="grid grid-cols-2 gap-1.5 my-1">
+                        {/* BTC */}
+                        <div className="p-2 rounded-xl bg-gradient-to-b from-[#f8fafc] to-[#edf3fa] border-t border-t-white border-x border-slate-200/80 border-b-[2px] border-b-slate-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_4px_rgba(15,23,42,0.03)] font-mono">
+                          <div className="flex items-center justify-between text-[9px] font-bold text-slate-400">
+                            <span>{LIVE_MARKET_TICKERS.crypto.primary.symbol}</span>
+                            <span className="text-emerald-600 font-extrabold">{LIVE_MARKET_TICKERS.crypto.primary.change}</span>
+                          </div>
+                          <div className="text-sm sm:text-base font-black text-slate-900 tracking-tight mt-0.5">
+                            {LIVE_MARKET_TICKERS.crypto.primary.price}
+                          </div>
+                        </div>
 
-                  {/* Flow Guide Gridlines */}
-                  <line x1="0" y1="30" x2="320" y2="30" stroke="#cbd5e1" strokeDasharray="3 3" opacity="0.5" />
-                  <line x1="0" y1="75" x2="320" y2="75" stroke="#cbd5e1" strokeDasharray="3 3" opacity="0.5" />
-                  <line x1="0" y1="115" x2="320" y2="115" stroke="#cbd5e1" strokeDasharray="3 3" opacity="0.5" />
-                  <line x1="0" y1="145" x2="320" y2="145" stroke="#94a3b8" opacity="0.7" />
+                        {/* ETH */}
+                        <div className="p-2 rounded-xl bg-gradient-to-b from-[#f8fafc] to-[#edf3fa] border-t border-t-white border-x border-slate-200/80 border-b-[2px] border-b-slate-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_4px_rgba(15,23,42,0.03)] font-mono">
+                          <div className="flex items-center justify-between text-[9px] font-bold text-slate-400">
+                            <span>{LIVE_MARKET_TICKERS.crypto.secondary.symbol}</span>
+                            <span className="text-emerald-600 font-extrabold">{LIVE_MARKET_TICKERS.crypto.secondary.change}</span>
+                          </div>
+                          <div className="text-sm sm:text-base font-black text-slate-900 tracking-tight mt-0.5">
+                            {LIVE_MARKET_TICKERS.crypto.secondary.price}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-                  {/* Secondary Undercurrent Wave */}
-                  <path
-                    d="M 0,120 Q 40,95 80,105 T 160,85 T 240,100 T 320,65 L 320,145 L 0,145 Z"
-                    fill="url(#flowAmbientGrad)"
-                  />
-                  <path
-                    d="M 0,120 Q 40,95 80,105 T 160,85 T 240,100 T 320,65"
-                    fill="none"
-                    stroke="#10b981"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 3"
-                    opacity="0.7"
-                  />
+                    <div className="flex items-center justify-between pt-1 border-t border-slate-200/70 text-[9px] font-mono text-slate-500">
+                      <span>{LIVE_MARKET_TICKERS.crypto.footerLeft}</span>
+                      <span className="text-indigo-600 font-bold">{LIVE_MARKET_TICKERS.crypto.footerRight}</span>
+                    </div>
+                  </div>
 
-                  {/* Primary Flowing Stream Wave (Active dataset) */}
-                  {(() => {
-                    const pts = currentDataset.pts1;
-                    const stepX = 320 / (pts.length - 1);
-                    const maxVal = 85;
-                    const pointsCoord = pts.map((val, i) => ({
-                      x: i * stepX,
-                      y: 145 - (val / maxVal) * 125,
-                    }));
+                  {/* Blok 2: Komoditas & Valuta Global (XAU Emas & BRENT Minyak) */}
+                  <div className={`${glassCard} flex flex-col justify-between overflow-hidden p-2.5 sm:p-3`}>
+                    <div>
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
+                          <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase font-mono truncate">
+                            {LIVE_MARKET_TICKERS.commodities.title}
+                          </span>
+                        </div>
+                        <span className="text-[8px] font-bold text-amber-600 bg-amber-500/10 px-1.5 py-0.2 rounded-full border border-amber-500/20 font-mono flex-shrink-0">
+                          {LIVE_MARKET_TICKERS.commodities.status}
+                        </span>
+                      </div>
 
-                    const dCurve = pointsCoord.reduce((acc, curr, i, arr) => {
-                      if (i === 0) return `M ${curr.x},${curr.y}`;
-                      const prev = arr[i - 1];
-                      const cx1 = prev.x + (curr.x - prev.x) / 2;
-                      const cy1 = prev.y;
-                      const cx2 = prev.x + (curr.x - prev.x) / 2;
-                      const cy2 = curr.y;
-                      return `${acc} C ${cx1},${cy1} ${cx2},${cy2} ${curr.x},${curr.y}`;
-                    }, '');
+                      {/* 2 Live Tickers (XAU Emas & BRENT Minyak) */}
+                      <div className="grid grid-cols-2 gap-1.5 my-1">
+                        {/* XAU Emas */}
+                        <div className="p-2 rounded-xl bg-gradient-to-b from-[#f8fafc] to-[#edf3fa] border-t border-t-white border-x border-slate-200/80 border-b-[2px] border-b-slate-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_4px_rgba(15,23,42,0.03)] font-mono">
+                          <div className="flex items-center justify-between text-[9px] font-bold text-slate-400">
+                            <span>{LIVE_MARKET_TICKERS.commodities.primary.symbol}</span>
+                            <span className="text-emerald-600 font-extrabold">{LIVE_MARKET_TICKERS.commodities.primary.change}</span>
+                          </div>
+                          <div className="text-sm sm:text-base font-black text-amber-700 tracking-tight mt-0.5">
+                            {LIVE_MARKET_TICKERS.commodities.primary.price}
+                            <span className="text-[9px] text-slate-400 font-normal ml-0.5">{LIVE_MARKET_TICKERS.commodities.primary.unit}</span>
+                          </div>
+                        </div>
 
-                    const dArea = `${dCurve} L 320,145 L 0,145 Z`;
+                        {/* BRENT Minyak */}
+                        <div className="p-2 rounded-xl bg-gradient-to-b from-[#f8fafc] to-[#edf3fa] border-t border-t-white border-x border-slate-200/80 border-b-[2px] border-b-slate-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9),0_2px_4px_rgba(15,23,42,0.03)] font-mono">
+                          <div className="flex items-center justify-between text-[9px] font-bold text-slate-400">
+                            <span>{LIVE_MARKET_TICKERS.commodities.secondary.symbol}</span>
+                            <span className="text-emerald-600 font-extrabold">{LIVE_MARKET_TICKERS.commodities.secondary.change}</span>
+                          </div>
+                          <div className="text-sm sm:text-base font-black text-slate-900 tracking-tight mt-0.5">
+                            {LIVE_MARKET_TICKERS.commodities.secondary.price}
+                            <span className="text-[9px] text-slate-400 font-normal ml-0.5">{LIVE_MARKET_TICKERS.commodities.secondary.unit}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-                    return (
-                      <>
-                        <path d={dArea} fill="url(#flowStreamGrad)" />
-                        <path
-                          d={dCurve}
-                          fill="none"
-                          stroke="#4f46e5"
-                          strokeWidth="2.8"
-                          strokeLinecap="round"
-                        />
-                        {pointsCoord.map((p, i) => (
-                          <g key={i}>
-                            <circle
-                              cx={p.x}
-                              cy={p.y}
-                              r={hoveredPoint === i ? 5 : 2.5}
-                              fill="#4f46e5"
-                              stroke="#ffffff"
-                              strokeWidth="1.5"
-                              className="cursor-pointer transition-all"
-                              onMouseEnter={() => setHoveredPoint(i)}
-                              onMouseLeave={() => setHoveredPoint(null)}
-                            />
-                            {hoveredPoint === i && (
-                              <text
-                                x={p.x}
-                                y={Math.max(18, p.y - 10)}
-                                textAnchor="middle"
-                                className="text-[10px] font-mono font-bold fill-indigo-700"
-                              >
-                                ${(pts[i] * 0.23).toFixed(2)}M
-                              </text>
-                            )}
-                          </g>
-                        ))}
-                      </>
-                    );
-                  })()}
-                </svg>
-              </div>
+                    <div className="flex items-center justify-between pt-1 border-t border-slate-200/70 text-[9px] font-mono text-slate-500">
+                      <span>{LIVE_MARKET_TICKERS.commodities.footerLeft}</span>
+                      <span className="text-indigo-600 font-bold">{LIVE_MARKET_TICKERS.commodities.footerRight}</span>
+                    </div>
+                  </div>
+                </div>
 
-              <div className="flex items-center justify-between pt-1.5 border-t border-slate-200/70 text-[11px] font-mono text-slate-500">
-                <span>PEAK FLOW $19.10M</span>
-                <span className="text-indigo-600 font-bold">VELOCITY 94.2%</span>
+                {/* 1 Blok di Bawahnya: Super Solid 3D, Lebar Penuh Sama, Cukup untuk 1 Nama Skill dan Profitnya */}
+                <div className="flex-shrink-0 flex items-center justify-between py-2 sm:py-2.5 px-3 sm:px-3.5 min-h-[50px] sm:min-h-[54px] bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] backdrop-blur-xl rounded-xl sm:rounded-2xl border-t-[2.5px] border-t-white border-x-[1.5px] border-slate-200/90 border-b-[3.5px] border-b-slate-300 shadow-[0_12px_24px_-4px_rgba(15,23,42,0.12),inset_0_2px_1px_rgba(255,255,255,1),inset_0_-2px_2.5px_rgba(148,163,184,0.3)] overflow-hidden">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-b from-[#ffffff] to-[#e4eaf4] text-indigo-600 border-t border-t-white border-x border-slate-200 border-b-2 border-b-slate-300 shadow-[0_2px_4px_rgba(0,0,0,0.06),inset_0_1px_1px_white] flex items-center justify-center flex-shrink-0">
+                      <Zap className="w-4 h-4 stroke-[2.4] fill-indigo-500/20" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 leading-none mb-1">
+                        <span className="text-[9px] font-bold text-indigo-600 uppercase tracking-wider font-mono">
+                          STRATEGY SKILL
+                        </span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      </div>
+                      <div className="text-xs sm:text-[13px] font-black text-slate-800 tracking-tight truncate font-mono leading-none">
+                        QUANT MOMENTUM & FLASH ARBITRAGE
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-right flex-shrink-0 pl-2 font-mono">
+                    <div className="text-[8px] sm:text-[9px] font-bold text-slate-400 uppercase leading-none mb-1">
+                      REALISED PROFIT
+                    </div>
+                    <div className="flex items-center justify-end gap-1.5 leading-none">
+                      <span className="text-xs sm:text-sm font-black text-emerald-600 tracking-tight">
+                        +$3,842,500
+                      </span>
+                      <span className="text-[8px] sm:text-[9px] font-bold text-emerald-700 bg-gradient-to-b from-emerald-50 to-emerald-100/90 px-1.5 py-0.5 rounded-md border-t border-t-emerald-200 border-b border-b-emerald-600/30 shadow-[0_1px_2px_rgba(16,185,129,0.15)]">
+                        +42.8%
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Right Column in Middle Row: Allocation Square + New Elongated Block Underneath */}
-            <div className="w-full lg:w-[220px] xl:w-[240px] flex-shrink-0 flex flex-col gap-3 h-full justify-between min-h-0">
+            <div className="w-full lg:w-[250px] xl:w-[270px] flex-shrink-0 flex flex-col gap-3 h-full justify-between min-h-0">
               {/* Visual 2: "lingkaran bentuknya kotak di tepi" (Bentuk Persegi 1:1, Tidak Terlalu Lebar) */}
               <div className={`${glassCard} w-full aspect-square flex-shrink-0 flex flex-col justify-between`}>
                 <div className="flex items-center justify-between gap-1 mb-0.5">
@@ -666,99 +902,85 @@ export const DashboardGrid: React.FC = () => {
                 </div>
               </div>
 
-              {/* Block Tambahan Di Bawahnya: Lebar Sama, Panjang ke Bawah Sampai Tepi Layar */}
-              <div className={`${glassCard} w-full flex-1 min-h-0 flex flex-col justify-between overflow-hidden`}>
-                <div className="flex flex-col flex-1 justify-between">
-                  <div className="flex items-center justify-between gap-1 mb-1">
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-                      <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase font-mono">
-                        DEPLOYED POOLS
+              {/* Block Tambahan Di Bawahnya: Trader (Live Feed) */}
+              <div className={`${glassCard} w-full flex-1 min-h-0 flex flex-col justify-between overflow-hidden p-3 sm:p-3.5`}>
+                <div className="flex flex-col flex-1 min-h-0">
+                  {/* Header: Title "Trader" */}
+                  <div className="flex items-center justify-between gap-1 mb-2 flex-shrink-0">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                      <span className="text-xs font-black tracking-wider text-slate-800 uppercase font-mono">
+                        Trader
                       </span>
                     </div>
-                    <span className="text-[9px] font-bold text-indigo-600 bg-indigo-500/10 px-1.5 py-0.5 rounded-full border border-indigo-200/80 font-mono">
-                      LIVE DEPTH
+                    <span className="text-[9px] font-bold text-indigo-600 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-200/80 font-mono flex-shrink-0">
+                      LIVE
                     </span>
                   </div>
 
-                  {/* List Asset Pools with Responsive Vertical Spacing */}
-                  <div className="flex-1 flex flex-col justify-around py-1 font-mono">
-                    {/* Pool 1: BTC */}
-                    <div className="flex flex-col gap-0.5">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-bold text-slate-700 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                          BTC VAULT
-                        </span>
-                        <span className="text-slate-800 font-extrabold">$64.20M</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full w-[51.5%]" />
-                      </div>
-                    </div>
+                  {/* List of Trades: Nama Pasar & Kode Trader, Pos (Modal), Floating PnL, dan Aksi */}
+                  <div className="flex-1 overflow-y-auto space-y-1.5 pr-0.5 min-h-0">
+                    {employeeTrades.slice(0, 6).map((trade, idx) => {
+                      const isNegative = trade.floatingPnl.startsWith('-') || trade.isProfit === false;
+                      return (
+                        <div
+                          key={trade.id}
+                          className={`py-1.5 px-2.5 rounded-xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#edf3fa] border-t border-t-white border-x border-slate-200/90 border-b-2 border-b-slate-300 shadow-[0_2px_4px_rgba(15,23,42,0.04),inset_0_1px_1px_white] flex flex-col gap-0.5 transition-all font-mono ${
+                            idx === 0 ? 'ring-1 ring-indigo-500/30' : ''
+                          }`}
+                        >
+                          {/* Baris 1: Pasar & Kode Trader + Aksi */}
+                          <div className="flex items-center justify-between gap-1">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
+                                  idx === 0 ? 'bg-indigo-500 animate-pulse' : 'bg-emerald-500'
+                                }`}
+                              />
+                              <span className="text-[11px] font-black text-slate-800 tracking-tight truncate">
+                                {trade.market}
+                              </span>
+                              <span className="text-[9px] font-bold text-indigo-600 bg-indigo-50/90 px-1 py-0.2 rounded border border-indigo-200/70 flex-shrink-0">
+                                ({trade.employee})
+                              </span>
+                            </div>
 
-                    {/* Pool 2: ETH */}
-                    <div className="flex flex-col gap-0.5">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-bold text-slate-700 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                          ETH STAKING
-                        </span>
-                        <span className="text-slate-800 font-extrabold">$36.80M</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 rounded-full w-[29.5%]" />
-                      </div>
-                    </div>
+                            {/* Aksi: BUY / SELL / TP */}
+                            <span
+                              className={`px-1.5 py-0.2 rounded text-[8px] font-black uppercase tracking-wider flex-shrink-0 border ${
+                                trade.action === 'BUY'
+                                  ? 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30'
+                                  : trade.action === 'SELL'
+                                  ? 'bg-rose-500/15 text-rose-700 border-rose-500/30'
+                                  : 'bg-indigo-500/15 text-indigo-700 border-indigo-300'
+                              }`}
+                            >
+                              {trade.action}
+                            </span>
+                          </div>
 
-                    {/* Pool 3: USDC */}
-                    <div className="flex flex-col gap-0.5">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-bold text-slate-700 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                          USDC TREASURY
-                        </span>
-                        <span className="text-slate-800 font-extrabold">$15.40M</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full w-[12.4%]" />
-                      </div>
-                    </div>
-
-                    {/* Pool 4: SOL */}
-                    <div className="flex flex-col gap-0.5">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-bold text-slate-700 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-                          SOL MATRIX
-                        </span>
-                        <span className="text-slate-800 font-extrabold">$8.16M</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-purple-400 to-pink-500 rounded-full w-[6.6%]" />
-                      </div>
-                    </div>
-
-                    {/* Pool 5: AVAX */}
-                    <div className="flex flex-col gap-0.5">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-bold text-slate-700 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                          AVAX SUBNET
-                        </span>
-                        <span className="text-slate-800 font-extrabold">$4.10M</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-rose-400 to-rose-500 rounded-full w-[3.3%]" />
-                      </div>
-                    </div>
+                          {/* Baris 2: Pos (Modal Terpasang) & Floating PnL */}
+                          <div className="flex items-center justify-between text-[9px] font-bold pt-0.5 border-t border-slate-200/60">
+                            <span className="text-slate-500">
+                              Pos: <span className="text-slate-800 font-extrabold">{trade.positionValue}</span>
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <span className="text-slate-400">Floating:</span>
+                              <span className={`font-black ${isNegative ? 'text-rose-600' : 'text-emerald-600'}`}>
+                                {trade.floatingPnl}
+                              </span>
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
                 {/* Footer Status */}
-                <div className="flex items-center justify-between pt-2 border-t border-slate-200/70 text-[10px] font-mono text-slate-500 mt-1">
-                  <span className="text-slate-400">AUTO-BALANCED</span>
-                  <span className="text-emerald-600 font-bold">99.8% READY</span>
+                <div className="flex items-center justify-between pt-1.5 border-t border-slate-200/70 text-[9px] font-mono text-slate-500 mt-1 flex-shrink-0">
+                  <span className="text-slate-500 font-bold">TOTAL: {tradeCount} ORDER</span>
+                  <span className="text-emerald-600 font-black">99.98% FILLED</span>
                 </div>
               </div>
             </div>
