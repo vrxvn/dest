@@ -373,7 +373,8 @@ export const MiniFxSparkline: React.FC<{
   code: string;
   color: string;
   isPositive: boolean;
-}> = ({ code, color, isPositive }) => {
+  liveRate?: number;
+}> = ({ code, color, isPositive, liveRate: _liveRate }) => {
   const points = CURRENCY_SPARKLINES[code] || CURRENCY_SPARKLINES.USD;
   const min = Math.min(...points);
   const max = Math.max(...points);

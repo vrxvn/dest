@@ -26,6 +26,32 @@ export const CryptoMacroMetrics: React.FC<CryptoMacroMetricsProps> = ({ glassCar
   const [gasGwei, setGasGwei] = useState<number>(12);
   const [solTps, setSolTps] = useState<number>(2940);
   const [lastTick, setLastTick] = useState<string>('Live');
+  const [fngValue, setFngValue] = useState<number>(74);
+  const [fngClass, setFngClass] = useState<string>('Greed');
+
+  // Fetch real Fear & Greed Index from alternative.me
+  useEffect(() => {
+    let isMounted = true;
+    const fetchFng = async () => {
+      try {
+        const res = await fetch('https://api.alternative.me/fng/?limit=1');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data?.data?.[0] && isMounted) {
+          setFngValue(parseInt(data.data[0].value, 10));
+          setFngClass(data.data[0].value_classification);
+        }
+      } catch {
+        // fallback
+      }
+    };
+    fetchFng();
+    const interval = setInterval(fetchFng, 120000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   const fetchLivePrices = useCallback(async () => {
     try {
@@ -135,15 +161,23 @@ export const CryptoMacroMetrics: React.FC<CryptoMacroMetricsProps> = ({ glassCar
         </div>
       </div>
 
-      {/* Card 3: Bitcoin Dominance & Alt Season Index */}
+      {/* Card 3: Bitcoin Dominance & Live Fear and Greed Index */}
       <div className={glassCard}>
         <div className="flex items-center justify-between mb-0.5">
           <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-500 uppercase font-mono flex items-center gap-1.5">
             <PieChart className="w-3.5 h-3.5 text-amber-500 stroke-[2.3]" />
-            BITCOIN DOMINANCE (BTC.D)
+            BTC.D & FEAR/GREED
           </span>
-          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[8.5px] font-black bg-amber-500/10 text-amber-700 border border-amber-500/20 font-mono">
-            58.4% BTC SHARE
+          <span
+            className={`inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[8.5px] font-black border font-mono ${
+              fngValue >= 60
+                ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20'
+                : fngValue >= 45
+                ? 'bg-amber-500/10 text-amber-700 border-amber-500/20'
+                : 'bg-rose-500/10 text-rose-700 border-rose-500/20'
+            }`}
+          >
+            F&G: {fngValue} {fngClass.toUpperCase()}
           </span>
         </div>
         <div className="my-0.5">
@@ -153,8 +187,10 @@ export const CryptoMacroMetrics: React.FC<CryptoMacroMetricsProps> = ({ glassCar
           </div>
         </div>
         <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[9.5px] font-mono">
-          <span className="text-slate-400">ALT SEASON INDEX: 42/100</span>
-          <span className="text-amber-700 font-bold">FASE AKUMULASI BITCOIN</span>
+          <span className="text-slate-400">INDEX: {fngValue}/100 ({fngClass})</span>
+          <span className={fngValue >= 60 ? 'text-emerald-700 font-bold' : 'text-amber-700 font-bold'}>
+            {fngValue >= 75 ? 'EXTREME GREED' : fngValue >= 55 ? 'SENTIMEN GREED' : 'SENTIMEN NETRAL'}
+          </span>
         </div>
       </div>
 
