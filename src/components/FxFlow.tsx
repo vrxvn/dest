@@ -62,7 +62,7 @@ export const FxFlow: React.FC = () => {
 
           <div className="my-0.5">
             <div className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight font-mono">
-              $142,850,000.00
+              $6,850,000.00
             </div>
           </div>
 
@@ -87,7 +87,7 @@ export const FxFlow: React.FC = () => {
 
           <div className="my-0.5">
             <div className="text-xl sm:text-2xl font-black text-emerald-600 tracking-tight font-mono">
-              +$18,420,000.00
+              +$420,000.00
             </div>
           </div>
 
@@ -457,7 +457,7 @@ export const FxFlow: React.FC = () => {
           </div>
 
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[8px] font-mono text-slate-500 mt-1">
-            <span>PAIR VOL: $121.3M</span>
+            <span>PAIR VOL: $4.35M</span>
             <span className="text-indigo-600 font-bold">AVG SPREAD 0.21 bps</span>
           </div>
         </div>
@@ -508,7 +508,7 @@ export const FxFlow: React.FC = () => {
           </div>
 
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[8px] font-mono text-slate-500 mt-1">
-            <span>MATCHED: $142.85M</span>
+            <span>MATCHED: $6.85M</span>
             <span className="text-cyan-700 font-bold">PVP COMPLIANT</span>
           </div>
         </div>
@@ -555,8 +555,8 @@ export const FxFlow: React.FC = () => {
           </div>
 
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[8px] font-mono text-slate-500 mt-1">
-            <span>NOTIONAL: $142.85M</span>
-            <span className="text-emerald-600 font-bold">+$1,757,800.00 PNL</span>
+            <span>NOTIONAL: $4.35M</span>
+            <span className="text-emerald-600 font-bold">+$142,000.00 PNL</span>
           </div>
         </div>
       </section>

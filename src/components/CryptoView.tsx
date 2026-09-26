@@ -42,7 +42,7 @@ export const CryptoView: React.FC = () => {
           </div>
           <div className="my-0.5">
             <div className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight font-mono">
-              $84,645,892.00
+              $6,397,000.00
             </div>
           </div>
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[10px] font-mono">
@@ -64,12 +64,12 @@ export const CryptoView: React.FC = () => {
           </div>
           <div className="my-0.5">
             <div className="text-xl sm:text-2xl font-black text-emerald-600 tracking-tight font-mono">
-              +$4,350,800/yr
+              +$328,800/yr
             </div>
           </div>
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[10px] font-mono">
             <span className="text-slate-400">DAILY ACCRUAL</span>
-            <span className="text-emerald-700 font-bold">+$11,920 / DAY</span>
+            <span className="text-emerald-700 font-bold">+$900 / DAY</span>
           </div>
         </div>
 
@@ -131,7 +131,7 @@ export const CryptoView: React.FC = () => {
                     CRYPTO ASSET ALLOCATION BY RESERVE
                   </span>
                   <span className="text-[9px] text-slate-400 font-mono">
-                    BTC • ETH • SOL • USDC • AVAX ($84.65M)
+                    BTC • ETH • SOL • USDC • AVAX ($6.40M)
                   </span>
                 </div>
               </div>
@@ -239,7 +239,7 @@ export const CryptoView: React.FC = () => {
             </div>
             <div className="p-1 rounded-lg bg-white border border-slate-200/80">
               <span className="text-[7.5px] text-slate-400 block">MEV CAPTURED</span>
-              <span className="font-extrabold text-emerald-600">+$248,500</span>
+              <span className="font-extrabold text-emerald-600">+$18,500</span>
             </div>
             <div className="p-1 rounded-lg bg-white border border-slate-200/80">
               <span className="text-[7.5px] text-slate-400 block">PRIVATE BLOCK</span>
@@ -332,7 +332,7 @@ export const CryptoView: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[8px] font-mono text-slate-500 mt-1">
-            <span>DEFI TVL: $53.05M</span>
+            <span>DEFI TVL: $4.67M</span>
             <span className="text-cyan-700 font-bold">DELTA-HEDGED</span>
           </div>
         </div>
@@ -371,7 +371,7 @@ export const CryptoView: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[8px] font-mono text-slate-500 mt-1">
-            <span>STAKE: $38.4M</span>
+            <span>STAKE: $1.59M</span>
             <span className="text-emerald-600 font-bold">SLASHING RISK 0%</span>
           </div>
         </div>
