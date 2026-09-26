@@ -8,30 +8,33 @@ import {
   ShieldCheck,
   Binary,
   Zap,
-  Coins,
-  Globe,
   CheckCircle2,
   Maximize2,
-  Minimize2,
   ArrowLeft,
-  X,
-  Sparkles,
-  Layers,
-  ChevronRight,
   Server,
   DollarSign,
   Scale,
+  CreditCard,
   Building2,
-  Cpu,
 } from 'lucide-react';
 import {
   WORKFORCE_DIVISIONS,
   TOTAL_STAFF_COUNT,
+  TOTAL_MONTHLY_PAYROLL,
+  TOTAL_ANNUAL_PAYROLL,
   type DivisionWorkforce,
 } from '../data/dummy/workforceDummy';
 
 export const WorkforceView: React.FC = () => {
   const [selectedDivisionId, setSelectedDivisionId] = useState<string | null>(null);
+  // Mode tampilan pada card awal: 'staff' (Daftar Staf di awal) atau 'roles' (Formasi)
+  const [cardActiveTab, setCardActiveTab] = useState<Record<string, 'staff' | 'roles'>>({
+    'DIV-1-QUANT': 'staff',
+    'DIV-2-TRADING': 'staff',
+    'DIV-3-INFRA': 'staff',
+    'DIV-4-TREASURY': 'staff',
+    'DIV-5-LEGAL': 'staff',
+  });
 
   // Listener tombol Escape untuk menutup halaman lebar & kembali ke 5 divisi awal
   useEffect(() => {
@@ -49,6 +52,14 @@ export const WorkforceView: React.FC = () => {
 
   const glassCard =
     'bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] backdrop-blur-xl rounded-[20px] sm:rounded-[24px] border-t-[2.5px] border-t-white border-x-[1.5px] border-slate-200/90 border-b-[4px] border-b-slate-300 shadow-[0_16px_34px_-6px_rgba(15,23,42,0.14),0_6px_14px_-2px_rgba(15,23,42,0.06),inset_0_2px_1px_rgba(255,255,255,1),inset_0_-2.5px_3px_rgba(148,163,184,0.35)] p-3 sm:p-3.5 flex flex-col justify-between transition-all';
+
+  // Card halaman lebar tanpa animasi masuk buka melebar (instant render & flush ke tepi layar bawah)
+  const wideGlassCard =
+    'bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] backdrop-blur-xl rounded-t-[20px] sm:rounded-t-[24px] rounded-b-none border-t-[2.5px] border-t-white border-x-[1.5px] border-slate-200/90 border-b-0 shadow-[0_16px_34px_-6px_rgba(15,23,42,0.14),0_6px_14px_-2px_rgba(15,23,42,0.06),inset_0_2px_1px_rgba(255,255,255,1)] p-3 sm:p-4 pb-2 sm:pb-2.5 flex flex-col justify-between transition-none duration-0 animate-none transform-none flex-1 min-h-0 h-full overflow-hidden mb-0';
+
+  // Card 5 divisi awal yang mencapai tepi layar bawah
+  const bottomDockedGlassCard =
+    'bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] backdrop-blur-xl rounded-t-[20px] sm:rounded-t-[24px] rounded-b-none border-t-[2.5px] border-t-white border-x-[1.5px] border-slate-200/90 border-b-0 shadow-[0_16px_34px_-6px_rgba(15,23,42,0.14),0_6px_14px_-2px_rgba(15,23,42,0.06),inset_0_2px_1px_rgba(255,255,255,1)] p-2.5 sm:p-3 pb-1.5 sm:pb-2 flex flex-col justify-between transition-all h-full min-h-0 overflow-hidden mb-0';
 
   const getDivisionIcon = (num: number) => {
     switch (num) {
@@ -68,7 +79,7 @@ export const WorkforceView: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col gap-2 sm:gap-2.5 overflow-hidden pr-0.5 pb-0.5">
+    <div className="w-full h-full flex flex-col gap-1.5 sm:gap-2 overflow-hidden pr-0.5 pb-0">
       {/* 1. TOP CARDS (REKAPITULASI 2.209 PERSONIL 5 DIVISI) */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 flex-shrink-0">
         {/* Card 1: Total Staf */}
@@ -138,40 +149,40 @@ export const WorkforceView: React.FC = () => {
           </div>
         </div>
 
-        {/* Card 4: Treasury & Regional Legal */}
+        {/* Card 4: Total Gaji Seluruh 5 Divisi */}
         <div className={glassCard}>
           <div className="flex items-center justify-between mb-0.5">
             <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono flex items-center gap-1.5">
-              <Scale className="w-3.5 h-3.5 text-purple-600 stroke-[2.3]" />
-              TREASURY, LEGAL & HR
+              <CreditCard className="w-3.5 h-3.5 text-emerald-600 stroke-[2.3]" />
+              TOTAL GAJI SELURUH DIVISI
             </span>
-            <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[9px] font-bold bg-purple-500/10 text-purple-600 border border-purple-500/20 font-mono">
+            <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[9px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-mono">
               PAYROLL 2.209
             </span>
           </div>
           <div className="my-0.5">
             <div className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight font-mono">
-              559 PERSONIL
+              {TOTAL_MONTHLY_PAYROLL}
             </div>
           </div>
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[10px] font-mono">
-            <span className="text-slate-400">DIVISI 4 & 5</span>
-            <span className="text-purple-700 font-extrabold">265 FX + 294 LEGAL/HR</span>
+            <span className="text-slate-400">ANGGARAN TAHUNAN</span>
+            <span className="text-emerald-700 font-extrabold">{TOTAL_ANNUAL_PAYROLL}</span>
           </div>
         </div>
       </section>
 
-      {/* 2. BAGIAN 5 DIVISI KARYAWAN: TAMPILAN AWAL (5 KOLOM MEMANJANG KE BAWAH) ATAU TAMPILAN MELEBAR */}
+      {/* 2. BAGIAN 5 DIVISI KARYAWAN: TAMPILAN AWAL ATAU TAMPILAN MELEBAR INSTAN TANPA ANIMASI (SAMPAI TEPI LAYAR BAWAH) */}
       {!selectedDivisi ? (
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 sm:gap-2.5 flex-1 min-h-0 h-full overflow-hidden pb-0.5">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 sm:gap-2.5 flex-1 min-h-0 h-full overflow-hidden pb-0 mb-0">
           {WORKFORCE_DIVISIONS.map((divisi) => {
-            const Icon = getDivisionIcon(divisi.divisionNumber);
+            const currentTab = cardActiveTab[divisi.divisionId] || 'staff';
 
             return (
               <div
                 key={divisi.divisionId}
                 onClick={() => setSelectedDivisionId(divisi.divisionId)}
-                className={`${glassCard} flex flex-col justify-between h-full min-h-0 overflow-hidden p-2.5 sm:p-3 cursor-pointer group hover:border-indigo-400/80 hover:shadow-lg hover:brightness-[1.02] transition-all`}
+                className={`${bottomDockedGlassCard} cursor-pointer group hover:border-indigo-400/80 hover:shadow-lg hover:brightness-[1.02]`}
                 title={`Klik untuk membuka Divisi ${divisi.divisionNumber} secara lebar`}
               >
                 {/* Header Divisi */}
@@ -200,42 +211,113 @@ export const WorkforceView: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Baris Fokus Divisi */}
-                  <div className="mb-1.5 p-1 rounded-lg bg-slate-100/90 border border-slate-200/80 font-mono">
-                    <span className="text-[6.5px] font-bold text-slate-400 uppercase block leading-none">
-                      FOKUS DIVISI
-                    </span>
-                    <span className="text-[8px] font-extrabold text-slate-700 leading-tight block truncate mt-0.5">
-                      {divisi.focus}
-                    </span>
+                  {/* Selector 2: Total Seluruh Gaji Divisi */}
+                  <div className="mb-1.5 p-1 rounded-lg bg-emerald-50/90 border border-emerald-200/90 font-mono shadow-2xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[6.5px] font-black text-emerald-800 uppercase block leading-none tracking-tight">
+                        TOTAL SELURUH GAJI DIVISI
+                      </span>
+                      <span className="text-[6px] font-extrabold text-emerald-800 bg-emerald-200/80 px-1 py-0.2 rounded uppercase">
+                        PAYROLL
+                      </span>
+                    </div>
+                    <div className="flex items-baseline justify-between mt-0.5">
+                      <span className="text-[9px] font-black text-slate-900 leading-tight block">
+                        {divisi.totalSalaryMonthly}
+                      </span>
+                      <span className="text-[7px] text-emerald-700 font-bold">
+                        {divisi.totalSalaryAnnual}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Body Formasi Jabatan & Personil Divisi (Scrollable Memanjang) */}
-                <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 pr-0.5 my-0.5">
-                  <div className="flex items-center justify-between text-[7px] font-black uppercase text-slate-400 font-mono mb-0.5">
-                    <span>STRUKTUR PERSONIL</span>
-                    <span className="text-indigo-700 font-bold">{divisi.roleBreakdown.length} FORMASI</span>
+                {/* Selector 1: Body Daftar Staf Ditampilkan di Awal */}
+                <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 pr-0.5 my-0.5 no-scrollbar">
+                  {/* Tab Selector: Default Daftar Staf */}
+                  <div className="flex items-center justify-between text-[7px] font-black uppercase font-mono mb-0.5 sticky top-0 bg-[#f8fafc]/95 py-0.5 z-10 border-b border-slate-200/60">
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCardActiveTab((prev) => ({ ...prev, [divisi.divisionId]: 'staff' }));
+                        }}
+                        className={`px-1.5 py-0.5 rounded cursor-pointer transition-colors ${
+                          currentTab === 'staff'
+                            ? 'bg-indigo-600 text-white shadow-2xs font-extrabold'
+                            : 'bg-slate-200/90 text-slate-600 hover:bg-slate-300'
+                        }`}
+                      >
+                        DAFTAR STAF ({divisi.employees.length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCardActiveTab((prev) => ({ ...prev, [divisi.divisionId]: 'roles' }));
+                        }}
+                        className={`px-1.5 py-0.5 rounded cursor-pointer transition-colors ${
+                          currentTab === 'roles'
+                            ? 'bg-indigo-600 text-white shadow-2xs font-extrabold'
+                            : 'bg-slate-200/90 text-slate-600 hover:bg-slate-300'
+                        }`}
+                      >
+                        FORMASI ({divisi.roleBreakdown.length})
+                      </button>
+                    </div>
+                    <span className="text-emerald-700 font-bold text-[6px]">
+                      {divisi.avgSalaryPerStaff}
+                    </span>
                   </div>
 
-                  {divisi.roleBreakdown.map((role, rIdx) => (
-                    <div
-                      key={rIdx}
-                      className="p-1 rounded-lg bg-white border border-slate-200/80 shadow-2xs hover:border-indigo-300 transition-all font-mono"
-                    >
-                      <div className="flex items-center justify-between gap-1 mb-0.5">
-                        <span className="text-[7.5px] font-black text-slate-800 truncate block leading-tight">
-                          {role.roleTitle}
-                        </span>
-                        <span className="text-[7px] font-black px-1 py-0.1 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 flex-shrink-0">
-                          {role.countLabel}
+                  {currentTab === 'staff' ? (
+                    // DAFTAR STAF LENGKAP DI AWAL
+                    divisi.employees.map((emp) => (
+                      <div
+                        key={emp.empId}
+                        className="p-1 rounded-lg bg-white border border-slate-200/80 shadow-2xs hover:border-indigo-300 transition-colors font-mono"
+                      >
+                        <div className="flex items-center justify-between gap-1 mb-0.5">
+                          <div className="flex items-center gap-1 min-w-0">
+                            <span className="w-4 h-4 rounded bg-indigo-100 text-indigo-700 text-[6.5px] font-black flex items-center justify-center flex-shrink-0">
+                              {emp.empId.split('-')[1]}
+                            </span>
+                            <span className="text-[7.5px] font-black text-slate-900 truncate block leading-tight">
+                              {emp.name}
+                            </span>
+                          </div>
+                          <span className="text-[7px] font-black px-1 py-0.1 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 flex-shrink-0">
+                            {emp.salary}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-[6.5px] text-slate-500 leading-none">
+                          <span className="truncate max-w-[65%]">{emp.role}</span>
+                          <span className="font-bold text-slate-400">{emp.level}</span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    // FORMASI JABATAN
+                    divisi.roleBreakdown.map((role, rIdx) => (
+                      <div
+                        key={rIdx}
+                        className="p-1 rounded-lg bg-white border border-slate-200/80 shadow-2xs hover:border-indigo-300 transition-colors font-mono"
+                      >
+                        <div className="flex items-center justify-between gap-1 mb-0.5">
+                          <span className="text-[7.5px] font-black text-slate-800 truncate block leading-tight">
+                            {role.roleTitle}
+                          </span>
+                          <span className="text-[7px] font-black px-1 py-0.1 rounded bg-indigo-50 text-indigo-700 border border-indigo-200 flex-shrink-0">
+                            {role.countLabel}
+                          </span>
+                        </div>
+                        <span className="text-[6.5px] text-slate-500 leading-tight block truncate">
+                          {role.description}
                         </span>
                       </div>
-                      <span className="text-[6.5px] text-slate-500 leading-tight block truncate">
-                        {role.description}
-                      </span>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
 
                 {/* Footer Divisi dengan tombol interaktif untuk melebarkan */}
@@ -247,7 +329,7 @@ export const WorkforceView: React.FC = () => {
                       e.stopPropagation();
                       setSelectedDivisionId(divisi.divisionId);
                     }}
-                    className="flex items-center gap-0.5 text-[7px] font-black uppercase tracking-wider text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/90 px-1.5 py-0.5 rounded-full shadow-2xs transition-all flex-shrink-0 cursor-pointer"
+                    className="flex items-center gap-0.5 text-[7px] font-black uppercase tracking-wider text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/90 px-1.5 py-0.5 rounded-full shadow-2xs transition-colors flex-shrink-0 cursor-pointer"
                   >
                     <span>BUKA MELEBAR</span>
                     <Maximize2 className="w-2.5 h-2.5" />
@@ -260,8 +342,9 @@ export const WorkforceView: React.FC = () => {
       ) : (
         /* ============================================================== */
         /* TAMPILAN HALAMAN DIVISI MELEBAR SECARA PENUH                    */
+        /* ANIMASI MASUK DIHAPUS (INSTANT DISPLAY / TRANSITION-NONE)       */
         /* ============================================================== */
-        <section className={`${glassCard} flex-1 min-h-0 h-full overflow-hidden p-3 sm:p-4 flex flex-col justify-between`}>
+        <section className={wideGlassCard}>
           {/* 1. Header Bar Halaman Lebar */}
           <div className="flex-shrink-0 pb-2 border-b border-slate-200/80">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -296,7 +379,7 @@ export const WorkforceView: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedDivisionId(null)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-b from-white via-slate-50 to-slate-200 text-slate-800 hover:text-indigo-700 border-t border-t-white border-x border-slate-200 border-b-2 border-b-slate-300 shadow-xs font-black text-xs uppercase tracking-wider transition-all cursor-pointer active:translate-y-[1px]"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-b from-white via-slate-50 to-slate-200 text-slate-800 hover:text-indigo-700 border-t border-t-white border-x border-slate-200 border-b-2 border-b-slate-300 shadow-xs font-black text-xs uppercase tracking-wider transition-colors cursor-pointer active:translate-y-[1px]"
                   title="Tutup halaman melebar dan kembali ke tampilan 5 divisi (Shortcut: Tekan Esc)"
                 >
                   <ArrowLeft className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -310,7 +393,7 @@ export const WorkforceView: React.FC = () => {
           </div>
 
           {/* 2. Isi Halaman Melebar (Grid 2 Kolom Lebar & Proporsional) */}
-          <div className="flex-1 min-h-0 overflow-y-auto my-2 pr-0.5 flex flex-col gap-2.5">
+          <div className="flex-1 min-h-0 overflow-y-auto my-2 pr-0.5 flex flex-col gap-2.5 no-scrollbar">
             {/* Top 4 KPI Metrics Strip Divisi */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 text-xs font-mono flex-shrink-0">
               <div className="p-2 sm:p-2.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
@@ -323,12 +406,15 @@ export const WorkforceView: React.FC = () => {
                 </span>
               </div>
 
-              <div className="p-2 sm:p-2.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
-                <span className="text-[8px] text-slate-400 font-bold block uppercase">KAPITAL / ASET FUNGSI</span>
-                <div className="text-base sm:text-lg font-black text-slate-800 tracking-tight my-0.5">
-                  {selectedDivisi.totalSupervisedCapital}
+              {/* Total Gaji Divisi */}
+              <div className="p-2 sm:p-2.5 rounded-2xl bg-white border border-emerald-200/90 shadow-2xs">
+                <span className="text-[8px] text-emerald-700 font-bold block uppercase">TOTAL GAJI DIVISI</span>
+                <div className="text-base sm:text-lg font-black text-slate-900 tracking-tight my-0.5">
+                  {selectedDivisi.totalSalaryMonthly}
                 </div>
-                <span className="text-[8px] text-slate-500 font-bold">MANAGED ASSETS / OPS</span>
+                <span className="text-[8px] text-emerald-700 font-bold">
+                  {selectedDivisi.totalSalaryAnnual} • {selectedDivisi.avgSalaryPerStaff}
+                </span>
               </div>
 
               <div className="p-2 sm:p-2.5 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
@@ -410,7 +496,7 @@ export const WorkforceView: React.FC = () => {
                     <div className="flex items-center gap-1.5">
                       <Award className="w-4 h-4 text-indigo-600" />
                       <span className="text-[10.5px] font-black text-slate-800 uppercase tracking-tight">
-                        REPRESENTATIVE SENIOR LEAD & ROSTER ({selectedDivisi.divisionShort})
+                        REPRESENTATIVE SENIOR LEAD & DAFTAR STAF ({selectedDivisi.divisionShort})
                       </span>
                     </div>
                     <span className="text-[8px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.2 rounded-full border border-indigo-200">
@@ -424,8 +510,8 @@ export const WorkforceView: React.FC = () => {
                         <tr className="border-b border-slate-200 text-[8px] font-black uppercase text-slate-400 tracking-wider">
                           <th className="py-1.5 px-1.5">Karyawan / ID</th>
                           <th className="py-1.5 px-1.5">Jabatan / Senioritas</th>
-                          <th className="py-1.5 px-1.5">Pendidikan</th>
-                          <th className="py-1.5 px-1.5 text-right">Kapital / Unit</th>
+                          <th className="py-1.5 px-1.5 text-right">Gaji Bulanan</th>
+                          <th className="py-1.5 px-1.5 text-right">Kapital</th>
                           <th className="py-1.5 px-1.5 text-right">Kinerja</th>
                           <th className="py-1.5 px-1.5 text-center">Status</th>
                         </tr>
@@ -452,7 +538,9 @@ export const WorkforceView: React.FC = () => {
                               <span className="font-bold block leading-tight">{emp.role}</span>
                               <span className="text-[7.5px] text-slate-400 block leading-none">{emp.level}</span>
                             </td>
-                            <td className="py-2 px-1.5 text-slate-500 font-semibold">{emp.education}</td>
+                            <td className="py-2 px-1.5 text-right font-black text-emerald-700">
+                              {emp.salary}
+                            </td>
                             <td className="py-2 px-1.5 text-right font-black text-slate-900">{emp.capital}</td>
                             <td className="py-2 px-1.5 text-right font-black text-emerald-600">{emp.pnl}</td>
                             <td className="py-2 px-1.5 text-center">
@@ -468,8 +556,8 @@ export const WorkforceView: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between pt-1.5 border-t border-slate-200 text-[8px] font-mono text-slate-500 mt-2">
-                  <span>OPERASIONAL DIVISI MEMBAWAHI SELURUH ANGGOTA TIM DI 3 KANTOR REGIONAL</span>
-                  <span className="text-emerald-600 font-bold">100% REGULATED</span>
+                  <span>TOTAL ANGGARAN GAJI DIVISI: {selectedDivisi.totalSalaryMonthly} ({selectedDivisi.totalSalaryAnnual})</span>
+                  <span className="text-emerald-600 font-bold">100% REGULATED PAYROLL</span>
                 </div>
               </div>
             </div>
