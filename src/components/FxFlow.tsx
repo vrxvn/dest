@@ -30,13 +30,36 @@ import {
   type LiquidityPool,
   type FxDeskTrader,
 } from '../data/dummy/fxDummy';
+import { useFxLiveRates, MiniFxSparkline, InstitutionalFxChart } from './FxChartModule';
 
 export const FxFlow: React.FC = () => {
   const [hoveredCurrency, setHoveredCurrency] = useState<number | null>(null);
   const [selectedDevisaCode, setSelectedDevisaCode] = useState<string>('USD');
   const [isWideExpandedModal, setIsWideExpandedModal] = useState<boolean>(false);
 
+  // Live Real-Time FX Exchange Rate Engine from Public APIs
+  const { liveRates, historicalApiSeries, apiProvider, lastUpdated, isFetching, refreshRates } = useFxLiveRates();
+
   const activeDevisa = FOUR_MAJOR_DEVISA.find((d) => d.code === selectedDevisaCode) || FOUR_MAJOR_DEVISA[0];
+
+  const getLiveSpotRate = (code: string, fallback: string) => {
+    if (!liveRates) return fallback;
+    if (code === 'EUR') return (1 / liveRates.EUR).toFixed(4);
+    if (code === 'JPY') return liveRates.JPY.toFixed(2);
+    if (code === 'GBP') return (1 / liveRates.GBP).toFixed(4);
+    if (code === 'USD') return '105.42';
+    return fallback;
+  };
+
+  const getLiveNumericRate = (code: string) => {
+    if (!liveRates) {
+      return code === 'USD' ? 105.42 : code === 'EUR' ? 1.0892 : code === 'JPY' ? 154.65 : 1.2740;
+    }
+    if (code === 'EUR') return Number((1 / liveRates.EUR).toFixed(4));
+    if (code === 'JPY') return Number(liveRates.JPY.toFixed(2));
+    if (code === 'GBP') return Number((1 / liveRates.GBP).toFixed(4));
+    return 105.42;
+  };
 
   // 3D Solid Ceramic Glass aesthetic consistent with application theme
   const glassCard =
@@ -151,7 +174,7 @@ export const FxFlow: React.FC = () => {
       {/* ============================================================== */}
       <section className="grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-2.5 flex-1 min-h-0">
         {/* KOLOM KIRI: 4 DEVISA (1 BARIS 2 BLOK: USD, EUR, JPY, GBP) */}
-        <div className="md:col-span-5 xl:col-span-5 grid grid-cols-2 gap-2 h-full min-h-0">
+        <div className="md:col-span-4 xl:col-span-4 grid grid-cols-2 gap-2 h-full min-h-0">
           {FOUR_MAJOR_DEVISA.map((devisa) => {
             const isSelected = selectedDevisaCode === devisa.code;
             return (
@@ -159,9 +182,9 @@ export const FxFlow: React.FC = () => {
                 key={devisa.code}
                 type="button"
                 onClick={() => setSelectedDevisaCode(devisa.code)}
-                className={`${glassCard} h-full text-left p-2 sm:p-2.5 flex flex-col justify-between cursor-pointer transition-all duration-200 outline-none group ${
+                className={`${glassCard} h-full text-left p-2.5 flex flex-col justify-between cursor-pointer transition-all duration-200 outline-none group ${
                   isSelected
-                    ? 'ring-2 ring-indigo-500/80 bg-gradient-to-r from-white via-indigo-50/40 to-white shadow-md'
+                    ? 'ring-2 ring-indigo-500/90 shadow-[0_10px_24px_-4px_rgba(99,102,241,0.28),inset_0_2px_1px_rgba(255,255,255,1),inset_0_-2px_3px_rgba(148,163,184,0.3)] bg-gradient-to-b from-white via-indigo-50/40 to-[#e4eaf8] border-indigo-400'
                     : 'hover:brightness-105 hover:border-slate-300'
                 }`}
               >
@@ -182,8 +205,8 @@ export const FxFlow: React.FC = () => {
                           {devisa.share}
                         </span>
                       </div>
-                      <span className="text-[8px] text-slate-400 font-mono block leading-none truncate">
-                        {devisa.spotPair}: <span className="font-extrabold text-slate-700">{devisa.spotRate}</span>
+                      <span className="text-[8px] text-slate-400 font-mono block leading-none truncate mt-0.5">
+                        {devisa.spotPair}: <span className="font-extrabold text-slate-700">{getLiveSpotRate(devisa.code, devisa.spotRate)}</span>
                       </span>
                     </div>
                   </div>
@@ -202,6 +225,14 @@ export const FxFlow: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Mini Sparkline Chart ("char" pada masing-masing kartu devisa) */}
+                <MiniFxSparkline
+                  code={devisa.code}
+                  color={devisa.color}
+                  isPositive={devisa.isPositive}
+                  liveRate={getLiveNumericRate(devisa.code)}
+                />
+
                 {/* Baris Bawah: Volume, Net Inflow & Tombol Buka Lebar */}
                 <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 mt-1 text-[8.5px] font-mono">
                   <div className="flex items-center gap-1.5 min-w-0">
@@ -213,12 +244,13 @@ export const FxFlow: React.FC = () => {
 
                   <div className="flex items-center gap-1 shrink-0">
                     <span
-                      className={`text-[7.5px] font-black uppercase px-1.5 py-0.2 rounded tracking-wider transition-all flex items-center gap-0.5 ${
+                      className={`text-[7.5px] font-black uppercase px-1.5 py-0.2 rounded tracking-wider transition-all flex items-center gap-1 ${
                         isSelected
                           ? 'bg-indigo-600 text-white shadow-xs'
                           : 'bg-slate-100 text-indigo-600 group-hover:bg-indigo-50 border border-slate-200'
                       }`}
                     >
+                      <span className={`w-1 h-1 rounded-full ${isSelected ? 'bg-white animate-pulse' : 'bg-indigo-500'}`} />
                       <span>{isSelected ? 'DIBUKA' : 'BUKA'}</span>
                       <ChevronRight className="w-2.5 h-2.5 stroke-[2.5]" />
                     </span>
@@ -229,8 +261,8 @@ export const FxFlow: React.FC = () => {
           })}
         </div>
 
-        {/* KOLOM KANAN: DEVISA TERBUKA SECARA LEBAR */}
-        <div className={`md:col-span-7 xl:col-span-7 ${glassCard} flex flex-col justify-between overflow-hidden p-3 sm:p-3.5 h-full min-h-0 transition-all duration-300`}>
+        {/* KOLOM KANAN: DEVISA TERBUKA SECARA LEBAR (8 KOLOM GRID - LEBIH LEBAR DAN LEGA) */}
+        <div className={`md:col-span-8 xl:col-span-8 ${glassCard} flex flex-col justify-between overflow-hidden p-3 sm:p-3.5 h-full min-h-0 transition-all duration-300`}>
           {/* Header Devisa Lebar */}
           <div>
             <div className="flex items-center justify-between gap-2 mb-1.5 pb-1.5 border-b border-slate-200/80">
@@ -261,7 +293,7 @@ export const FxFlow: React.FC = () => {
               <div className="flex items-center gap-1.5">
                 <div className="text-right font-mono pr-1">
                   <span className="text-[8px] text-slate-400 block font-bold">SPOT RATE</span>
-                  <span className="text-xs font-black text-slate-900">{activeDevisa.spotRate}</span>
+                  <span className="text-xs font-black text-slate-900">{getLiveSpotRate(activeDevisa.code, activeDevisa.spotRate)}</span>
                 </div>
                 <button
                   type="button"
@@ -275,68 +307,19 @@ export const FxFlow: React.FC = () => {
               </div>
             </div>
 
-            {/* Visual SVG Dynamic Flow Curve for Selected Devisa */}
-            <div className="w-full h-24 sm:h-28 my-1 relative">
-              <svg viewBox="0 0 500 95" className="w-full h-full overflow-visible">
-                <defs>
-                  <linearGradient id={`devisaGrad-${activeDevisa.code}`} x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={activeDevisa.color} stopOpacity="0.35" />
-                    <stop offset="100%" stopColor={activeDevisa.color} stopOpacity="0.0" />
-                  </linearGradient>
-                </defs>
-
-                <line x1="0" y1="20" x2="500" y2="20" stroke="#cbd5e1" strokeDasharray="3 3" opacity="0.5" />
-                <line x1="0" y1="48" x2="500" y2="48" stroke="#cbd5e1" strokeDasharray="3 3" opacity="0.5" />
-                <line x1="0" y1="76" x2="500" y2="76" stroke="#94a3b8" opacity="0.7" />
-
-                {/* Shaded Area */}
-                <path
-                  d={
-                    activeDevisa.code === 'USD'
-                      ? 'M 0,70 C 80,60 140,24 220,32 C 300,38 380,18 440,24 C 480,26 490,16 500,18 L 500,85 L 0,85 Z'
-                      : activeDevisa.code === 'EUR'
-                      ? 'M 0,76 C 90,72 160,48 240,54 C 320,58 400,40 460,44 L 500,42 L 500,85 L 0,85 Z'
-                      : activeDevisa.code === 'JPY'
-                      ? 'M 0,80 Q 70,52 140,56 T 280,34 T 400,46 T 480,24 L 500,22 L 500,85 L 0,85 Z'
-                      : 'M 0,72 C 70,66 150,38 230,42 C 310,48 390,26 450,22 L 500,20 L 500,85 L 0,85 Z'
-                  }
-                  fill={`url(#devisaGrad-${activeDevisa.code})`}
-                />
-
-                {/* Primary Trend Line */}
-                <path
-                  d={
-                    activeDevisa.code === 'USD'
-                      ? 'M 0,70 C 80,60 140,24 220,32 C 300,38 380,18 440,24 C 480,26 490,16 500,18'
-                      : activeDevisa.code === 'EUR'
-                      ? 'M 0,76 C 90,72 160,48 240,54 C 320,58 400,40 460,44 L 500,42'
-                      : activeDevisa.code === 'JPY'
-                      ? 'M 0,80 Q 70,52 140,56 T 280,34 T 400,46 T 480,24 L 500,22'
-                      : 'M 0,72 C 70,66 150,38 230,42 C 310,48 390,26 450,22 L 500,20'
-                  }
-                  fill="none"
-                  stroke={activeDevisa.color}
-                  strokeWidth="2.6"
-                  strokeLinecap="round"
-                />
-
-                {/* Swap Curve Node Markers */}
-                {[
-                  { x: 35, y: 64, label: 'O/N' },
-                  { x: 135, y: 46, label: '1M' },
-                  { x: 235, y: 36, label: '3M' },
-                  { x: 345, y: 34, label: '6M' },
-                  { x: 475, y: 22, label: '1Y' },
-                ].map((pt, i) => (
-                  <g key={i}>
-                    <circle cx={pt.x} cy={pt.y} r="3" fill={activeDevisa.color} stroke="#ffffff" strokeWidth="1.5" />
-                    <rect x={pt.x - 11} y={pt.y - 14} width="22" height="10" rx="2" fill="#0f172a" opacity="0.85" />
-                    <text x={pt.x} y={pt.y - 7} textAnchor="middle" className="text-[6.5px] font-mono font-bold fill-white">
-                      {pt.label}
-                    </text>
-                  </g>
-                ))}
-              </svg>
+            {/* Visual SVG Enhanced Institutional Trading Chart with Live API Feed ("perbaiki bentuk char") */}
+            <div className="w-full my-0.5">
+              <InstitutionalFxChart
+                code={activeDevisa.code}
+                color={activeDevisa.color}
+                name={activeDevisa.name}
+                liveRate={getLiveNumericRate(activeDevisa.code)}
+                apiProvider={apiProvider}
+                lastUpdated={lastUpdated}
+                isFetching={isFetching}
+                onRefresh={refreshRates}
+                historicalApiData={historicalApiSeries}
+              />
             </div>
 
             {/* 4 Strip Ringkasan Devisa Terbuka */}
@@ -643,77 +626,20 @@ export const FxFlow: React.FC = () => {
                 </div>
               </div>
 
-              {/* Large Chart */}
+              {/* Large Enhanced Institutional Trading Chart with Live API Feed */}
               <div className="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-xs">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-1.5 font-mono text-xs font-black text-slate-800 uppercase">
-                    <Activity className="w-4 h-4 text-indigo-600 stroke-[2.3]" />
-                    TRAJEKTORI ALIRAN LIKUIDITAS & KURVA SWAP ({activeDevisa.code})
-                  </div>
-                  <span className="text-[9px] font-mono text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                    REALTIME PVP GUARANTEED
-                  </span>
-                </div>
-
-                <div className="w-full h-44 relative">
-                  <svg viewBox="0 0 500 95" className="w-full h-full overflow-visible">
-                    <defs>
-                      <linearGradient id={`modalGrad-${activeDevisa.code}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={activeDevisa.color} stopOpacity="0.4" />
-                        <stop offset="100%" stopColor={activeDevisa.color} stopOpacity="0.0" />
-                      </linearGradient>
-                    </defs>
-
-                    <line x1="0" y1="20" x2="500" y2="20" stroke="#cbd5e1" strokeDasharray="3 3" opacity="0.6" />
-                    <line x1="0" y1="48" x2="500" y2="48" stroke="#cbd5e1" strokeDasharray="3 3" opacity="0.6" />
-                    <line x1="0" y1="76" x2="500" y2="76" stroke="#94a3b8" opacity="0.8" />
-
-                    <path
-                      d={
-                        activeDevisa.code === 'USD'
-                          ? 'M 0,70 C 80,60 140,24 220,32 C 300,38 380,18 440,24 C 480,26 490,16 500,18 L 500,85 L 0,85 Z'
-                          : activeDevisa.code === 'EUR'
-                          ? 'M 0,76 C 90,72 160,48 240,54 C 320,58 400,40 460,44 L 500,42 L 500,85 L 0,85 Z'
-                          : activeDevisa.code === 'JPY'
-                          ? 'M 0,80 Q 70,52 140,56 T 280,34 T 400,46 T 480,24 L 500,22 L 500,85 L 0,85 Z'
-                          : 'M 0,72 C 70,66 150,38 230,42 C 310,48 390,26 450,22 L 500,20 L 500,85 L 0,85 Z'
-                      }
-                      fill={`url(#modalGrad-${activeDevisa.code})`}
-                    />
-
-                    <path
-                      d={
-                        activeDevisa.code === 'USD'
-                          ? 'M 0,70 C 80,60 140,24 220,32 C 300,38 380,18 440,24 C 480,26 490,16 500,18'
-                          : activeDevisa.code === 'EUR'
-                          ? 'M 0,76 C 90,72 160,48 240,54 C 320,58 400,40 460,44 L 500,42'
-                          : activeDevisa.code === 'JPY'
-                          ? 'M 0,80 Q 70,52 140,56 T 280,34 T 400,46 T 480,24 L 500,22'
-                          : 'M 0,72 C 70,66 150,38 230,42 C 310,48 390,26 450,22 L 500,20'
-                      }
-                      fill="none"
-                      stroke={activeDevisa.color}
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                    />
-
-                    {[
-                      { x: 35, y: 64, label: 'O/N' },
-                      { x: 135, y: 46, label: '1M' },
-                      { x: 235, y: 36, label: '3M' },
-                      { x: 345, y: 34, label: '6M' },
-                      { x: 475, y: 22, label: '1Y' },
-                    ].map((pt, i) => (
-                      <g key={i}>
-                        <circle cx={pt.x} cy={pt.y} r="3.5" fill={activeDevisa.color} stroke="#ffffff" strokeWidth="2" />
-                        <rect x={pt.x - 14} y={pt.y - 18} width="28" height="12" rx="2.5" fill="#0f172a" opacity="0.9" />
-                        <text x={pt.x} y={pt.y - 9} textAnchor="middle" className="text-[7.5px] font-mono font-bold fill-white">
-                          {pt.label}
-                        </text>
-                      </g>
-                    ))}
-                  </svg>
-                </div>
+                <InstitutionalFxChart
+                  code={activeDevisa.code}
+                  color={activeDevisa.color}
+                  name={activeDevisa.name}
+                  liveRate={getLiveNumericRate(activeDevisa.code)}
+                  apiProvider={apiProvider}
+                  lastUpdated={lastUpdated}
+                  isFetching={isFetching}
+                  onRefresh={refreshRates}
+                  isModal={true}
+                  historicalApiData={historicalApiSeries}
+                />
               </div>
 
               {/* Kurva Tenor Swaps */}
