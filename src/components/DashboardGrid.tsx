@@ -291,7 +291,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
                     </span>
                   </div>
                   <span className="text-[8px] font-bold text-indigo-600 bg-indigo-500/10 px-1.5 py-0.2 rounded-full font-mono">
-                    +8.2%
+                    +6.4%
                   </span>
                 </div>
 
@@ -300,7 +300,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
                     +$42.5K
                   </div>
                   <div className="text-[9px] font-bold text-slate-500 font-mono truncate mt-0.5">
-                    ETH VALIDATORS
+                    ETH & SOL VALIDATORS
                   </div>
                 </div>
 
@@ -464,7 +464,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
               </div>
             </div>
 
-            {/* 2. BTC Holding Balance & Fiat Equivalent (Synchronized to Crypto Desk) */}
+            {/* 2. Crypto Vault Holdings & Fiat Equivalent (Synchronized to Crypto Desk) */}
             <div
               onClick={() => onNavigate?.('crypto')}
               title="Klik untuk membuka menu Crypto & Digital Assets Desk"
@@ -472,7 +472,7 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 group-hover:text-amber-700 uppercase font-mono transition-colors">
-                  BTC HOLDINGS
+                  CRYPTO VAULT AUM
                 </span>
                 <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20 shadow-xs">
                   <ArrowUpRight className="w-3 h-3 stroke-[2.5]" />
@@ -482,14 +482,14 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
 
               <div className="my-1">
                 <div className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight font-mono group-hover:text-amber-900 transition-colors">
-                  35.50 BTC
+                  $6,397,000
                 </div>
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-slate-200/70 text-[11px] font-mono">
-                <span className="text-slate-400">FIAT EQUIV.</span>
-                <span className="text-slate-800 font-black flex items-center gap-0.5">
-                  ≈ $2,425,000 <ChevronRight className="w-2.5 h-2.5 opacity-60" />
+                <span className="text-slate-400 truncate max-w-[130px]">35.5 BTC • 420 ETH</span>
+                <span className="text-slate-800 font-black flex items-center gap-0.5 shrink-0">
+                  41.7% AUM <ChevronRight className="w-2.5 h-2.5 opacity-60" />
                 </span>
               </div>
             </div>

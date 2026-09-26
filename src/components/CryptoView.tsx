@@ -18,9 +18,9 @@ export const CryptoView: React.FC = () => {
       {/* 1. TOP KPI CARDS - Barometer Makro Pasar Global Crypto */}
       <CryptoMacroMetrics glassCard={glassCard} />
 
-      {/* 2. MIDDLE SECTION: [PORTOFOLIO VAULT (SEBELAH KIRI - 2 BLOK 1 BARIS)] + [CHART UTAMA (TENGAH)] + [MARKET ANALYTICS (KANAN)] */}
+      {/* 2. MIDDLE SECTION: [PORTOFOLIO VAULT (SEBELAH KIRI - 1 BARIS 2 BLOK SAJA)] + [CHART UTAMA (TENGAH)] + [MARKET ANALYTICS (KANAN)] */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-2.5 flex-1 min-h-[350px] sm:min-h-[380px]">
-        {/* 1. Sebelah Kiri Chart: 4 Blok Portofolio (2 Blok 1 Baris) */}
+        {/* 1. Sebelah Kiri Chart: 1 Baris 2 Blok Saja */}
         <div className="lg:col-span-5 xl:col-span-4 grid grid-cols-2 gap-2 sm:gap-2.5">
           <CryptoPortfolioSidebar glassCardClassName={glassCard} onSelectCoin={(sym) => setSelectedAssetSymbol(sym)} />
         </div>

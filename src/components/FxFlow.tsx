@@ -147,11 +147,11 @@ export const FxFlow: React.FC = () => {
       </section>
 
       {/* ============================================================== */}
-      {/* 2. BARIS TENGAH: 4 DEVISA MEMANJANG KE BAWAH + BUKA LEBAR      */}
+      {/* 2. BARIS TENGAH: DEVISA (1 BARIS 2 BLOK) + BUKA LEBAR          */}
       {/* ============================================================== */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-2 sm:gap-2.5 flex-1 min-h-0">
-        {/* KOLOM KIRI: 4 DEVISA MEMANJANG KE BAWAH (USD, EUR, JPY, GBP) */}
-        <div className="lg:col-span-4 xl:col-span-4 flex flex-col gap-2 h-full justify-between min-h-0">
+      <section className="grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-2.5 flex-1 min-h-0">
+        {/* KOLOM KIRI: 4 DEVISA (1 BARIS 2 BLOK: USD, EUR, JPY, GBP) */}
+        <div className="md:col-span-5 xl:col-span-5 grid grid-cols-2 gap-2 h-full min-h-0">
           {FOUR_MAJOR_DEVISA.map((devisa) => {
             const isSelected = selectedDevisaCode === devisa.code;
             return (
@@ -159,38 +159,38 @@ export const FxFlow: React.FC = () => {
                 key={devisa.code}
                 type="button"
                 onClick={() => setSelectedDevisaCode(devisa.code)}
-                className={`${glassCard} flex-1 text-left p-2 sm:p-2.5 flex flex-col justify-between cursor-pointer transition-all duration-200 outline-none group ${
+                className={`${glassCard} h-full text-left p-2 sm:p-2.5 flex flex-col justify-between cursor-pointer transition-all duration-200 outline-none group ${
                   isSelected
                     ? 'ring-2 ring-indigo-500/80 bg-gradient-to-r from-white via-indigo-50/40 to-white shadow-md'
                     : 'hover:brightness-105 hover:border-slate-300'
                 }`}
               >
                 {/* Baris Atas: Simbol Devisa, Pill Share, & Spot */}
-                <div className="flex items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-1.5">
+                <div className="flex items-start justify-between gap-1.5">
+                  <div className="flex items-center gap-1.5 min-w-0">
                     <span
-                      className={`w-6 h-6 rounded-lg text-white font-black text-[11px] flex items-center justify-center font-mono shadow-xs ${devisa.bg}`}
+                      className={`w-6 h-6 rounded-lg text-white font-black text-[10px] sm:text-[11px] flex items-center justify-center font-mono shadow-xs shrink-0 ${devisa.bg}`}
                     >
                       {devisa.code}
                     </span>
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex items-center gap-1">
-                        <span className="text-xs font-black text-slate-800 font-mono tracking-tight">
+                        <span className="text-xs font-black text-slate-800 font-mono tracking-tight truncate">
                           {devisa.name}
                         </span>
-                        <span className="text-[7.5px] font-bold px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-500 font-mono border border-slate-200">
+                        <span className="text-[7.5px] font-bold px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-500 font-mono border border-slate-200 shrink-0">
                           {devisa.share}
                         </span>
                       </div>
-                      <span className="text-[8px] text-slate-400 font-mono block leading-none">
+                      <span className="text-[8px] text-slate-400 font-mono block leading-none truncate">
                         {devisa.spotPair}: <span className="font-extrabold text-slate-700">{devisa.spotRate}</span>
                       </span>
                     </div>
                   </div>
 
-                  <div className="text-right font-mono">
+                  <div className="text-right font-mono shrink-0">
                     <span
-                      className={`inline-flex items-center gap-0.5 text-[8.5px] font-black px-1.5 py-0.2 rounded-full border ${
+                      className={`inline-flex items-center gap-0.5 text-[8px] sm:text-[8.5px] font-black px-1.5 py-0.2 rounded-full border ${
                         devisa.isChangePositive
                           ? 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20'
                           : 'bg-rose-500/10 text-rose-700 border-rose-500/20'
@@ -204,14 +204,14 @@ export const FxFlow: React.FC = () => {
 
                 {/* Baris Bawah: Volume, Net Inflow & Tombol Buka Lebar */}
                 <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 mt-1 text-[8.5px] font-mono">
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400 font-bold">VOL <span className="text-slate-800 font-black">{devisa.volume}</span></span>
-                    <span className={`font-black ${devisa.isPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <span className="text-slate-400 font-bold shrink-0">VOL <span className="text-slate-800 font-black">{devisa.volume}</span></span>
+                    <span className={`font-black shrink-0 ${devisa.isPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
                       {devisa.netFlow}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 shrink-0">
                     <span
                       className={`text-[7.5px] font-black uppercase px-1.5 py-0.2 rounded tracking-wider transition-all flex items-center gap-0.5 ${
                         isSelected
@@ -219,7 +219,7 @@ export const FxFlow: React.FC = () => {
                           : 'bg-slate-100 text-indigo-600 group-hover:bg-indigo-50 border border-slate-200'
                       }`}
                     >
-                      <span>{isSelected ? 'SEDANG DIBUKA' : 'BUKA LEBAR'}</span>
+                      <span>{isSelected ? 'DIBUKA' : 'BUKA'}</span>
                       <ChevronRight className="w-2.5 h-2.5 stroke-[2.5]" />
                     </span>
                   </div>
@@ -230,7 +230,7 @@ export const FxFlow: React.FC = () => {
         </div>
 
         {/* KOLOM KANAN: DEVISA TERBUKA SECARA LEBAR */}
-        <div className={`lg:col-span-8 xl:col-span-8 ${glassCard} flex flex-col justify-between overflow-hidden p-3 sm:p-3.5 h-full min-h-0 transition-all duration-300`}>
+        <div className={`md:col-span-7 xl:col-span-7 ${glassCard} flex flex-col justify-between overflow-hidden p-3 sm:p-3.5 h-full min-h-0 transition-all duration-300`}>
           {/* Header Devisa Lebar */}
           <div>
             <div className="flex items-center justify-between gap-2 mb-1.5 pb-1.5 border-b border-slate-200/80">
