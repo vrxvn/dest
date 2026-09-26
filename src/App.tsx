@@ -55,7 +55,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative h-screen max-h-screen w-full overflow-hidden bg-radial from-[#d5e7f4] via-[#e2eef7] to-[#ccdff0] pt-[5px] pb-0 px-2 sm:px-4 md:px-5 flex flex-col font-sans antialiased select-none">
+    <div className="relative h-screen max-h-screen w-full overflow-hidden bg-radial from-[#d5e7f4] via-[#e2eef7] to-[#ccdff0] pt-[5px] pb-[5px] px-2 sm:px-4 md:px-5 flex flex-col font-sans antialiased select-none">
       {/* Background Soft Glow Accents */}
       <div className="absolute top-10 left-1/4 w-96 h-96 bg-white/40 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-blue-200/30 rounded-full blur-3xl pointer-events-none" />

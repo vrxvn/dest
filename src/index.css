@@ -8,4 +8,19 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+  .custom-scroll::-webkit-scrollbar {
+    height: 5px;
+    width: 5px;
+  }
+  .custom-scroll::-webkit-scrollbar-track {
+    background: rgba(241, 245, 249, 0.7);
+    border-radius: 9999px;
+  }
+  .custom-scroll::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.7);
+    border-radius: 9999px;
+  }
+  .custom-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.8);
+  }
 }

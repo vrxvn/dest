@@ -53,13 +53,9 @@ export const WorkforceView: React.FC = () => {
   const glassCard =
     'bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] backdrop-blur-xl rounded-[20px] sm:rounded-[24px] border-t-[2.5px] border-t-white border-x-[1.5px] border-slate-200/90 border-b-[4px] border-b-slate-300 shadow-[0_16px_34px_-6px_rgba(15,23,42,0.14),0_6px_14px_-2px_rgba(15,23,42,0.06),inset_0_2px_1px_rgba(255,255,255,1),inset_0_-2.5px_3px_rgba(148,163,184,0.35)] p-3 sm:p-3.5 flex flex-col justify-between transition-all';
 
-  // Card halaman lebar tanpa animasi masuk buka melebar (instant render & flush ke tepi layar bawah)
+  // Card halaman lebar tanpa animasi masuk buka melebar (instant render dengan tepi konsisten)
   const wideGlassCard =
-    'bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] backdrop-blur-xl rounded-t-[20px] sm:rounded-t-[24px] rounded-b-none border-t-[2.5px] border-t-white border-x-[1.5px] border-slate-200/90 border-b-0 shadow-[0_16px_34px_-6px_rgba(15,23,42,0.14),0_6px_14px_-2px_rgba(15,23,42,0.06),inset_0_2px_1px_rgba(255,255,255,1)] p-3 sm:p-4 pb-2 sm:pb-2.5 flex flex-col justify-between transition-none duration-0 animate-none transform-none flex-1 min-h-0 h-full overflow-hidden mb-0';
-
-  // Card 5 divisi awal yang mencapai tepi layar bawah
-  const bottomDockedGlassCard =
-    'bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] backdrop-blur-xl rounded-t-[20px] sm:rounded-t-[24px] rounded-b-none border-t-[2.5px] border-t-white border-x-[1.5px] border-slate-200/90 border-b-0 shadow-[0_16px_34px_-6px_rgba(15,23,42,0.14),0_6px_14px_-2px_rgba(15,23,42,0.06),inset_0_2px_1px_rgba(255,255,255,1)] p-2.5 sm:p-3 pb-1.5 sm:pb-2 flex flex-col justify-between transition-all h-full min-h-0 overflow-hidden mb-0';
+    'bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] backdrop-blur-xl rounded-[20px] sm:rounded-[24px] border-t-[2.5px] border-t-white border-x-[1.5px] border-slate-200/90 border-b-[4px] border-b-slate-300 shadow-[0_16px_34px_-6px_rgba(15,23,42,0.14),0_6px_14px_-2px_rgba(15,23,42,0.06),inset_0_2px_1px_rgba(255,255,255,1),inset_0_-2.5px_3px_rgba(148,163,184,0.35)] p-3 sm:p-4 flex flex-col justify-between transition-none duration-0 animate-none transform-none flex-1 min-h-0 h-full overflow-hidden';
 
   const getDivisionIcon = (num: number) => {
     switch (num) {
@@ -80,7 +76,7 @@ export const WorkforceView: React.FC = () => {
 
   return (
     <div className="w-full h-full flex flex-col gap-1.5 sm:gap-2 overflow-hidden pr-0.5 pb-0">
-      {/* 1. TOP CARDS (REKAPITULASI 2.209 PERSONIL 5 DIVISI) */}
+      {/* 1. TOP CARDS (REKAPITULASI 48 PERSONIL 5 DIVISI) */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 flex-shrink-0">
         {/* Card 1: Total Staf */}
         <div className={glassCard}>
@@ -90,7 +86,7 @@ export const WorkforceView: React.FC = () => {
               TOTAL WORKFORCE
             </span>
             <span className="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.2 rounded-full border border-indigo-200/80 font-mono">
-              3 NEGARA
+              3 REGIONAL
             </span>
           </div>
           <div className="my-0.5">
@@ -100,7 +96,7 @@ export const WorkforceView: React.FC = () => {
           </div>
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[10px] font-mono">
             <span className="text-slate-400">5 DIVISI TERSTRUKTUR</span>
-            <span className="text-indigo-600 font-extrabold">CHINA • INDO • VIETNAM</span>
+            <span className="text-indigo-600 font-extrabold">TOKYO • JKT • LONDON</span>
           </div>
         </div>
 
@@ -113,17 +109,17 @@ export const WorkforceView: React.FC = () => {
             </span>
             <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-mono">
               <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
-              54.8% TOTAL
+              60.4% TOTAL
             </span>
           </div>
           <div className="my-0.5">
             <div className="text-xl sm:text-2xl font-black text-emerald-600 tracking-tight font-mono">
-              1.210 STAF
+              29 STAF
             </div>
           </div>
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[10px] font-mono">
             <span className="text-slate-400">DIVISI 1 & 2</span>
-            <span className="text-emerald-700 font-bold">550 QUANT + 660 TRADING</span>
+            <span className="text-emerald-700 font-bold">14 QUANT + 15 TRADING</span>
           </div>
         </div>
 
@@ -140,7 +136,7 @@ export const WorkforceView: React.FC = () => {
           </div>
           <div className="my-0.5">
             <div className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight font-mono">
-              440 PERSONIL
+              8 PERSONIL
             </div>
           </div>
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[10px] font-mono">
@@ -157,7 +153,7 @@ export const WorkforceView: React.FC = () => {
               TOTAL GAJI SELURUH DIVISI
             </span>
             <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[9px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-mono">
-              PAYROLL 2.209
+              PAYROLL 48 STAF
             </span>
           </div>
           <div className="my-0.5">
@@ -172,9 +168,9 @@ export const WorkforceView: React.FC = () => {
         </div>
       </section>
 
-      {/* 2. BAGIAN 5 DIVISI KARYAWAN: TAMPILAN AWAL ATAU TAMPILAN MELEBAR INSTAN TANPA ANIMASI (SAMPAI TEPI LAYAR BAWAH) */}
+      {/* 2. BAGIAN 5 DIVISI KARYAWAN: TAMPILAN AWAL ATAU TAMPILAN MELEBAR INSTAN TANPA ANIMASI */}
       {!selectedDivisi ? (
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 sm:gap-2.5 flex-1 min-h-0 h-full overflow-hidden pb-0 mb-0">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-2 sm:gap-2.5 flex-1 min-h-0 h-full overflow-hidden">
           {WORKFORCE_DIVISIONS.map((divisi) => {
             const currentTab = cardActiveTab[divisi.divisionId] || 'staff';
 
@@ -182,7 +178,7 @@ export const WorkforceView: React.FC = () => {
               <div
                 key={divisi.divisionId}
                 onClick={() => setSelectedDivisionId(divisi.divisionId)}
-                className={`${bottomDockedGlassCard} cursor-pointer group hover:border-indigo-400/80 hover:shadow-lg hover:brightness-[1.02]`}
+                className={`${glassCard} flex flex-col justify-between h-full min-h-0 overflow-hidden p-2.5 sm:p-3 cursor-pointer group hover:border-indigo-400/80 hover:shadow-lg hover:brightness-[1.02]`}
                 title={`Klik untuk membuka Divisi ${divisi.divisionNumber} secara lebar`}
               >
                 {/* Header Divisi */}

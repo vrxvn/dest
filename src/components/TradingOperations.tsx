@@ -43,19 +43,19 @@ export const TradingOperations: React.FC = () => {
               DEPLOYED MARGIN
             </span>
             <span className="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.2 rounded-full border border-indigo-200/80 font-mono">
-              59.2% OF AUM
+              55.1% OF AUM
             </span>
           </div>
 
           <div className="my-0.5">
             <div className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight font-mono">
-              $84,650,000.00
+              $8,450,000.00
             </div>
           </div>
 
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[10px] font-mono">
-            <span className="text-slate-400">CEILING $100.0M</span>
-            <span className="text-slate-700 font-extrabold">LEVERAGE 1.62x</span>
+            <span className="text-slate-400">CEILING $12.0M</span>
+            <span className="text-slate-700 font-extrabold">LEVERAGE 1.45x</span>
           </div>
         </div>
 
@@ -68,19 +68,19 @@ export const TradingOperations: React.FC = () => {
             </span>
             <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 shadow-xs font-mono">
               <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
-              +5.69%
+              +0.97%
             </span>
           </div>
 
           <div className="my-0.5">
             <div className="text-xl sm:text-2xl font-black text-emerald-600 tracking-tight font-mono">
-              +$4,821,340.00
+              +$148,250.00
             </div>
           </div>
 
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[10px] font-mono">
-            <span className="text-slate-400">FACTOR 3.42</span>
-            <span className="text-emerald-700 font-bold">148 WIN / 22 LOSS</span>
+            <span className="text-slate-400">FACTOR 2.85</span>
+            <span className="text-emerald-700 font-bold">42 WIN / 6 LOSS</span>
           </div>
         </div>
 
@@ -93,18 +93,18 @@ export const TradingOperations: React.FC = () => {
             </span>
             <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-600 border border-blue-500/20 font-mono">
               <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
-              +1.47%
+              +0.27%
             </span>
           </div>
 
           <div className="my-0.5">
             <div className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight font-mono">
-              +$1,248,910.00
+              +$41,420.00
             </div>
           </div>
 
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[10px] font-mono">
-            <span className="text-slate-400">NET DELTA +$18.4M</span>
+            <span className="text-slate-400">NET DELTA +$1.85M</span>
             <span className="text-blue-700 font-extrabold">4 OPEN POS</span>
           </div>
         </div>
@@ -128,7 +128,7 @@ export const TradingOperations: React.FC = () => {
           </div>
 
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[10px] font-mono">
-            <span className="text-slate-400">9,412 / 9,532 SIGNALS</span>
+            <span className="text-slate-400">830 / 842 SIGNALS</span>
             <span className="text-indigo-600 font-extrabold">0.014bps SLIP</span>
           </div>
         </div>
@@ -157,13 +157,13 @@ export const TradingOperations: React.FC = () => {
                         CAPITAL EXPOSURE BREAKDOWN
                       </span>
                       <span className="text-[9px] text-slate-400 font-mono">
-                        BTC • XAU • NVDA • FX ($84.65M)
+                        BTC • XAU • NVDA • FX ($8.45M)
                       </span>
                     </div>
                   </div>
 
                   <span className="text-[10px] font-black text-slate-800 font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200 shadow-xs">
-                    $84.65M
+                    $8.45M
                   </span>
                 </div>
 
@@ -428,8 +428,8 @@ export const TradingOperations: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[8px] font-mono text-slate-500 mt-1">
-                <span>9,532 SIGNALS</span>
-                <span className="text-emerald-600 font-bold">+$4,821,340.00</span>
+                <span>842 SIGNALS</span>
+                <span className="text-emerald-600 font-bold">+$148,250.00</span>
               </div>
             </div>
 
@@ -493,8 +493,8 @@ export const TradingOperations: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[8px] font-mono text-slate-500 mt-1">
-                <span>EXP: $84.65M</span>
-                <span className="text-emerald-600 font-bold">+$1,626,890.00</span>
+                <span>EXP: $8.45M</span>
+                <span className="text-emerald-600 font-bold">+$41,420.00</span>
               </div>
             </div>
 
@@ -552,7 +552,7 @@ export const TradingOperations: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[8px] font-mono text-slate-500 mt-1">
-                <span>ROUTED: $84.65M</span>
+                <span>ROUTED: $8.45M</span>
                 <span className="text-cyan-700 font-bold">SETTLEMENT T+0</span>
               </div>
             </div>
@@ -587,7 +587,7 @@ export const TradingOperations: React.FC = () => {
                   TOTAL REALIZED PROFIT
                 </div>
                 <div className="text-lg sm:text-xl font-black text-slate-800 font-mono tracking-tight">
-                  +$5,066,690.00
+                  +$1,036,650.00
                 </div>
               </div>
               <div className="text-right flex-shrink-0">

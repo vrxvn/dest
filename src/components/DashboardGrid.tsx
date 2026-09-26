@@ -143,13 +143,13 @@ export const DashboardGrid: React.FC = () => {
 
               <div className="mt-2.5 mb-2">
                 <div className="text-2xl sm:text-3xl font-black text-slate-800 tracking-tight font-mono">
-                  $142,850,290.40
+                  $15,324,000.00
                 </div>
               </div>
 
               <div className="flex items-center justify-between py-1.5 text-xs font-mono">
-                <span className="text-slate-400">PREV $120.65M</span>
-                <span className="text-emerald-600 font-bold">+$22,199,707.30</span>
+                <span className="text-slate-400">PREV $12.45M</span>
+                <span className="text-emerald-600 font-bold">+$2,874,000.00</span>
               </div>
             </div>
 
@@ -157,29 +157,29 @@ export const DashboardGrid: React.FC = () => {
             <div className="my-auto py-2.5 flex flex-col gap-1.5">
               <div className="flex items-center justify-between text-xs font-mono">
                 <span className="text-slate-400 font-bold">CRYPTO ALLOCATION</span>
-                <span className="text-indigo-600 font-extrabold">87.2%</span>
+                <span className="text-indigo-600 font-extrabold">68.9%</span>
               </div>
 
               {/* 3D Progress Rail */}
               <div className="relative w-full h-3 bg-slate-200/90 rounded-full overflow-hidden p-0.5 shadow-inner border border-slate-300/40 flex gap-1">
                 <div
                   className="h-full bg-gradient-to-r from-indigo-500 via-indigo-600 to-indigo-700 rounded-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.7)] transition-all duration-700"
-                  style={{ width: '87.2%' }}
+                  style={{ width: '68.9%' }}
                 />
                 <div
                   className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full opacity-80"
-                  style={{ width: '12.8%' }}
+                  style={{ width: '31.1%' }}
                 />
               </div>
 
               <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 pt-0.5">
                 <span className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-indigo-600" />
-                  $124.56M CRYPTO
+                  $10.56M CRYPTO
                 </span>
                 <span className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  $18.29M FIAT
+                  $4.76M FIAT
                 </span>
               </div>
             </div>
@@ -247,7 +247,7 @@ export const DashboardGrid: React.FC = () => {
 
                 <div className="my-1">
                   <div className="text-base sm:text-lg font-black text-slate-800 font-mono tracking-tight">
-                    +$2.45M
+                    +$245.0K
                   </div>
                   <div className="text-[9px] font-bold text-slate-500 font-mono truncate mt-0.5">
                     USDT → BTC ARB
@@ -277,13 +277,13 @@ export const DashboardGrid: React.FC = () => {
                     </span>
                   </div>
                   <span className="text-[8px] font-bold text-indigo-600 bg-indigo-500/10 px-1.5 py-0.2 rounded-full font-mono">
-                    +18.4%
+                    +8.2%
                   </span>
                 </div>
 
                 <div className="my-1">
                   <div className="text-base sm:text-lg font-black text-slate-800 font-mono tracking-tight">
-                    +$182.4K
+                    +$42.5K
                   </div>
                   <div className="text-[9px] font-bold text-slate-500 font-mono truncate mt-0.5">
                     ETH VALIDATORS
@@ -402,7 +402,7 @@ export const DashboardGrid: React.FC = () => {
 
               <div className="flex items-end justify-between gap-1 my-1">
                 <div className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight font-mono">
-                  +$14.29M
+                  +$384,500
                 </div>
 
                 {/* Micro Sparkline Chart */}
@@ -450,13 +450,13 @@ export const DashboardGrid: React.FC = () => {
 
               <div className="my-1">
                 <div className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight font-mono">
-                  1,842.60 BTC
+                  35.50 BTC
                 </div>
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-slate-200/70 text-[11px] font-mono">
                 <span className="text-slate-400">FIAT EQUIV.</span>
-                <span className="text-slate-800 font-black">≈ $124.56M</span>
+                <span className="text-slate-800 font-black">≈ $2,425,000</span>
               </div>
             </div>
 
@@ -474,7 +474,7 @@ export const DashboardGrid: React.FC = () => {
 
               <div className="flex items-end justify-between gap-1 my-1">
                 <div className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight font-mono">
-                  $52,180,000
+                  $3,250,000
                 </div>
 
                 {/* Micro Volume Bars */}
@@ -512,7 +512,7 @@ export const DashboardGrid: React.FC = () => {
                     </span>
                     <div className="flex items-baseline gap-1.5 mt-0.5">
                       <span className="text-xl sm:text-2xl font-black text-slate-800 font-mono truncate">
-                        $18,420,000
+                        $1,842,000
                       </span>
                       <span className="text-[11px] font-bold text-indigo-600 bg-indigo-500/10 px-1.5 py-0.2 rounded-full border border-indigo-500/20 font-mono">
                         +24.8% FLOW
@@ -641,7 +641,7 @@ export const DashboardGrid: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between pt-1.5 border-t border-slate-200/70 text-[11px] font-mono text-slate-500">
-                  <span>PEAK FLOW $19.10M</span>
+                  <span>PEAK FLOW $2.45M</span>
                   <span className="text-indigo-600 font-bold">VELOCITY 94.2%</span>
                 </div>
               </div>
@@ -772,10 +772,10 @@ export const DashboardGrid: React.FC = () => {
                     </div>
                     <div className="flex items-center justify-end gap-1.5 leading-none">
                       <span className="text-xs sm:text-sm font-black text-emerald-600 tracking-tight">
-                        +$3,842,500
+                        +$384,250
                       </span>
                       <span className="text-[8px] sm:text-[9px] font-bold text-emerald-700 bg-gradient-to-b from-emerald-50 to-emerald-100/90 px-1.5 py-0.5 rounded-md border-t border-t-emerald-200 border-b border-b-emerald-600/30 shadow-[0_1px_2px_rgba(16,185,129,0.15)]">
-                        +42.8%
+                        +31.4%
                       </span>
                     </div>
                   </div>

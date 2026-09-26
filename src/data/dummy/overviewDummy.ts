@@ -1,6 +1,6 @@
 /**
  * DUMMY DATA: OVERVIEW (DASHBOARD GRID)
- * Dipisahkan dari komponen script agar mudah dihapus atau diganti dengan API riil.
+ * Angka-angka proporsional & masuk akal (AUM ~$15.3M).
  */
 
 export interface EmployeeTrade {
@@ -20,8 +20,8 @@ export const INITIAL_EMPLOYEE_TRADES: EmployeeTrade[] = [
     id: 't-1',
     employee: 'T.132',
     market: 'NVDA GLOBAL',
-    positionValue: '$5,200,000',
-    floatingPnl: '+$420,500',
+    positionValue: '$48,500',
+    floatingPnl: '+$3,420',
     isProfit: true,
     action: 'BUY',
     speed: 'FAST',
@@ -31,8 +31,8 @@ export const INITIAL_EMPLOYEE_TRADES: EmployeeTrade[] = [
     id: 't-2',
     employee: 'T.084',
     market: 'S&P 500',
-    positionValue: '$12,500,000',
-    floatingPnl: '+$1,120,000',
+    positionValue: '$85,000',
+    floatingPnl: '+$5,120',
     isProfit: true,
     action: 'BUY',
     speed: 'FAST',
@@ -42,8 +42,8 @@ export const INITIAL_EMPLOYEE_TRADES: EmployeeTrade[] = [
     id: 't-3',
     employee: 'T.215',
     market: 'XAU (EMAS)',
-    positionValue: '$8,400,000',
-    floatingPnl: '-$45,000',
+    positionValue: '$62,000',
+    floatingPnl: '-$450',
     isProfit: false,
     action: 'SELL',
     speed: 'MODERATE',
@@ -53,8 +53,8 @@ export const INITIAL_EMPLOYEE_TRADES: EmployeeTrade[] = [
     id: 't-4',
     employee: 'T.047',
     market: 'BTC/USDT',
-    positionValue: '$24,800,000',
-    floatingPnl: '+$2,150,000',
+    positionValue: '$125,000',
+    floatingPnl: '+$8,450',
     isProfit: true,
     action: 'BUY',
     speed: 'FAST',
@@ -64,8 +64,8 @@ export const INITIAL_EMPLOYEE_TRADES: EmployeeTrade[] = [
     id: 't-5',
     employee: 'T.309',
     market: 'NASDAQ 100',
-    positionValue: '$9,600,000',
-    floatingPnl: '+$680,000',
+    positionValue: '$74,000',
+    floatingPnl: '+$4,200',
     isProfit: true,
     action: 'BUY',
     speed: 'FAST',
@@ -75,8 +75,8 @@ export const INITIAL_EMPLOYEE_TRADES: EmployeeTrade[] = [
     id: 't-6',
     employee: 'T.198',
     market: 'EUR/USD',
-    positionValue: '$15,200,000',
-    floatingPnl: '+$310,000',
+    positionValue: '$58,000',
+    floatingPnl: '+$1,850',
     isProfit: true,
     action: 'TP',
     speed: 'MODERATE',
@@ -85,17 +85,17 @@ export const INITIAL_EMPLOYEE_TRADES: EmployeeTrade[] = [
 ];
 
 export const TRADE_STREAM_POOL: Omit<EmployeeTrade, 'id' | 'timestamp'>[] = [
-  { employee: 'T.132', market: 'NVDA GLOBAL', positionValue: '$5,200,000', floatingPnl: '+$420,500', isProfit: true, action: 'BUY', speed: 'FAST' },
-  { employee: 'T.084', market: 'S&P 500', positionValue: '$12,500,000', floatingPnl: '+$1,120,000', isProfit: true, action: 'BUY', speed: 'FAST' },
-  { employee: 'T.215', market: 'XAU (EMAS)', positionValue: '$8,400,000', floatingPnl: '-$45,000', isProfit: false, action: 'SELL', speed: 'MODERATE' },
-  { employee: 'T.047', market: 'BTC/USDT', positionValue: '$24,800,000', floatingPnl: '+$2,150,000', isProfit: true, action: 'BUY', speed: 'FAST' },
-  { employee: 'T.309', market: 'NASDAQ 100', positionValue: '$9,600,000', floatingPnl: '+$680,000', isProfit: true, action: 'BUY', speed: 'FAST' },
-  { employee: 'T.198', market: 'EUR/USD', positionValue: '$15,200,000', floatingPnl: '+$310,000', isProfit: true, action: 'TP', speed: 'MODERATE' },
-  { employee: 'T.132', market: 'ETH/USDT', positionValue: '$18,400,000', floatingPnl: '+$890,000', isProfit: true, action: 'BUY', speed: 'FAST' },
-  { employee: 'T.084', market: 'TSLA GLOBAL', positionValue: '$7,850,000', floatingPnl: '+$540,000', isProfit: true, action: 'BUY', speed: 'FAST' },
-  { employee: 'T.215', market: 'BRENT OIL', positionValue: '$6,300,000', floatingPnl: '-$62,000', isProfit: false, action: 'SELL', speed: 'MODERATE' },
-  { employee: 'T.412', market: 'SOL/USDT', positionValue: '$11,200,000', floatingPnl: '+$975,000', isProfit: true, action: 'BUY', speed: 'FAST' },
-  { employee: 'T.309', market: 'MSFT GLOBAL', positionValue: '$14,600,000', floatingPnl: '+$430,000', isProfit: true, action: 'TP', speed: 'FAST' },
+  { employee: 'T.132', market: 'NVDA GLOBAL', positionValue: '$48,500', floatingPnl: '+$3,420', isProfit: true, action: 'BUY', speed: 'FAST' },
+  { employee: 'T.084', market: 'S&P 500', positionValue: '$85,000', floatingPnl: '+$5,120', isProfit: true, action: 'BUY', speed: 'FAST' },
+  { employee: 'T.215', market: 'XAU (EMAS)', positionValue: '$62,000', floatingPnl: '-$450', isProfit: false, action: 'SELL', speed: 'MODERATE' },
+  { employee: 'T.047', market: 'BTC/USDT', positionValue: '$125,000', floatingPnl: '+$8,450', isProfit: true, action: 'BUY', speed: 'FAST' },
+  { employee: 'T.309', market: 'NASDAQ 100', positionValue: '$74,000', floatingPnl: '+$4,200', isProfit: true, action: 'BUY', speed: 'FAST' },
+  { employee: 'T.198', market: 'EUR/USD', positionValue: '$58,000', floatingPnl: '+$1,850', isProfit: true, action: 'TP', speed: 'MODERATE' },
+  { employee: 'T.132', market: 'ETH/USDT', positionValue: '$65,000', floatingPnl: '+$3,600', isProfit: true, action: 'BUY', speed: 'FAST' },
+  { employee: 'T.084', market: 'TSLA GLOBAL', positionValue: '$42,000', floatingPnl: '+$2,750', isProfit: true, action: 'BUY', speed: 'FAST' },
+  { employee: 'T.215', market: 'BRENT OIL', positionValue: '$38,000', floatingPnl: '-$320', isProfit: false, action: 'SELL', speed: 'MODERATE' },
+  { employee: 'T.412', market: 'SOL/USDT', positionValue: '$55,000', floatingPnl: '+$4,150', isProfit: true, action: 'BUY', speed: 'FAST' },
+  { employee: 'T.309', market: 'MSFT GLOBAL', positionValue: '$68,000', floatingPnl: '+$2,900', isProfit: true, action: 'TP', speed: 'FAST' },
 ];
 
 export const CHART_DATASETS: Record<string, { pts1: number[]; pts2: number[] }> = {
@@ -124,41 +124,41 @@ export const CHART_DATASETS: Record<string, { pts1: number[]; pts2: number[] }> 
 export const DUMMY_WALLET_ADDRESS = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
 
 export const TREASURY_METRICS = {
-  totalAum: '$142,850,290.45',
-  ytdReturn: '+28.4% YTD',
-  treasuryAmount: '$84,200,000',
-  treasuryYield: '+14.8% YIELD',
-  stakingAmount: '$58,650,290',
-  stakingApr: '18.2% APR',
+  totalAum: '$15,324,000.00',
+  ytdReturn: '+27.4% YTD',
+  treasuryAmount: '$4,850,000',
+  treasuryYield: '+6.8% YIELD',
+  stakingAmount: '$2,450,000',
+  stakingApr: '8.2% APR',
 };
 
 export const PRIME_VAULT_METRICS = {
-  coldVaultAmount: '$42,850,000',
+  coldVaultAmount: '$2,450,000',
   coldVaultStatus: 'SECURED',
-  creditFacilityAmount: '$12,000,000',
-  creditFacilityStatus: '38.5% USED',
+  creditFacilityAmount: '$750,000',
+  creditFacilityStatus: '28.5% USED',
   primeStatus: 'ONLINE • HSM L3',
 };
 
 export const EXECUTION_METRICS = {
   otc: {
     title: 'USDT → USD OTC BLOCK',
-    amount: '+$5,200,000',
+    amount: '+$350,000',
     status: 'FILLED',
     slippage: '0.001%',
     speed: '4.2ms',
   },
   arbitrage: {
     title: 'BTC LIQUIDITY ROUTE',
-    amount: '+$12,450,000',
+    amount: '+$850,000',
     status: 'SETTLED',
     poolsLinked: '3 POOLS LINKED',
     route: '99.99%',
   },
   strategySkill: {
     title: 'QUANT MOMENTUM & FLASH ARBITRAGE',
-    realisedProfit: '+$3,842,500',
-    roi: '+42.8%',
+    realisedProfit: '+$384,250',
+    roi: '+31.4%',
   },
 };
 
@@ -178,57 +178,57 @@ export interface InstitutionalInvestor {
 }
 
 export const GLOBAL_INSTITUTIONAL_INVESTMENTS = {
-  totalInvestment: '$182,450,000',
+  totalInvestment: '$12,450,000',
   totalCount: '7 INSTITUSI',
-  growth: '+31.4% YoY',
+  growth: '+27.4% YoY',
   investors: [
     {
       code: 'BLK',
       name: 'BlackRock Financial',
-      investment: '$48,500,000',
-      share: '26.6%',
+      investment: '$3,000,000',
+      share: '24.1%',
       status: 'VERIFIED',
     },
     {
       code: 'VGD',
       name: 'Vanguard Group',
-      investment: '$36,200,000',
-      share: '19.8%',
+      investment: '$2,500,000',
+      share: '20.1%',
       status: 'VERIFIED',
     },
     {
       code: 'FID',
       name: 'Fidelity Investments',
-      investment: '$28,400,000',
-      share: '15.6%',
+      investment: '$1,800,000',
+      share: '14.5%',
       status: 'VERIFIED',
     },
     {
       code: 'CIT',
       name: 'Citadel Securities',
-      investment: '$22,750,000',
-      share: '12.5%',
+      investment: '$1,500,000',
+      share: '12.0%',
       status: 'VERIFIED',
     },
     {
       code: 'GS',
       name: 'Goldman Sachs Global',
-      investment: '$18,900,000',
-      share: '10.4%',
+      investment: '$1,400,000',
+      share: '11.2%',
       status: 'VERIFIED',
     },
     {
       code: 'JPM',
       name: 'JPMorgan Chase',
-      investment: '$15,600,000',
-      share: '8.5%',
+      investment: '$1,250,000',
+      share: '10.0%',
       status: 'VERIFIED',
     },
     {
       code: 'MS',
       name: 'Morgan Stanley',
-      investment: '$12,100,000',
-      share: '6.6%',
+      investment: '$1,000,000',
+      share: '8.0%',
       status: 'VERIFIED',
     },
   ] as InstitutionalInvestor[],
