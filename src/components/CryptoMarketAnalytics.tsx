@@ -57,6 +57,14 @@ export const CryptoMarketAnalytics: React.FC<CryptoMarketAnalyticsProps> = ({
   const [trades, setTrades] = useState<LiveTrade[]>([]);
   const tradeCounterRef = useRef<number>(1000);
 
+  // Fear & Greed state
+  const [fearGreedValue, setFearGreedValue] = useState<number>(74);
+  const [fearGreedClassification, setFearGreedClassification] = useState<string>('Greed');
+
+  // Real Orderbook from Binance depth API
+  const [realBids, setRealBids] = useState<OrderBookLevel[]>([]);
+  const [realAsks, setRealAsks] = useState<OrderBookLevel[]>([]);
+
   // 1. Fetch live 24h ticker from Binance
   useEffect(() => {
     let isMounted = true;
@@ -83,17 +91,76 @@ export const CryptoMarketAnalytics: React.FC<CryptoMarketAnalyticsProps> = ({
     };
 
     fetchAssetTicker();
-    const interval = setInterval(fetchAssetTicker, 4000);
+    const interval = setInterval(fetchAssetTicker, 3000);
     return () => {
       isMounted = false;
       clearInterval(interval);
     };
   }, [selectedAssetSymbol]);
 
-  // 2. Fetch recent historical trades from Binance on symbol change
+  // 2. Fetch REAL Live Order Book Depth (L2) from Binance every 1.5s
   useEffect(() => {
     let isMounted = true;
-    const fetchInitialTrades = async () => {
+    const fetchRealDepth = async () => {
+      try {
+        const res = await fetch(
+          `https://api.binance.com/api/v3/depth?symbol=${selectedAssetSymbol}USDT&limit=5`
+        );
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!isMounted || !data.bids || !data.asks) return;
+
+        // Process asks (reversed for display: highest at top down to lowest closest to mid)
+        let cumAsks = 0;
+        const processedAsks: OrderBookLevel[] = [];
+        const rawAsks = data.asks.slice(0, 5).reverse();
+        rawAsks.forEach(([p, q]: [string, string]) => {
+          const price = parseFloat(p);
+          const amount = parseFloat(q);
+          cumAsks += amount;
+          processedAsks.push({
+            price,
+            amount,
+            total: cumAsks,
+            percent: Math.min(100, Math.max(15, (amount / (cumAsks || 1)) * 100)),
+          });
+        });
+
+        // Process bids
+        let cumBids = 0;
+        const processedBids: OrderBookLevel[] = [];
+        const rawBids = data.bids.slice(0, 5);
+        rawBids.forEach(([p, q]: [string, string]) => {
+          const price = parseFloat(p);
+          const amount = parseFloat(q);
+          cumBids += amount;
+          processedBids.push({
+            price,
+            amount,
+            total: cumBids,
+            percent: Math.min(100, Math.max(15, (amount / (cumBids || 1)) * 100)),
+          });
+        });
+
+        setRealAsks(processedAsks);
+        setRealBids(processedBids);
+      } catch {
+        // keep fallback
+      }
+    };
+
+    fetchRealDepth();
+    const interval = setInterval(fetchRealDepth, 1500);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [selectedAssetSymbol]);
+
+  // 3. Fetch REAL Live Trades Stream from Binance every 1.5s
+  useEffect(() => {
+    let isMounted = true;
+    const fetchLiveTrades = async () => {
       try {
         const res = await fetch(
           `https://api.binance.com/api/v3/trades?symbol=${selectedAssetSymbol}USDT&limit=12`
@@ -116,56 +183,40 @@ export const CryptoMarketAnalytics: React.FC<CryptoMarketAnalyticsProps> = ({
               isBuy: !t.isBuyerMaker, // false = taker buy (green)
             }));
           setTrades(formatted);
+          if (formatted.length > 0) {
+            setLastTickDirection(formatted[0].isBuy ? 'UP' : 'DOWN');
+          }
         }
       } catch {
-        // fallback simulated initial trades
+        // fallback
       }
     };
 
-    fetchInitialTrades();
+    fetchLiveTrades();
+    const interval = setInterval(fetchLiveTrades, 1500);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [selectedAssetSymbol]);
 
-  // 3. CONTINUOUS LIVE MOTION ENGINE: Ticks every 450ms!
-  // Updates order book depths, executes new streaming trades, and shifts mid price micro-ticks
+  // 4. Fetch Real Fear & Greed Index
   useEffect(() => {
-    const interval = setInterval(() => {
-      setJitterSeed((prev) => prev + 1);
-
-      // Micro price swing around tickerPrice
-      const deltaSpread = tickerPrice * 0.00015;
-      const isUp = Math.random() > 0.48;
-      const microShift = (Math.random() - 0.5) * deltaSpread;
-      const executedPrice = Math.max(0.001, tickerPrice + microShift);
-
-      setLastTickDirection(isUp ? 'UP' : 'DOWN');
-
-      // Generate a new live transaction in the stream
-      const isLargeTrade = Math.random() > 0.85;
-      const baseQty = tickerPrice > 1000 ? 0.08 : tickerPrice > 50 ? 2.5 : 45;
-      const qtyMultiplier = isLargeTrade ? 3 + Math.random() * 5 : 0.4 + Math.random() * 1.5;
-      const tradeQty = baseQty * qtyMultiplier;
-
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString('id-ID', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      });
-
-      tradeCounterRef.current += 1;
-      const newTrade: LiveTrade = {
-        id: tradeCounterRef.current,
-        price: executedPrice,
-        amount: parseFloat(tradeQty.toFixed(tickerPrice > 1000 ? 4 : 2)),
-        time: timeStr,
-        isBuy: isUp,
-      };
-
-      setTrades((prev) => [newTrade, ...prev.slice(0, 11)]);
-    }, 550);
-
-    return () => clearInterval(interval);
-  }, [tickerPrice]);
+    const fetchFearGreed = async () => {
+      try {
+        const res = await fetch('https://api.alternative.me/fng/?limit=1');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.data && data.data[0]) {
+          setFearGreedValue(parseInt(data.data[0].value, 10));
+          setFearGreedClassification(data.data[0].value_classification);
+        }
+      } catch {
+        // keep fallback
+      }
+    };
+    fetchFearGreed();
+  }, []);
 
   // Continuous reactive order book levels (re-evaluated with jitterSeed)
   const { bids, asks, spread, spreadPercent } = useMemo(() => {
