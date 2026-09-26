@@ -14,6 +14,7 @@ import {
   FileBarChart,
   Settings,
   LogOut,
+  Lock,
   type LucideIcon,
 } from 'lucide-react';
 import { SIDEBAR_MENU_SCHEMA, SIDEBAR_BOTTOM_SCHEMA, type SidebarMenuItem } from '../data/sidebarSchema';
@@ -78,6 +79,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeId, onSelect }) => {
           }`}
         >
           <IconComponent className="w-4 h-4 stroke-[2]" />
+          {item.id === 'trading' && (
+            <span
+              title="Trading Desk Dikunci & Dihentikan"
+              className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-rose-500 border border-white flex items-center justify-center text-white shadow-xs"
+            >
+              <Lock className="w-2 h-2 stroke-[2.5]" />
+            </span>
+          )}
         </button>
       </div>
     );
@@ -122,8 +131,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ activeId, onSelect }) => {
             )}
 
             {/* Menu Name */}
-            <span className="relative z-10 font-sans font-extrabold text-slate-800 text-xs tracking-wide">
+            <span className="relative z-10 font-sans font-extrabold text-slate-800 text-xs tracking-wide flex items-center gap-1.5">
               {hovered.item.name}
+              {hovered.item.id === 'trading' && (
+                <span className="text-[9px] font-black text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200 uppercase font-mono flex items-center gap-0.5">
+                  <Lock className="w-2.5 h-2.5" /> DIKUNCI
+                </span>
+              )}
             </span>
 
             {/* Active Indicator dot if current page */}

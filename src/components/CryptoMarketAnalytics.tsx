@@ -12,12 +12,10 @@ import {
   Clock,
   CheckCircle2,
   ExternalLink,
-  Users,
   Crosshair,
   Target,
   Shield,
 } from 'lucide-react';
-import { INITIAL_DESK_POSITIONS, DeskTraderPosition } from '../data/deskTradingPositions';
 
 export interface CryptoMarketAnalyticsProps {
   selectedAssetSymbol?: string;
@@ -45,11 +43,8 @@ export const CryptoMarketAnalytics: React.FC<CryptoMarketAnalyticsProps> = ({
   onSelectAsset,
 }) => {
   const [activeTab, setActiveTab] = useState<
-    'DESK_POSITIONS' | 'ORDERBOOK' | 'TRADES' | 'SENTIMENT' | 'TECHNICAL' | 'FLASH_NEWS'
-  >('DESK_POSITIONS');
-
-  // Filter untuk pemantauan karyawan
-  const [deskFilter, setDeskFilter] = useState<'ALL' | 'ACTIVE' | 'LIMIT' | 'BTC' | 'ETH' | 'SOL'>('ALL');
+    'ORDERBOOK' | 'TRADES' | 'SENTIMENT' | 'TECHNICAL' | 'FLASH_NEWS'
+  >('ORDERBOOK');
 
   // Anchor price from live market
   const [tickerPrice, setTickerPrice] = useState<number>(() => {
@@ -464,7 +459,6 @@ export const CryptoMarketAnalytics: React.FC<CryptoMarketAnalyticsProps> = ({
           <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[8px] font-mono">
             {(
               [
-                ['DESK_POSITIONS', '🎯 Posisi Karyawan (6)'],
                 ['ORDERBOOK', 'Order Book'],
                 ['TRADES', 'Transaksi'],
                 ['FLASH_NEWS', '⚡ Berita'],
@@ -491,204 +485,6 @@ export const CryptoMarketAnalytics: React.FC<CryptoMarketAnalyticsProps> = ({
 
       {/* Main Tab Body Content - Stretches to fill entire height to the bottom */}
       <div className="flex-1 min-h-0 overflow-hidden flex flex-col my-1">
-        {/* TAB 0: PEMANTAUAN POSISI & LIMIT TRADING KARYAWAN DESK */}
-        {activeTab === 'DESK_POSITIONS' && (
-          <div className="flex flex-col justify-between h-full min-h-0 font-mono">
-            {/* Top Team Metrics Bar */}
-            <div className="p-2 rounded-xl bg-gradient-to-r from-indigo-50/80 via-white to-blue-50/80 border border-indigo-200/80 shadow-2xs mb-1.5 shrink-0">
-              <div className="flex items-center justify-between text-[8px] font-black uppercase text-indigo-700 pb-1 border-b border-indigo-100">
-                <span className="flex items-center gap-1">
-                  <Users className="w-3 h-3 text-indigo-600" />
-                  DESK TRADER TEAM MONITOR
-                </span>
-                <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200 font-mono">
-                  FLOATING: +$4,815 USD
-                </span>
-              </div>
-              <div className="grid grid-cols-3 gap-1 pt-1 text-center">
-                <div className="bg-white/80 p-1 rounded-lg border border-slate-200/80">
-                  <span className="text-[7px] text-slate-400 block">TOTAL OPEN</span>
-                  <span className="text-xs font-black text-slate-800">6 Biji Posisi</span>
-                </div>
-                <div className="bg-white/80 p-1 rounded-lg border border-slate-200/80">
-                  <span className="text-[7px] text-slate-400 block">KARYAWAN AKTIF</span>
-                  <span className="text-xs font-black text-indigo-600">4 Trader</span>
-                </div>
-                <div className="bg-white/80 p-1 rounded-lg border border-slate-200/80">
-                  <span className="text-[7px] text-slate-400 block">VOLUME EXECUTED</span>
-                  <span className="text-xs font-black text-slate-800">$342.8K</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Filter Pills */}
-            <div className="flex items-center gap-1 overflow-x-auto pb-1 mb-1 shrink-0 text-[7.5px]">
-              {(
-                [
-                  ['ALL', 'SEMUA (6)'],
-                  ['ACTIVE', 'AKTIF (4)'],
-                  ['LIMIT', 'ANTREAN LIMIT (2)'],
-                  ['BTC', 'BTC (3)'],
-                  ['ETH', 'ETH (1)'],
-                  ['SOL', 'SOL (2)'],
-                ] as const
-              ).map(([key, label]) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setDeskFilter(key)}
-                  className={`px-1.5 py-0.5 rounded-md font-bold whitespace-nowrap cursor-pointer transition-all ${
-                    deskFilter === key
-                      ? 'bg-slate-900 text-white shadow-2xs'
-                      : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            {/* List Kartu Posisi Karyawan */}
-            <div className="flex-1 overflow-y-auto space-y-1.5 pr-0.5 min-h-0 custom-scrollbar">
-              {INITIAL_DESK_POSITIONS.filter((pos) => {
-                if (deskFilter === 'ACTIVE') return pos.status === 'ACTIVE_OPEN';
-                if (deskFilter === 'LIMIT') return pos.status === 'PENDING_LIMIT';
-                if (deskFilter === 'BTC' || deskFilter === 'ETH' || deskFilter === 'SOL')
-                  return pos.assetSymbol === deskFilter;
-                return true;
-              }).map((pos) => {
-                const isLong = pos.side === 'LONG';
-                const isPending = pos.status === 'PENDING_LIMIT';
-                const currentP =
-                  pos.assetSymbol === 'BTC'
-                    ? tickerPrice || 84082
-                    : pos.assetSymbol === 'ETH'
-                    ? 2690
-                    : 120.8;
-                const pnlUsd = isLong
-                  ? (currentP - pos.entryPrice) * pos.amount
-                  : (pos.entryPrice - currentP) * pos.amount;
-                const pnlPct =
-                  ((pnlUsd / (pos.entryPrice * pos.amount)) * 100) * pos.leverage;
-
-                return (
-                  <div
-                    key={pos.id}
-                    className="p-2 rounded-xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#edf3fa] border border-slate-200 shadow-2xs hover:border-indigo-300 transition-all"
-                  >
-                    {/* Header: Trader Info & Order Badge */}
-                    <div className="flex items-center justify-between gap-1 mb-1">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <div className="w-5 h-5 rounded-md bg-indigo-600 text-white font-black text-[8px] flex items-center justify-center shrink-0">
-                          {pos.traderAvatar}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="text-[9px] font-black text-slate-900 leading-tight truncate">
-                            {pos.traderName}
-                          </div>
-                          <span className="text-[7px] text-slate-400 block leading-tight">
-                            {pos.traderRole}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-1 shrink-0">
-                        <span
-                          className={`text-[7.5px] font-black px-1.5 py-0.2 rounded border ${
-                            isLong
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : 'bg-rose-50 text-rose-700 border-rose-200'
-                          }`}
-                        >
-                          {pos.side} {pos.leverage > 1 ? `${pos.leverage}x` : 'SPOT'}
-                        </span>
-                        <span
-                          className={`text-[7px] font-bold px-1 py-0.2 rounded border ${
-                            isPending
-                              ? 'bg-amber-50 text-amber-700 border-amber-200'
-                              : 'bg-indigo-50 text-indigo-700 border-indigo-200'
-                          }`}
-                        >
-                          {isPending ? 'LIMIT ANTREAN' : 'AKTIF OPEN'}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Quantity (Berapa Biji) & Entry vs Market */}
-                    <div className="grid grid-cols-2 gap-1.5 p-1.5 rounded-lg bg-slate-50/90 border border-slate-200/80 my-1 text-[8px]">
-                      <div>
-                        <span className="text-[7px] text-slate-400 block uppercase">
-                          UKURAN / BIJI KOIN
-                        </span>
-                        <span className="font-black text-slate-900 text-[10px]">
-                          {pos.amount} {pos.assetSymbol}
-                        </span>
-                        <span className="text-[7px] text-slate-400 block">
-                          ~${Math.round(pos.amount * pos.entryPrice).toLocaleString()} USD
-                        </span>
-                      </div>
-
-                      <div className="text-right">
-                        <span className="text-[7px] text-slate-400 block uppercase">
-                          FLOATING PNL LIVE
-                        </span>
-                        {isPending ? (
-                          <span className="font-bold text-amber-600 text-[9px]">
-                            Menunggu Harga Fill
-                          </span>
-                        ) : (
-                          <div className={`font-black text-[10px] ${pnlUsd >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
-                            {pnlUsd >= 0 ? '+' : ''}${pnlUsd.toFixed(1)} ({pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(2)}%)
-                          </div>
-                        )}
-                        <span className="text-[7px] text-slate-400 block">
-                          Entry: ${pos.entryPrice.toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* TP / SL & Strategy Note */}
-                    <div className="flex items-center justify-between text-[7px] text-slate-500 py-0.5">
-                      <span>
-                        🎯 TP: <strong className="text-emerald-700">${pos.tpPrice?.toLocaleString()}</strong> • SL: <strong className="text-rose-700">${pos.slPrice?.toLocaleString()}</strong>
-                      </span>
-                      <span>🕒 {pos.openedAt}</span>
-                    </div>
-
-                    <div className="text-[7px] text-slate-500 italic bg-white/70 p-1 rounded border border-slate-200/60 my-0.5 truncate">
-                      "{pos.note}"
-                    </div>
-
-                    {/* Footer Action */}
-                    <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 mt-1">
-                      <span className="text-[7px] text-slate-400">
-                        {pos.orderType} ORDER EXECUTION
-                      </span>
-                      {onSelectAsset && (
-                        <button
-                          type="button"
-                          onClick={() => onSelectAsset(pos.assetSymbol)}
-                          className="text-[7.5px] font-black text-indigo-600 hover:text-indigo-800 flex items-center gap-0.5 cursor-pointer hover:underline"
-                        >
-                          Lihat di Chart {pos.assetSymbol} ↗
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Footer Summary */}
-            <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[7.5px] text-slate-500 mt-1 shrink-0">
-              <span className="flex items-center gap-1 font-bold text-slate-700">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                PEMBACAAN OTOMATIS AKTIVITAS TRADING
-              </span>
-              <span className="text-indigo-600 font-bold">REAL-TIME MONITOR</span>
-            </div>
-          </div>
-        )}
         {/* TAB 1: LIVE ORDER BOOK (BERGERAK TERUS SESUAI TRANSAKSI) */}
         {activeTab === 'ORDERBOOK' && (
           <div className="flex flex-col justify-between h-full min-h-0 font-mono">

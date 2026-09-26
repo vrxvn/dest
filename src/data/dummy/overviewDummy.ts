@@ -98,6 +98,106 @@ export const TRADE_STREAM_POOL: Omit<EmployeeTrade, 'id' | 'timestamp'>[] = [
   { employee: 'T.309', market: 'MSFT GLOBAL', positionValue: '$68,000', floatingPnl: '+$2,900', isProfit: true, action: 'TP', speed: 'FAST' },
 ];
 
+export interface CompanyYearlyPerformance {
+  year: string;
+  revenue: number; // in Millions USD
+  profit: number; // in Millions USD
+  aum: number; // in Millions USD
+  roi: string;
+  growth: string;
+  highlight: string;
+  monthlyRevenue: number[]; // 12 months in $K (e.g., [180, 195, ...])
+  monthlyProfit: number[]; // 12 months in $K
+}
+
+export const MONTH_NAMES_SHORT = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+];
+
+export const COMPANY_PERFORMANCE_2020_2026: CompanyYearlyPerformance[] = [
+  {
+    year: '2020',
+    revenue: 1.85,
+    profit: 0.42,
+    aum: 2.3,
+    roi: '+12.5%',
+    growth: 'Inisiasi Operasi',
+    highlight: 'Pilot Project & Penataan Infrastruktur Likuiditas Awal',
+    monthlyRevenue: [110, 120, 115, 135, 140, 150, 160, 165, 170, 185, 190, 205],
+    monthlyProfit: [25, 28, 22, 30, 32, 35, 38, 36, 40, 42, 45, 47],
+  },
+  {
+    year: '2021',
+    revenue: 3.2,
+    profit: 0.95,
+    aum: 4.5,
+    roi: '+18.4%',
+    growth: '+73% YoY',
+    highlight: 'Peluncuran Prime Treasury Desk & Multi-Exchange Node',
+    monthlyRevenue: [210, 225, 230, 245, 260, 270, 275, 285, 290, 300, 305, 305],
+    monthlyProfit: [60, 65, 68, 72, 78, 80, 82, 85, 88, 92, 90, 90],
+  },
+  {
+    year: '2022',
+    revenue: 5.8,
+    profit: 1.82,
+    aum: 7.2,
+    roi: '+24.1%',
+    growth: '+81% YoY',
+    highlight: 'Ekspansi Institutional Liquidity Pool & Hedging Otomatis',
+    monthlyRevenue: [380, 410, 425, 450, 470, 490, 505, 520, 530, 535, 540, 545],
+    monthlyProfit: [120, 130, 135, 145, 150, 155, 160, 165, 168, 170, 160, 162],
+  },
+  {
+    year: '2023',
+    revenue: 8.6,
+    profit: 2.95,
+    aum: 10.4,
+    roi: '+28.6%',
+    growth: '+48% YoY',
+    highlight: 'Integrasi Multi-Asset & Algorithmic Yield Optimization',
+    monthlyRevenue: [580, 620, 650, 680, 710, 730, 740, 760, 775, 780, 785, 790],
+    monthlyProfit: [195, 210, 220, 235, 245, 250, 255, 260, 268, 270, 272, 270],
+  },
+  {
+    year: '2024',
+    revenue: 11.9,
+    profit: 4.10,
+    aum: 12.8,
+    roi: '+31.2%',
+    growth: '+38% YoY',
+    highlight: 'Sertifikasi Cold Storage HSM L3 & Sovereign Tier Compliance',
+    monthlyRevenue: [820, 870, 910, 950, 990, 1020, 1040, 1060, 1080, 1070, 1040, 1050],
+    monthlyProfit: [280, 300, 315, 330, 345, 355, 360, 370, 375, 370, 350, 350],
+  },
+  {
+    year: '2025',
+    revenue: 14.5,
+    profit: 5.35,
+    aum: 14.6,
+    roi: '+35.8%',
+    growth: '+22% YoY',
+    highlight: 'Kemitraan Institusi Finansial Global (Temasek & GIC)',
+    monthlyRevenue: [1080, 1120, 1160, 1200, 1240, 1260, 1270, 1280, 1290, 1200, 1190, 1210],
+    monthlyProfit: [390, 410, 425, 440, 455, 465, 470, 475, 480, 440, 445, 455],
+  },
+  {
+    year: '2026',
+    revenue: 17.2,
+    profit: 6.84,
+    aum: 15.32,
+    roi: '+39.4%',
+    growth: '+19% YTD',
+    highlight: 'Rekor Portofolio $15.32M & Target Ekspansi Sovereign Fund',
+    // 2026 data: Jan - Sep aktual, Okt - Des estimasi run-rate
+    monthlyRevenue: [1310, 1340, 1380, 1420, 1460, 1490, 1510, 1530, 1560, 1400, 1400, 1400],
+    monthlyProfit: [520, 535, 550, 565, 580, 595, 605, 615, 630, 550, 545, 550],
+  },
+];
+
+// Alias for backward compatibility if needed
+export const COMPANY_PERFORMANCE_2021_2026 = COMPANY_PERFORMANCE_2020_2026.filter((d) => d.year !== '2020');
+
 export const CHART_DATASETS: Record<string, { pts1: number[]; pts2: number[] }> = {
   '1D': {
     pts1: [14, 16, 15, 18, 17, 19, 21, 20, 23, 22, 25, 27],

@@ -20,6 +20,15 @@ import {
   X,
   Copy,
   ChevronRight,
+  ChevronDown,
+  Lock,
+  ShieldAlert,
+  Pause,
+  BarChart3,
+  Award,
+  Calendar,
+  LineChart,
+  Layers,
 } from 'lucide-react';
 import {
   EmployeeTrade,
@@ -29,6 +38,9 @@ import {
   DUMMY_WALLET_ADDRESS as walletAddress,
   GLOBAL_INSTITUTIONAL_INVESTMENTS,
   LIVE_MARKET_TICKERS,
+  COMPANY_PERFORMANCE_2020_2026,
+  MONTH_NAMES_SHORT,
+  type CompanyYearlyPerformance,
 } from '../data/dummyData';
 
 interface DashboardGridProps {
@@ -39,37 +51,19 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
   const [activeTimeframe, setActiveTimeframe] = useState<'1D' | '1W' | '1M' | '1Y' | 'ALL'>('1M');
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
 
-  // Live Employee Global Trading Desk state
-  const [employeeTrades, setEmployeeTrades] = useState<EmployeeTrade[]>(INITIAL_EMPLOYEE_TRADES);
-  const [tradeCount, setTradeCount] = useState(148);
+  // State untuk Grafik Pengelolaan Pemasukan Perusahaan (2020 - Sekarang / 2026)
+  const [selectedPerformanceYear, setSelectedPerformanceYear] = useState<string>('2026');
+  const [incomeViewMode, setIncomeViewMode] = useState<'MONTHLY' | 'YEARLY'>('MONTHLY');
+  const [performanceMetric, setPerformanceMetric] = useState<'REVENUE' | 'PROFIT' | 'AUM'>('REVENUE');
+  const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
+  const [chartType, setChartType] = useState<'BAR_CLUSTERED' | 'STEP_STAIRCASE' | 'WATERFALL'>('BAR_CLUSTERED');
 
-  useEffect(() => {
-    let poolIndex = 0;
-    const interval = setInterval(() => {
-      const template = TRADE_STREAM_POOL[poolIndex % TRADE_STREAM_POOL.length];
-      poolIndex++;
+  // Live Employee Global Trading Desk state - DIHENTIKAN / STOPPED & DIKUNCI
+  const [employeeTrades] = useState<EmployeeTrade[]>(INITIAL_EMPLOYEE_TRADES);
+  const tradeCount = 148;
 
-      setEmployeeTrades((prev) => {
-        const newTrade: EmployeeTrade = {
-          id: `trade-${Date.now()}-${Math.random()}`,
-          ...template,
-          timestamp: 'Baru saja',
-        };
-        const updatedPrev = prev.slice(0, 5).map((t, idx) => ({
-          ...t,
-          timestamp: idx === 0 ? '3 dtk lalu' : idx === 1 ? '8 dtk lalu' : idx === 2 ? '15 dtk lalu' : '26 dtk lalu',
-        }));
-        return [newTrade, ...updatedPrev];
-      });
-
-      setTradeCount((c) => c + 1);
-    }, 2500);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // Quick Action Modal state (Replaced retail locks with institutional actions)
-  const [activeModal, setActiveModal] = useState<'trade_order' | 'deposit' | 'fx_swap' | 'vault_sign' | null>(null);
+  // Quick Action Modal state (termasuk status locked_trading)
+  const [activeModal, setActiveModal] = useState<'trade_order' | 'deposit' | 'fx_swap' | 'vault_sign' | 'locked_trading' | null>(null);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
 
   // Synchronize bottom of Capital Flow card with bottom of Treasury & Staking blocks
@@ -128,17 +122,23 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
         {/* ------------------------------------------------------------ */}
         <div className="lg:col-span-4 xl:col-span-4 flex flex-col gap-2.5 sm:gap-3 h-full min-h-0">
           {/* Card 1: TOTAL AUM & Balance */}
-          <div className={`${glassCard} flex flex-col justify-between flex-shrink-0`}>
+          <div className={`${glassCard} flex flex-col justify-between flex-shrink-0 relative overflow-hidden`}>
             {/* Top: Total AUM & Balance */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono">
                   TOTAL AUM • USD
                 </span>
-                <span className="inline-flex items-center gap-0.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 shadow-xs">
-                  <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
-                  +23.1% (+27.4% YTD)
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-rose-500/10 text-rose-600 border border-rose-500/25 shadow-xs font-mono">
+                    <Lock className="w-2.5 h-2.5" />
+                    TRADING DIKUNCI
+                  </span>
+                  <span className="inline-flex items-center gap-0.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 shadow-xs">
+                    <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                    +23.1% (+27.4% YTD)
+                  </span>
+                </div>
               </div>
 
               <div className="mt-2.5 mb-2">
@@ -186,15 +186,18 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
 
             {/* Bottom: 4 Synchronized Core Desk Launchers (Preserves exact dock layout & 3D solid styling) */}
             <div className="pt-2 flex items-center justify-between gap-2">
-              {/* 1. TRADING DESK */}
+              {/* 1. TRADING DESK (DIKUNCI / HALTED) */}
               <button
                 type="button"
-                onClick={() => onNavigate ? onNavigate('trading') : setActiveModal('trade_order')}
-                title="Trading Desk • PnL +$384.5K (Buka Trading Operations)"
-                className="group relative flex-1 h-10 sm:h-11 rounded-2xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] text-indigo-600 hover:text-indigo-800 flex items-center justify-center border-t-2 border-t-white border-x-[1.5px] border-slate-200/90 border-b-[3px] border-b-slate-300 shadow-[0_4px_8px_rgba(0,0,0,0.08),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-1px_1px_rgba(148,163,184,0.3)] hover:brightness-105 active:border-b-[1px] active:translate-y-[1.5px] transition-all cursor-pointer"
+                onClick={() => setActiveModal('locked_trading')}
+                title="Trading Desk • DIKUNCI TOTAL & DIHENTIKAN (Klik untuk melihat protokol keamanan)"
+                className="group relative flex-1 h-10 sm:h-11 rounded-2xl bg-gradient-to-b from-[#fff5f5] via-[#fef2f2] to-[#fee2e2] text-rose-600 hover:text-rose-700 flex items-center justify-center border-t-2 border-t-white border-x-[1.5px] border-rose-200/90 border-b-[3px] border-b-rose-300 shadow-[0_4px_8px_rgba(225,29,72,0.12),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-1px_1px_rgba(254,202,202,0.4)] hover:brightness-105 active:border-b-[1px] active:translate-y-[1.5px] transition-all cursor-pointer"
               >
-                <TrendingUp className="w-4 h-4 stroke-[2.3]" />
-                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 animate-pulse border border-white" />
+                <div className="relative flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 stroke-[2.3] opacity-50" />
+                  <Lock className="w-2.5 h-2.5 text-rose-600 absolute -bottom-1 -right-1" />
+                </div>
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 border border-white flex items-center justify-center" />
               </button>
 
               {/* 2. FX FLOW DESK */}
@@ -410,34 +413,34 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
         <div className="lg:col-span-8 xl:col-span-8 flex flex-col gap-3 h-full flex-1 min-h-0">
           {/* Top Row in Right Column: 3 Split Executive KPI Cards (Synchronized to Trading & Crypto) */}
           <div ref={topRowRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {/* 1. Net PnL + Micro Sparkline (Synchronized to Trading Desk) */}
+            {/* 1. Net PnL + Micro Sparkline (Synchronized to Trading Desk - HALTED) */}
             <div
-              onClick={() => onNavigate?.('trading')}
-              title="Klik untuk membuka menu Trading Operations Desk"
-              className={`${glassCard} cursor-pointer hover:border-indigo-300 hover:brightness-105 active:translate-y-[1px] group`}
+              onClick={() => setActiveModal('locked_trading')}
+              title="Trading Operations • DIKUNCI & DIHENTIKAN"
+              className={`${glassCard} cursor-pointer hover:border-rose-300 hover:brightness-105 active:translate-y-[1px] group relative overflow-hidden`}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 group-hover:text-indigo-600 uppercase font-mono transition-colors">
-                  NET PNL • 30D
+                <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 group-hover:text-rose-600 uppercase font-mono transition-colors">
+                  NET PNL • 30D (HALTED)
                 </span>
-                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-500/10 text-blue-600 border border-blue-500/20 shadow-xs">
-                  <TrendingUp className="w-3 h-3 stroke-[2.5]" />
-                  +32.6%
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20 shadow-xs font-mono">
+                  <Lock className="w-2.5 h-2.5" />
+                  DIKUNCI
                 </span>
               </div>
 
               <div className="flex items-end justify-between gap-1 my-1">
-                <div className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight font-mono group-hover:text-indigo-900 transition-colors">
+                <div className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight font-mono group-hover:text-rose-900 transition-colors">
                   +$384,500
                 </div>
 
                 {/* Micro Sparkline Chart */}
-                <div className="w-20 h-7 flex-shrink-0">
+                <div className="w-20 h-7 flex-shrink-0 opacity-60">
                   <svg viewBox="0 0 100 36" className="w-full h-full overflow-visible">
                     <defs>
                       <linearGradient id="pnlSparklineGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#2563eb" stopOpacity="0.35" />
-                        <stop offset="100%" stopColor="#2563eb" stopOpacity="0" />
+                        <stop offset="0%" stopColor="#e11d48" stopOpacity="0.3" />
+                        <stop offset="100%" stopColor="#e11d48" stopOpacity="0" />
                       </linearGradient>
                     </defs>
                     <path
@@ -447,19 +450,19 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
                     <path
                       d="M 0,28 Q 15,25 30,18 T 60,14 T 80,8 T 100,3"
                       fill="none"
-                      stroke="#2563eb"
+                      stroke="#e11d48"
                       strokeWidth="2.5"
                       strokeLinecap="round"
                     />
-                    <circle cx="100" cy="3" r="3" fill="#2563eb" className="animate-pulse" />
+                    <circle cx="100" cy="3" r="3" fill="#e11d48" />
                   </svg>
                 </div>
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-slate-200/70 text-[11px] font-mono">
-                <span className="text-slate-400">WIN 74.2%</span>
-                <span className="text-slate-700 font-bold flex items-center gap-0.5">
-                  SHARPE 3.55 <ChevronRight className="w-2.5 h-2.5 opacity-60" />
+                <span className="text-slate-400">CIRCUIT BREAKER</span>
+                <span className="text-rose-600 font-bold flex items-center gap-0.5">
+                  FROZEN <ChevronRight className="w-2.5 h-2.5 opacity-60" />
                 </span>
               </div>
             </div>
@@ -494,41 +497,41 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
               </div>
             </div>
 
-            {/* 3. 24H Volume & Execution Velocity (Synchronized to Trading Desk) */}
+            {/* 3. 24H Volume & Execution Velocity (Synchronized to Trading Desk - HALTED) */}
             <div
-              onClick={() => onNavigate?.('trading')}
-              title="Klik untuk membuka menu Trading Operations Desk"
-              className={`${glassCard} cursor-pointer hover:border-emerald-300 hover:brightness-105 active:translate-y-[1px] group`}
+              onClick={() => setActiveModal('locked_trading')}
+              title="Execution Desk • DIHENTIKAN"
+              className={`${glassCard} cursor-pointer hover:border-amber-300 hover:brightness-105 active:translate-y-[1px] group relative overflow-hidden`}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 group-hover:text-emerald-700 uppercase font-mono transition-colors">
-                  24H VOLUME
+                <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 group-hover:text-amber-700 uppercase font-mono transition-colors">
+                  24H VOLUME (HALTED)
                 </span>
-                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 shadow-xs">
-                  <Activity className="w-3 h-3 stroke-[2.5]" />
-                  +18.4%
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-700 border border-amber-500/20 shadow-xs font-mono">
+                  <Pause className="w-2.5 h-2.5" />
+                  DIHENTIKAN
                 </span>
               </div>
 
               <div className="flex items-end justify-between gap-1 my-1">
-                <div className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight font-mono group-hover:text-emerald-900 transition-colors">
+                <div className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight font-mono group-hover:text-amber-900 transition-colors">
                   $3,250,000
                 </div>
 
                 {/* Micro Volume Bars */}
-                <div className="flex items-end gap-1 h-6 pb-0.5 flex-shrink-0">
-                  <div className="w-1.5 h-3 bg-emerald-400/60 rounded-xs" />
-                  <div className="w-1.5 h-4.5 bg-emerald-400/80 rounded-xs" />
-                  <div className="w-1.5 h-3.5 bg-emerald-500 rounded-xs" />
-                  <div className="w-1.5 h-5 bg-emerald-500 rounded-xs" />
-                  <div className="w-1.5 h-6 bg-gradient-to-t from-emerald-500 to-teal-400 rounded-xs animate-pulse" />
+                <div className="flex items-end gap-1 h-6 pb-0.5 flex-shrink-0 opacity-60">
+                  <div className="w-1.5 h-3 bg-amber-400/60 rounded-xs" />
+                  <div className="w-1.5 h-4.5 bg-amber-400/80 rounded-xs" />
+                  <div className="w-1.5 h-3.5 bg-amber-500 rounded-xs" />
+                  <div className="w-1.5 h-5 bg-amber-500 rounded-xs" />
+                  <div className="w-1.5 h-6 bg-amber-500 rounded-xs" />
                 </div>
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-slate-200/70 text-[11px] font-mono">
-                <span className="text-slate-400">FILL 99.98%</span>
-                <span className="text-emerald-600 font-bold flex items-center gap-0.5">
-                  12ms SPEED <ChevronRight className="w-2.5 h-2.5 opacity-60" />
+                <span className="text-slate-400">EKSEKUSI ORDER</span>
+                <span className="text-amber-700 font-bold flex items-center gap-0.5">
+                  LOCKED <ChevronRight className="w-2.5 h-2.5 opacity-60" />
                 </span>
               </div>
             </div>
@@ -538,152 +541,414 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
           <div className="flex flex-col lg:flex-row gap-3 items-stretch flex-1 min-h-0">
             {/* Center Column: Flowing Chart (Posisi Semula) + 1 Block Tambahan Di Bawahnya */}
             <div className="flex-1 min-w-0 flex flex-col gap-3 h-full justify-between min-h-0">
-              {/* Visual 1: Chart Mengalir (Sejajar Bawah dengan Treasury & Staking) */}
+              {/* Visual 1: Chart Pengelolaan Pemasukan Perusahaan (Per Bulan & Per Tahun, 2020 - Sekarang / 2026) */}
               <div
                 ref={capitalRef}
-                className={`${glassCard} flex-shrink-0 flex flex-col justify-between`}
+                className={`${glassCard} flex-shrink-0 flex flex-col justify-between relative overflow-hidden`}
                 style={capitalHeight ? { height: `${capitalHeight}px` } : undefined}
               >
-                <div className="flex items-center justify-between gap-1 mb-1">
-                  <div>
-                    <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase font-mono flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-ping" />
-                      CAPITAL FLOW STREAM • REAL-TIME
-                    </span>
-                    <div className="flex items-baseline gap-1.5 mt-0.5">
-                      <span className="text-xl sm:text-2xl font-black text-slate-800 font-mono truncate">
-                        $1,842,000
+                {/* Header: Judul Singkat 'ARUS KAS' & Dropdown Pemilih Tahun Ke Bawah */}
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase font-mono flex items-center gap-1.5">
+                        <BarChart3 className="w-3.5 h-3.5 text-blue-600 stroke-[2.3]" />
+                        ARUS KAS
                       </span>
-                      <span className="text-[11px] font-bold text-indigo-600 bg-indigo-500/10 px-1.5 py-0.2 rounded-full border border-indigo-500/20 font-mono">
-                        +24.8% FLOW
+                      <div className="flex items-baseline gap-1.5 mt-0.5">
+                        {(() => {
+                          if (selectedPerformanceYear === 'ALL') {
+                            const totalRev = COMPANY_PERFORMANCE_2020_2026.reduce((acc, d) => acc + d.revenue, 0);
+                            return (
+                              <span className="text-xl sm:text-2xl font-black text-slate-800 font-mono truncate">
+                                ${totalRev.toFixed(2)}M
+                              </span>
+                            );
+                          }
+
+                          const selectedData =
+                            COMPANY_PERFORMANCE_2020_2026.find((d) => d.year === selectedPerformanceYear) ||
+                            COMPANY_PERFORMANCE_2020_2026[COMPANY_PERFORMANCE_2020_2026.length - 1];
+
+                          const monthIdx = hoveredPointIndex !== null && hoveredPointIndex < 12 ? hoveredPointIndex : 11;
+                          const incomeVal = selectedData.monthlyRevenue[monthIdx];
+
+                          return (
+                            <span className="text-xl sm:text-2xl font-black text-slate-800 font-mono truncate">
+                              ${incomeVal.toLocaleString()}K
+                            </span>
+                          );
+                        })()}
+                      </div>
+                    </div>
+
+                    {/* Indicator Legend: 2 Garis Bersih (Biru & Merah) */}
+                    <div className="hidden sm:flex items-center gap-2.5 pl-3 border-l border-slate-200 text-[9px] font-mono">
+                      <span className="flex items-center gap-1 text-sky-700 font-bold">
+                        <span className="w-3.5 h-0.5 rounded-full bg-sky-600" />
+                        Pemasukan
+                      </span>
+                      <span className="flex items-center gap-1 text-rose-600 font-bold">
+                        <span className="w-3.5 h-0.5 rounded-full bg-rose-500" />
+                        Pengeluaran
                       </span>
                     </div>
                   </div>
 
-                  {/* Timeframe Pills */}
-                  <div className="flex items-center gap-0.5 p-0.5 bg-slate-200/70 rounded-full border border-slate-300/60 shadow-inner">
-                    {(['1D', '1W', '1M', '1Y', 'ALL'] as const).map((tf) => (
-                      <button
-                        key={tf}
-                        type="button"
-                        onClick={() => setActiveTimeframe(tf)}
-                        className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold font-mono transition-all cursor-pointer ${
-                          activeTimeframe === tf
-                            ? 'bg-gradient-to-b from-[#2d3748] to-[#0f172a] text-white shadow-xs'
-                            : 'text-slate-600 hover:text-slate-900'
-                        }`}
-                      >
-                        {tf}
-                      </button>
-                    ))}
+                  {/* Dropdown Pemilih Tahun (Termasuk Opsi Melihat Semua Tahun & Tanpa Kata NOW pada 2026) */}
+                  <div className="relative">
+                    <select
+                      value={selectedPerformanceYear}
+                      onChange={(e) => {
+                        setSelectedPerformanceYear(e.target.value);
+                        setHoveredPointIndex(null);
+                      }}
+                      className="appearance-none bg-slate-100/90 hover:bg-slate-200/90 text-slate-800 text-[11px] font-mono font-bold pl-2.5 pr-7 py-1 rounded-lg border border-slate-300/80 shadow-xs cursor-pointer focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
+                    >
+                      <option value="ALL">Lihat Semua Tahun (2020 - 2026)</option>
+                      {COMPANY_PERFORMANCE_2020_2026.map((item) => (
+                        <option key={item.year} value={item.year}>
+                          Tahun {item.year}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="w-3.5 h-3.5 text-slate-500 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
                 </div>
 
-                {/* Dedicated Flowing Stream Chart SVG (Scales to fill synchronized card height) */}
-                <div className="w-full flex-1 min-h-[120px] relative my-1">
-                  <svg viewBox="0 0 320 150" className="w-full h-full overflow-visible">
-                    <defs>
-                      {/* Primary Flow Gradient */}
-                      <linearGradient id="flowStreamGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.4" />
-                        <stop offset="60%" stopColor="#06b6d4" stopOpacity="0.15" />
-                        <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.0" />
-                      </linearGradient>
+                {/* SVG Visual Chart: 2 Smooth Continuous Spline Lines (Biru & Merah) TANPA TITIK */}
+                <div className="w-full flex-1 min-h-[145px] relative my-1 overflow-hidden rounded-xl bg-white border border-slate-200/80 p-2 shadow-xs">
+                  {(() => {
+                    const isAllYears = selectedPerformanceYear === 'ALL';
 
-                      {/* Secondary Ambient Flow Gradient */}
-                      <linearGradient id="flowAmbientGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
-                        <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
-                      </linearGradient>
-                    </defs>
+                    // Either 7 points (2020 - 2026) if 'ALL', or 12 months for single year
+                    let labels: string[] = [];
+                    let incomeData: number[] = [];
+                    let expenseData: number[] = [];
+                    let maxIncomeVal = 100;
 
-                    {/* Flow Guide Gridlines */}
-                    <line x1="0" y1="30" x2="320" y2="30" stroke="#cbd5e1" strokeDasharray="3 3" opacity="0.5" />
-                    <line x1="0" y1="75" x2="320" y2="75" stroke="#cbd5e1" strokeDasharray="3 3" opacity="0.5" />
-                    <line x1="0" y1="115" x2="320" y2="115" stroke="#cbd5e1" strokeDasharray="3 3" opacity="0.5" />
-                    <line x1="0" y1="145" x2="320" y2="145" stroke="#94a3b8" opacity="0.7" />
+                    if (isAllYears) {
+                      labels = COMPANY_PERFORMANCE_2020_2026.map((d) => d.year);
+                      incomeData = COMPANY_PERFORMANCE_2020_2026.map((d) => Math.round(d.revenue * 1000));
+                      expenseData = COMPANY_PERFORMANCE_2020_2026.map((d) => Math.round((d.revenue - d.profit) * 1000));
+                      maxIncomeVal = Math.max(...incomeData);
+                    } else {
+                      const yearData =
+                        COMPANY_PERFORMANCE_2020_2026.find((d) => d.year === selectedPerformanceYear) ||
+                        COMPANY_PERFORMANCE_2020_2026[COMPANY_PERFORMANCE_2020_2026.length - 1];
+                      labels = MONTH_NAMES_SHORT;
+                      incomeData = yearData.monthlyRevenue;
+                      expenseData = incomeData.map((inc, i) => inc - yearData.monthlyProfit[i]);
+                      maxIncomeVal = Math.max(...incomeData);
+                    }
 
-                    {/* Secondary Undercurrent Wave */}
-                    <path
-                      d="M 0,120 Q 40,95 80,105 T 160,85 T 240,100 T 320,65 L 320,145 L 0,145 Z"
-                      fill="url(#flowAmbientGrad)"
-                    />
-                    <path
-                      d="M 0,120 Q 40,95 80,105 T 160,85 T 240,100 T 320,65"
-                      fill="none"
-                      stroke="#10b981"
-                      strokeWidth="1.5"
-                      strokeDasharray="4 3"
-                      opacity="0.7"
-                    />
+                    const pctIncome = incomeData.map((val) => {
+                      const pct = (val / maxIncomeVal) * 9.2;
+                      return Math.max(0.6, pct);
+                    });
 
-                    {/* Primary Flowing Stream Wave (Active dataset) */}
-                    {(() => {
-                      const pts = currentDataset.pts1;
-                      const stepX = 320 / (pts.length - 1);
-                      const maxVal = 85;
-                      const pointsCoord = pts.map((val, i) => ({
-                        x: i * stepX,
-                        y: 145 - (val / maxVal) * 125,
-                      }));
+                    const pctExpense = expenseData.map((val) => {
+                      const pct = (val / maxIncomeVal) * 9.2;
+                      return Math.max(0.3, pct);
+                    });
 
-                      const dCurve = pointsCoord.reduce((acc, curr, i, arr) => {
+                    const plotLeft = 28;
+                    const plotRight = 332;
+                    const plotTop = 16;
+                    const plotBottom = 112;
+                    const plotHeight = plotBottom - plotTop;
+                    const maxScale = 10;
+
+                    const stepX = (plotRight - plotLeft) / (labels.length - 1);
+
+                    const coordsIncome = pctIncome.map((pct, i) => ({
+                      x: plotLeft + i * stepX,
+                      y: plotBottom - (pct / maxScale) * plotHeight,
+                      pct,
+                      incomeVal: incomeData[i],
+                      expenseVal: expenseData[i],
+                      label: labels[i],
+                      subLabel: isAllYears ? `Tahun ${labels[i]}` : `${labels[i]} ${selectedPerformanceYear}`,
+                    }));
+
+                    const coordsExpense = pctExpense.map((pct, i) => ({
+                      x: plotLeft + i * stepX,
+                      y: plotBottom - (pct / maxScale) * plotHeight,
+                      pct,
+                    }));
+
+                    const makeSpline = (pts: { x: number; y: number }[]) =>
+                      pts.reduce((acc, curr, i, arr) => {
                         if (i === 0) return `M ${curr.x},${curr.y}`;
                         const prev = arr[i - 1];
-                        const cx1 = prev.x + (curr.x - prev.x) / 2;
-                        const cy1 = prev.y;
-                        const cx2 = prev.x + (curr.x - prev.x) / 2;
-                        const cy2 = curr.y;
-                        return `${acc} C ${cx1},${cy1} ${cx2},${cy2} ${curr.x},${curr.y}`;
+                        const cp1x = prev.x + (curr.x - prev.x) * 0.5;
+                        const cp1y = prev.y;
+                        const cp2x = prev.x + (curr.x - prev.x) * 0.5;
+                        const cp2y = curr.y;
+                        return `${acc} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${curr.x},${curr.y}`;
                       }, '');
 
-                      const dArea = `${dCurve} L 320,145 L 0,145 Z`;
+                    const dCurveIncome = makeSpline(coordsIncome);
+                    const dCurveExpense = makeSpline(coordsExpense);
 
-                      return (
-                        <>
-                          <path d={dArea} fill="url(#flowStreamGrad)" />
-                          <path
-                            d={dCurve}
-                            fill="none"
-                            stroke="#4f46e5"
-                            strokeWidth="2.8"
-                            strokeLinecap="round"
-                          />
-                          {pointsCoord.map((p, i) => (
-                            <g key={i}>
-                              <circle
-                                cx={p.x}
-                                cy={p.y}
-                                r={hoveredPoint === i ? 5 : 2.5}
-                                fill="#4f46e5"
-                                stroke="#ffffff"
-                                strokeWidth="1.5"
-                                className="cursor-pointer transition-all"
-                                onMouseEnter={() => setHoveredPoint(i)}
-                                onMouseLeave={() => setHoveredPoint(null)}
+                    const firstX = coordsIncome[0].x;
+                    const lastX = coordsIncome[coordsIncome.length - 1].x;
+
+                    const dAreaIncome = `${dCurveIncome} L ${lastX},${plotBottom} L ${firstX},${plotBottom} Z`;
+                    const dAreaExpense = `${dCurveExpense} L ${lastX},${plotBottom} L ${firstX},${plotBottom} Z`;
+
+                    const activeIdx = hoveredPointIndex !== null && hoveredPointIndex < coordsIncome.length ? hoveredPointIndex : null;
+                    const activeNode = activeIdx !== null ? coordsIncome[activeIdx] : null;
+
+                    return (
+                      <svg viewBox="0 0 340 140" className="w-full h-full overflow-visible">
+                        <defs>
+                          {/* Looker Studio Soft Sky Blue Gradient (Garis 1 - Pemasukan) */}
+                          <linearGradient id="streamIncomeGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#0284c7" stopOpacity="0.25" />
+                            <stop offset="70%" stopColor="#38bdf8" stopOpacity="0.08" />
+                            <stop offset="100%" stopColor="#ffffff" stopOpacity="0.0" />
+                          </linearGradient>
+
+                          {/* Soft Red / Rose Gradient (Garis 2 - Pengeluaran) */}
+                          <linearGradient id="streamExpenseGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#e11d48" stopOpacity="0.22" />
+                            <stop offset="75%" stopColor="#f43f5e" stopOpacity="0.06" />
+                            <stop offset="100%" stopColor="#ffffff" stopOpacity="0.0" />
+                          </linearGradient>
+
+                          {/* Tooltip Card Drop Shadow */}
+                          <filter id="tooltipShadow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="0" dy="3" stdDeviation="3.5" floodColor="#0f172a" floodOpacity="0.12" />
+                          </filter>
+                        </defs>
+
+                        {/* Y-Axis Horizontal Gridlines & Labels (0%, 2,5%, 5%, 7,5%, 10%) */}
+                        {[
+                          { val: 10, label: '10%' },
+                          { val: 7.5, label: '7,5%' },
+                          { val: 5, label: '5%' },
+                          { val: 2.5, label: '2,5%' },
+                          { val: 0, label: '0%' },
+                        ].map((grid) => {
+                          const y = plotBottom - (grid.val / maxScale) * plotHeight;
+                          return (
+                            <g key={grid.val}>
+                              <line
+                                x1={plotLeft}
+                                y1={y}
+                                x2={plotRight}
+                                y2={y}
+                                stroke={grid.val === 0 ? '#94a3b8' : '#f1f5f9'}
+                                strokeWidth={grid.val === 0 ? 1 : 0.8}
                               />
-                              {hoveredPoint === i && (
-                                <text
-                                  x={p.x}
-                                  y={Math.max(18, p.y - 10)}
-                                  textAnchor="middle"
-                                  className="text-[10px] font-mono font-bold fill-indigo-700"
-                                >
-                                  ${(pts[i] * 0.23).toFixed(2)}M
-                                </text>
-                              )}
+                              <text
+                                x={plotLeft - 4}
+                                y={y + 3}
+                                textAnchor="end"
+                                className="text-[7.5px] font-sans font-medium fill-slate-400 select-none"
+                              >
+                                {grid.label}
+                              </text>
                             </g>
-                          ))}
-                        </>
-                      );
-                    })()}
-                  </svg>
+                          );
+                        })}
+
+                        {/* Area 2: Gradasi Halus Pengeluaran Merah (Bawah) */}
+                        <path d={dAreaExpense} fill="url(#streamExpenseGrad)" />
+
+                        {/* Area 1: Gradasi Halus Pemasukan Biru (Atas) */}
+                        <path d={dAreaIncome} fill="url(#streamIncomeGrad)" />
+
+                        {/* Garis 2: Kurva Mulus Pengeluaran (WARNA MERAH, MURNI GARIS TANPA TITIK) */}
+                        <path
+                          d={dCurveExpense}
+                          fill="none"
+                          stroke="#e11d48"
+                          strokeWidth="2.0"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+
+                        {/* Garis 1: Kurva Mulus Pemasukan (WARNA BIRU, MURNI GARIS TANPA TITIK) */}
+                        <path
+                          d={dCurveIncome}
+                          fill="none"
+                          stroke="#0284c7"
+                          strokeWidth="2.3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+
+                        {/* Vertical Hairline Guide on Hover */}
+                        {activeNode && (
+                          <line
+                            x1={activeNode.x}
+                            y1={plotTop}
+                            x2={activeNode.x}
+                            y2={plotBottom}
+                            stroke="#0284c7"
+                            strokeWidth="1"
+                            strokeDasharray="2 2"
+                            opacity="0.6"
+                          />
+                        )}
+
+                        {/* Interactive Invisible Hover Columns + Axis Labels (TANPA TITIK APAPUN DI GARIS) */}
+                        {coordsIncome.map((item, idx) => {
+                          const isHovered = hoveredPointIndex === idx;
+
+                          return (
+                            <g
+                              key={idx}
+                              className="cursor-pointer"
+                              onMouseEnter={() => setHoveredPointIndex(idx)}
+                              onMouseLeave={() => setHoveredPointIndex(null)}
+                            >
+                              {/* Invisible broad vertical hover zone */}
+                              <rect
+                                x={item.x - stepX / 2}
+                                y={plotTop}
+                                width={stepX}
+                                height={plotBottom - plotTop}
+                                fill="transparent"
+                              />
+
+                              {/* Label below axis */}
+                              <text
+                                x={item.x}
+                                y={plotBottom + 13}
+                                textAnchor="middle"
+                                className={`text-[7px] font-sans transition-colors ${
+                                  isHovered
+                                    ? 'fill-sky-700 font-bold'
+                                    : 'fill-slate-500'
+                                }`}
+                              >
+                                {item.label}
+                              </text>
+                            </g>
+                          );
+                        })}
+
+                        {/* Google Looker Studio Style Floating Tooltip Box saat di-hover */}
+                        {activeNode && (
+                          <g
+                            transform={`translate(${Math.max(
+                              plotLeft,
+                              Math.min(plotRight - 98, activeNode.x - 49)
+                            )}, ${
+                              activeNode.y > 65
+                                ? Math.max(8, activeNode.y - 50)
+                                : Math.min(plotBottom - 46, activeNode.y + 12)
+                            })`}
+                            filter="url(#tooltipShadow)"
+                            className="pointer-events-none transition-all duration-150"
+                          >
+                            {/* Card Container */}
+                            <rect
+                              x="0"
+                              y="0"
+                              width="98"
+                              height="44"
+                              rx="5"
+                              fill="#ffffff"
+                              stroke="#cbd5e1"
+                              strokeWidth="0.8"
+                            />
+
+                            {/* Tooltip Header Date / Period */}
+                            <text
+                              x="8"
+                              y="12"
+                              className="text-[7.5px] font-sans font-bold fill-slate-800"
+                            >
+                              {activeNode.subLabel}
+                            </text>
+
+                            {/* Pemasukan row (Biru) */}
+                            <line
+                              x1="8"
+                              y1="21"
+                              x2="18"
+                              y2="21"
+                              stroke="#0284c7"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                            />
+                            <text
+                              x="22"
+                              y="23"
+                              className="text-[6.5px] font-sans fill-slate-600"
+                            >
+                              Masuk
+                            </text>
+                            <text
+                              x="90"
+                              y="23"
+                              textAnchor="end"
+                              className="text-[7px] font-sans font-bold fill-sky-800"
+                            >
+                              ${activeNode.incomeVal.toLocaleString()}K
+                            </text>
+
+                            {/* Pengeluaran row (Merah) */}
+                            <line
+                              x1="8"
+                              y1="32"
+                              x2="18"
+                              y2="32"
+                              stroke="#e11d48"
+                              strokeWidth="1.8"
+                              strokeLinecap="round"
+                            />
+                            <text
+                              x="22"
+                              y="34"
+                              className="text-[6.5px] font-sans fill-slate-600"
+                            >
+                              Keluar
+                            </text>
+                            <text
+                              x="90"
+                              y="34"
+                              textAnchor="end"
+                              className="text-[7px] font-sans font-bold fill-rose-600"
+                            >
+                              ${activeNode.expenseVal.toLocaleString()}K
+                            </text>
+                          </g>
+                        )}
+                      </svg>
+                    );
+                  })()}
                 </div>
 
-                <div className="flex items-center justify-between pt-1.5 border-t border-slate-200/70 text-[11px] font-mono text-slate-500">
-                  <span>PEAK FLOW $2.45M</span>
-                  <span className="text-indigo-600 font-bold">VELOCITY 94.2%</span>
-                </div>
+                {/* Footer: Detail Capaian & Highlight Pekerjaan Perusahaan pada Tahun Terpilih */}
+                {(() => {
+                  const currentSelected =
+                    COMPANY_PERFORMANCE_2020_2026.find((d) => d.year === selectedPerformanceYear) ||
+                    COMPANY_PERFORMANCE_2020_2026[COMPANY_PERFORMANCE_2020_2026.length - 1];
+
+                  return (
+                    <div className="flex items-center justify-between pt-1.5 border-t border-slate-200/70 text-[10.5px] font-mono">
+                      <div className="flex items-center gap-1.5 text-slate-600 truncate mr-2">
+                        <Award className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                        <span className="font-bold text-slate-800">{currentSelected.year}:</span>
+                        <span className="truncate text-slate-600 text-[10px]">{currentSelected.highlight}</span>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-slate-400 text-[9.5px]">TOTAL TAHUNAN:</span>
+                        <span className="text-indigo-700 font-black bg-indigo-50 px-1.5 py-0.2 rounded border border-indigo-200 text-[10px]">
+                          ${currentSelected.revenue.toFixed(2)}M
+                        </span>
+                        <span className="text-emerald-700 font-black bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200 text-[10px]">
+                          ROI {currentSelected.roi}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Bagian Bawah Chart: 2 Blok Berdampingan + 1 Blok Lebar Penuh untuk 1 Nama Skill & Profit */}
@@ -996,90 +1261,90 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
                 </div>
               </div>
 
-              {/* Block Tambahan Di Bawahnya: Trader (Live Feed - Synchronized to Workforce) */}
+              {/* Block Tambahan Di Bawahnya: Trader (KARYAWAN DIKUNCI TOTAL - NGEBLUR) */}
               <div
-                onClick={() => onNavigate?.('workforce')}
-                title="Klik untuk membuka menu Workforce & Desk Personnel"
-                className={`${glassCard} w-full flex-1 min-h-0 flex flex-col justify-between overflow-hidden p-3 sm:p-3.5 cursor-pointer hover:border-indigo-300 hover:brightness-105 active:translate-y-[1px] group`}
+                onClick={() => setActiveModal('locked_trading')}
+                title="Akses Karyawan Desk • DIKUNCI TOTAL (Ngeblur)"
+                className={`${glassCard} w-full flex-1 min-h-0 flex flex-col justify-between overflow-hidden p-3 sm:p-3.5 relative cursor-pointer hover:border-rose-300 hover:brightness-105 active:translate-y-[1px] group`}
               >
-                <div className="flex flex-col flex-1 min-h-0">
-                  {/* Header: Title "Trader" */}
+                <div className="flex flex-col flex-1 min-h-0 relative">
+                  {/* Header: Title "Trader Desk • Karyawan" */}
                   <div className="flex items-center justify-between gap-1 mb-2 flex-shrink-0">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
-                      <span className="text-xs font-black tracking-wider text-slate-800 group-hover:text-indigo-700 uppercase font-mono transition-colors">
-                        Trader Desk • Workforce
+                      <span className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0" />
+                      <span className="text-xs font-black tracking-wider text-rose-800 uppercase font-mono transition-colors">
+                        Trader Desk • Karyawan
                       </span>
                     </div>
-                    <span className="text-[9px] font-bold text-indigo-600 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-200/80 font-mono flex-shrink-0">
-                      LIVE
+                    <span className="text-[9px] font-bold text-rose-700 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-300 font-mono flex-shrink-0 flex items-center gap-1">
+                      <Lock className="w-2.5 h-2.5" />
+                      DIKUNCI TOTAL
                     </span>
                   </div>
 
-                  {/* List of Trades: Nama Pasar & Kode Trader, Pos (Modal), Floating PnL, dan Aksi */}
-                  <div className="flex-1 overflow-y-auto space-y-1.5 pr-0.5 min-h-0">
-                    {employeeTrades.slice(0, 6).map((trade, idx) => {
-                      const isNegative = trade.floatingPnl.startsWith('-') || trade.isProfit === false;
-                      return (
-                        <div
-                          key={trade.id}
-                          className={`py-1.5 px-2.5 rounded-xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#edf3fa] border-t border-t-white border-x border-slate-200/90 border-b-2 border-b-slate-300 shadow-[0_2px_4px_rgba(15,23,42,0.04),inset_0_1px_1px_white] flex flex-col gap-0.5 transition-all font-mono ${
-                            idx === 0 ? 'ring-1 ring-indigo-500/30' : ''
-                          }`}
-                        >
-                          {/* Baris 1: Pasar & Kode Trader + Aksi */}
-                          <div className="flex items-center justify-between gap-1">
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <span
-                                className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
-                                  idx === 0 ? 'bg-indigo-500 animate-pulse' : 'bg-emerald-500'
-                                }`}
-                              />
-                              <span className="text-[11px] font-black text-slate-800 tracking-tight truncate">
-                                {trade.market}
-                              </span>
-                              <span className="text-[9px] font-bold text-indigo-600 bg-indigo-50/90 px-1 py-0.2 rounded border border-indigo-200/70 flex-shrink-0">
-                                ({trade.employee})
+                  {/* Container with blurred trades + lock overlay */}
+                  <div className="relative flex-1 min-h-0 overflow-hidden">
+                    {/* The employee trades list is totally blurred! */}
+                    <div className="filter blur-[5px] select-none pointer-events-none opacity-25 space-y-1.5 pr-0.5 min-h-0 overflow-hidden">
+                      {employeeTrades.slice(0, 6).map((trade, idx) => {
+                        const isNegative = trade.floatingPnl.startsWith('-') || trade.isProfit === false;
+                        return (
+                          <div
+                            key={trade.id}
+                            className="py-1.5 px-2.5 rounded-xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#edf3fa] border-t border-t-white border-x border-slate-200/90 border-b-2 border-b-slate-300 shadow-[0_2px_4px_rgba(15,23,42,0.04),inset_0_1px_1px_white] flex flex-col gap-0.5 transition-all font-mono"
+                          >
+                            <div className="flex items-center justify-between gap-1">
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+                                <span className="text-[11px] font-black text-slate-800 tracking-tight truncate">
+                                  {trade.market}
+                                </span>
+                                <span className="text-[9px] font-bold text-indigo-600 bg-indigo-50/90 px-1 py-0.2 rounded border border-indigo-200/70 flex-shrink-0">
+                                  ({trade.employee})
+                                </span>
+                              </div>
+                              <span className="px-1.5 py-0.2 rounded text-[8px] font-black uppercase tracking-wider flex-shrink-0 border bg-slate-100 text-slate-600 border-slate-200">
+                                {trade.action}
                               </span>
                             </div>
-
-                            {/* Aksi: BUY / SELL / TP */}
-                            <span
-                              className={`px-1.5 py-0.2 rounded text-[8px] font-black uppercase tracking-wider flex-shrink-0 border ${
-                                trade.action === 'BUY'
-                                  ? 'bg-emerald-500/15 text-emerald-700 border-emerald-500/30'
-                                  : trade.action === 'SELL'
-                                  ? 'bg-rose-500/15 text-rose-700 border-rose-500/30'
-                                  : 'bg-indigo-500/15 text-indigo-700 border-indigo-300'
-                              }`}
-                            >
-                              {trade.action}
-                            </span>
-                          </div>
-
-                          {/* Baris 2: Pos (Modal Terpasang) & Floating PnL */}
-                          <div className="flex items-center justify-between text-[9px] font-bold pt-0.5 border-t border-slate-200/60">
-                            <span className="text-slate-500">
-                              Pos: <span className="text-slate-800 font-extrabold">{trade.positionValue}</span>
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <span className="text-slate-400">Floating:</span>
+                            <div className="flex items-center justify-between text-[9px] font-bold pt-0.5 border-t border-slate-200/60">
+                              <span className="text-slate-500">
+                                Pos: <span className="text-slate-800 font-extrabold">{trade.positionValue}</span>
+                              </span>
                               <span className={`font-black ${isNegative ? 'text-rose-600' : 'text-emerald-600'}`}>
                                 {trade.floatingPnl}
                               </span>
-                            </span>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
+
+                    {/* Prominent High-Tech Frosted Blur Lock Overlay */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center bg-slate-900/10 backdrop-blur-[4px] rounded-2xl border border-slate-300/80 shadow-inner z-10">
+                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-b from-white via-rose-50 to-rose-100 border-t border-t-white border-x border-rose-200 border-b-2 border-b-rose-300 shadow-[0_4px_12px_rgba(225,29,72,0.18)] flex items-center justify-center text-rose-600 mb-1.5">
+                        <Lock className="w-5 h-5 stroke-[2.4]" />
+                      </div>
+                      <div className="text-[11px] font-black text-slate-900 tracking-tight font-mono uppercase">
+                        AKSES KARYAWAN DIKUNCI TOTAL
+                      </div>
+                      <div className="text-[8.5px] font-mono text-slate-600 max-w-[210px] mt-0.5 leading-snug">
+                        Data identitas, floating order, dan operasional seluruh karyawan desk telah dibekukan & disensor.
+                      </div>
+                      <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 border border-rose-200 text-[8px] font-mono font-bold text-rose-700">
+                        <ShieldAlert className="w-2.5 h-2.5 text-rose-600" /> DEFCON 1 • AKSES RESTRICTED
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 {/* Footer Status */}
                 <div className="flex items-center justify-between pt-1.5 border-t border-slate-200/70 text-[9px] font-mono text-slate-500 mt-1 flex-shrink-0">
-                  <span className="text-slate-500 font-bold">TOTAL: {tradeCount} ORDER</span>
-                  <span className="text-emerald-600 font-black flex items-center gap-0.5">
-                    48 TRADER (WORKFORCE →)
+                  <span className="text-rose-600 font-bold flex items-center gap-1">
+                    <Lock className="w-2.5 h-2.5" /> 48 DESK KARYAWAN DIBEKUKAN
+                  </span>
+                  <span className="text-rose-700 font-black flex items-center gap-0.5">
+                    DIKUNCI TOTAL →
                   </span>
                 </div>
               </div>
@@ -1103,11 +1368,16 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-2xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center border border-indigo-200 shadow-xs">
+                <div className={`w-9 h-9 rounded-2xl flex items-center justify-center border shadow-xs ${
+                  activeModal === 'locked_trading'
+                    ? 'bg-rose-500/10 text-rose-600 border-rose-300'
+                    : 'bg-indigo-500/10 text-indigo-600 border-indigo-200'
+                }`}>
                   {activeModal === 'trade_order' && <TrendingUp className="w-4 h-4 stroke-[2.5]" />}
                   {activeModal === 'deposit' && <PlusCircle className="w-4 h-4 stroke-[2.5]" />}
                   {activeModal === 'fx_swap' && <ArrowLeftRight className="w-4 h-4 stroke-[2.5]" />}
                   {activeModal === 'vault_sign' && <ShieldCheck className="w-4 h-4 stroke-[2.5]" />}
+                  {activeModal === 'locked_trading' && <Lock className="w-4 h-4 stroke-[2.5]" />}
                 </div>
                 <div>
                   <h3 className="text-base font-extrabold text-slate-800 font-mono">
@@ -1115,9 +1385,12 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
                     {activeModal === 'deposit' && 'PRIME CUSTODY INFLOW'}
                     {activeModal === 'fx_swap' && 'FX LIQUIDITY SWAP'}
                     {activeModal === 'vault_sign' && 'MULTI-SIG HSM SIGNER'}
+                    {activeModal === 'locked_trading' && 'TRADING & KARYAWAN DIKUNCI'}
                   </h3>
                   <span className="text-[10px] text-slate-400 font-mono">
-                    INSTITUTIONAL DESK • T+0 SETTLEMENT
+                    {activeModal === 'locked_trading'
+                      ? 'SECURITY & RISK PROTOCOL • DEFCON 1'
+                      : 'INSTITUTIONAL DESK • T+0 SETTLEMENT'}
                   </span>
                 </div>
               </div>
@@ -1273,6 +1546,64 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
                   className="w-full mt-2 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md active:translate-y-0.5 transition-all cursor-pointer"
                 >
                   KELOLA VAULT DI SECURITY DESK
+                </button>
+              </div>
+            )}
+
+            {activeModal === 'locked_trading' && (
+              <div className="flex flex-col gap-3 font-mono">
+                <div className="p-3.5 rounded-2xl bg-rose-50/90 border border-rose-200/90 text-left">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="w-8 h-8 rounded-xl bg-rose-100 border border-rose-300 flex items-center justify-center text-rose-600">
+                      <Lock className="w-4 h-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-black text-rose-900 uppercase">
+                        SISTEM TRADING & AKUN KARYAWAN DIKUNCI
+                      </div>
+                      <div className="text-[9px] text-rose-600 font-bold">
+                        DEFCON 1 • PROTOKOL HALT & BLUR AKTIF
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-slate-700 leading-relaxed mt-2">
+                    Sesuai instruksi kepatuhan risiko, operasional trading, chart streaming, dan seluruh aktivitas akun karyawan (trader) telah <strong className="text-rose-700 font-black">DIHENTIKAN (STOPPED)</strong> dan <strong className="text-rose-700 font-black">DIKUNCI TOTAL (LOCKED & NGEBLUR)</strong>.
+                  </p>
+                </div>
+
+                <div className="space-y-1.5 text-xs">
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                    <span className="text-slate-500 font-bold flex items-center gap-1.5">
+                      <Pause className="w-3.5 h-3.5 text-amber-600" /> Chart & Streaming:
+                    </span>
+                    <span className="text-rose-600 font-black bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                      DIHENTIKAN / FROZEN
+                    </span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                    <span className="text-slate-500 font-bold flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5 text-rose-600" /> Karyawan & Trader Desk:
+                    </span>
+                    <span className="text-rose-600 font-black bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                      DIKUNCI TOTAL (NGEBLUR)
+                    </span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+                    <span className="text-slate-500 font-bold flex items-center gap-1.5">
+                      <ShieldAlert className="w-3.5 h-3.5 text-indigo-600" /> Eksekusi Order:
+                    </span>
+                    <span className="text-slate-700 font-black bg-slate-200 px-2 py-0.5 rounded">
+                      SUSPENDED (DISABLED)
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveModal(null)}
+                  className="w-full mt-2 py-2.5 rounded-xl bg-gradient-to-b from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-white font-bold text-xs shadow-md active:translate-y-0.5 transition-all cursor-pointer"
+                >
+                  TUTUP PEMBERITAHUAN
                 </button>
               </div>
             )}

@@ -9,7 +9,6 @@ import {
   Crosshair,
   UserCheck,
 } from 'lucide-react';
-import { INITIAL_DESK_POSITIONS, DeskTraderPosition } from '../data/deskTradingPositions';
 
 export interface CryptoHistoricalChartProps {
   selectedAssetSymbol?: string;
@@ -599,14 +598,6 @@ export const CryptoHistoricalChart: React.FC<CryptoHistoricalChartProps> = ({
   const activePrice = hoveredPoint?.price || ticker?.lastPrice || chartMetrics.lastPrice || 0;
   const activeFundHoldingUsd = activePrice * currentAssetCfg.holdingQty;
 
-  // State untuk Pemantauan Posisi Trading Karyawan di Grafik
-  const [showDeskPositions, setShowDeskPositions] = useState<boolean>(true);
-  const [hoveredPosition, setHoveredPosition] = useState<DeskTraderPosition | null>(null);
-
-  const activeDeskPositions = useMemo(() => {
-    return INITIAL_DESK_POSITIONS.filter((p) => p.assetSymbol === asset);
-  }, [asset]);
-
   const yearTicks = useMemo(() => {
     if (timeframe === '2020_NOW') {
       return ['2020', '2021', '2022', '2023', '2024', '2025', '2026'];
@@ -693,31 +684,8 @@ export const CryptoHistoricalChart: React.FC<CryptoHistoricalChartProps> = ({
           </div>
         </div>
 
-        {/* Right: Desk Employee Positions Toggle, Timeframe Selector, Live Beacon, Sync */}
+        {/* Right: Timeframe Selector, Live Beacon, Sync */}
         <div className="flex items-center gap-1.5">
-          {/* Desk Employee Positions Toggle Button */}
-          <button
-            type="button"
-            onClick={() => setShowDeskPositions((prev) => !prev)}
-            title="Tampilkan / Sembunyikan Penanda Posisi Trading Karyawan di Grafik Trading"
-            className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[8.5px] font-mono border transition-all cursor-pointer ${
-              showDeskPositions && activeDeskPositions.length > 0
-                ? 'bg-indigo-50 text-indigo-700 border-indigo-300 font-bold shadow-2xs'
-                : 'bg-slate-100 text-slate-400 border-slate-200'
-            }`}
-          >
-            <span
-              className={`w-1.5 h-1.5 rounded-full ${
-                showDeskPositions && activeDeskPositions.length > 0
-                  ? 'bg-indigo-500 animate-pulse'
-                  : 'bg-slate-300'
-              }`}
-            />
-            <span className="hidden sm:inline">POSISI KARYAWAN</span>
-            <span className="sm:hidden">POSISI</span>
-            <span className="font-bold">({activeDeskPositions.length})</span>
-          </button>
-
           {/* Timeframe Buttons */}
           <div className="flex items-center gap-0.5 bg-slate-100 p-0.5 rounded-md border border-slate-200 text-[8.5px] font-mono">
             {(['2020_NOW', '3Y', '1Y', 'YTD'] as const).map((tf) => (
@@ -893,103 +861,6 @@ export const CryptoHistoricalChart: React.FC<CryptoHistoricalChartProps> = ({
             </g>
           )}
 
-          {/* OVERLAY LEVEL POSISI TRADING KARYAWAN DESK */}
-          {showDeskPositions &&
-            activeDeskPositions.map((pos) => {
-              if (chartMetrics.max <= chartMetrics.min) return null;
-              const yRatio =
-                (chartMetrics.max - pos.entryPrice) /
-                (chartMetrics.max - chartMetrics.min);
-              if (yRatio < -0.05 || yRatio > 1.05) return null;
-              const yPos =
-                chartMetrics.padTop +
-                Math.max(
-                  4,
-                  Math.min(
-                    chartMetrics.plotHeight,
-                    yRatio * chartMetrics.plotHeight
-                  )
-                );
-
-              const isLong = pos.side === 'LONG';
-              const isPending = pos.status === 'PENDING_LIMIT';
-              const lineColor = isPending
-                ? '#f59e0b'
-                : isLong
-                ? '#10b981'
-                : '#f43f5e';
-              const currentP = activePrice || pos.entryPrice;
-              const pnlUsd = isLong
-                ? (currentP - pos.entryPrice) * pos.amount
-                : (pos.entryPrice - currentP) * pos.amount;
-
-              return (
-                <g
-                  key={pos.id}
-                  className="cursor-pointer"
-                  onMouseEnter={() => setHoveredPosition(pos)}
-                  onMouseLeave={() => setHoveredPosition(null)}
-                >
-                  {/* Position Level Dashed Line */}
-                  <line
-                    x1={chartMetrics.padLeft}
-                    y1={yPos}
-                    x2={chartMetrics.svgWidth - chartMetrics.padRight}
-                    y2={yPos}
-                    stroke={lineColor}
-                    strokeDasharray={isPending ? '3 3' : '6 3'}
-                    strokeWidth="1.6"
-                    opacity="0.9"
-                  />
-
-                  {/* Left Label Tag: Trader + Posisi */}
-                  <rect
-                    x={chartMetrics.padLeft + 6}
-                    y={yPos - 9}
-                    width={145}
-                    height={15}
-                    rx="3.5"
-                    fill="#ffffff"
-                    stroke={lineColor}
-                    strokeWidth="1.2"
-                  />
-                  <text
-                    x={chartMetrics.padLeft + 10}
-                    y={yPos + 1.8}
-                    fill={lineColor}
-                    fontSize="7.5"
-                    fontFamily="monospace"
-                    fontWeight="800"
-                  >
-                    👤 {pos.traderName.split(' ')[0]}: {pos.side} {pos.amount} {pos.assetSymbol}
-                  </text>
-
-                  {/* Right Label Tag: Price + PnL */}
-                  <rect
-                    x={chartMetrics.svgWidth - chartMetrics.padRight - 98}
-                    y={yPos - 9}
-                    width={92}
-                    height={15}
-                    rx="3.5"
-                    fill={lineColor}
-                  />
-                  <text
-                    x={chartMetrics.svgWidth - chartMetrics.padRight - 52}
-                    y={yPos + 1.8}
-                    textAnchor="middle"
-                    fill="#ffffff"
-                    fontSize="7"
-                    fontFamily="monospace"
-                    fontWeight="800"
-                  >
-                    {isPending
-                      ? `LIMIT: $${pos.entryPrice.toLocaleString()}`
-                      : `$${pos.entryPrice.toLocaleString()} (${pnlUsd >= 0 ? '+' : ''}$${Math.round(pnlUsd)})`}
-                  </text>
-                </g>
-              );
-            })}
-
           {/* Interactive Hover Crosshair and Dot */}
           {hoveredPoint && (
             <g>
@@ -1022,41 +893,6 @@ export const CryptoHistoricalChart: React.FC<CryptoHistoricalChartProps> = ({
             </g>
           )}
         </svg>
-
-        {/* Floating Employee Position Details Card */}
-        {hoveredPosition && (
-          <div className="absolute top-2 right-2 pointer-events-none z-30 bg-slate-950/95 text-white p-2 rounded-xl border border-indigo-500/60 shadow-xl backdrop-blur-md font-mono text-[9px] max-w-xs animate-in fade-in duration-150">
-            <div className="flex items-center justify-between gap-2 pb-1 border-b border-slate-800">
-              <span className="font-black text-indigo-400 flex items-center gap-1">
-                👤 {hoveredPosition.traderName}
-              </span>
-              <span className="text-[7.5px] px-1 py-0.2 rounded bg-indigo-500/20 text-indigo-300 font-bold">
-                {hoveredPosition.traderRole}
-              </span>
-            </div>
-            <div className="flex items-center justify-between pt-1">
-              <span className="text-slate-400">Order:</span>
-              <span className={`font-black ${hoveredPosition.side === 'LONG' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                {hoveredPosition.side} ({hoveredPosition.orderType}) • {hoveredPosition.leverage}x
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400">Biji / Volume:</span>
-              <span className="font-black text-white">
-                {hoveredPosition.amount} {hoveredPosition.assetSymbol}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-slate-400">Entry / Target:</span>
-              <span className="font-bold text-slate-300">
-                ${hoveredPosition.entryPrice.toLocaleString()} {hoveredPosition.tpPrice ? `➔ TP: $${hoveredPosition.tpPrice.toLocaleString()}` : ''}
-              </span>
-            </div>
-            <div className="text-[7.5px] text-slate-400 pt-1 border-t border-slate-800/80 mt-1 italic">
-              "{hoveredPosition.note}"
-            </div>
-          </div>
-        )}
 
         {/* Floating Tooltip Box */}
         {hoveredPoint && hoverX !== null && (
