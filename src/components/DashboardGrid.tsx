@@ -2,22 +2,24 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   ArrowUpRight,
   TrendingUp,
+  ArrowLeftRight,
+  Coins,
+  Sparkles,
+  PieChart,
+  Users,
+  ShieldCheck,
+  Server,
+  Scale,
+  SlidersHorizontal,
+  FileBarChart,
   Send,
   PlusCircle,
-  Receipt,
-  QrCode,
-  Copy,
-  Check,
-  X,
-  CreditCard,
-  Wallet,
-  ShieldCheck,
-  Search,
   Activity,
   Zap,
-  Globe,
-  Clock,
-  Building2,
+  Check,
+  X,
+  Copy,
+  ChevronRight,
 } from 'lucide-react';
 import {
   EmployeeTrade,
@@ -29,7 +31,11 @@ import {
   LIVE_MARKET_TICKERS,
 } from '../data/dummyData';
 
-export const DashboardGrid: React.FC = () => {
+interface DashboardGridProps {
+  onNavigate?: (menuId: string) => void;
+}
+
+export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
   const [activeTimeframe, setActiveTimeframe] = useState<'1D' | '1W' | '1M' | '1Y' | 'ALL'>('1M');
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
 
@@ -62,9 +68,9 @@ export const DashboardGrid: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Quick Action Modal state
-  const [activeModal, setActiveModal] = useState<'send' | 'add_funds' | 'pay_bills' | 'qr' | null>(null);
-  const [copiedAddress, setCopiedAddress] = useState(false);
+  // Quick Action Modal state (Replaced retail locks with institutional actions)
+  const [activeModal, setActiveModal] = useState<'trade_order' | 'deposit' | 'fx_swap' | 'vault_sign' | null>(null);
+  const [orderSubmitted, setOrderSubmitted] = useState(false);
 
   // Synchronize bottom of Capital Flow card with bottom of Treasury & Staking blocks
   const treasuryRef = useRef<HTMLDivElement>(null);
@@ -101,12 +107,6 @@ export const DashboardGrid: React.FC = () => {
     };
   }, []);
 
-  const handleCopy = () => {
-    navigator.clipboard?.writeText(walletAddress);
-    setCopiedAddress(true);
-    setTimeout(() => setCopiedAddress(false), 2000);
-  };
-
   const currentDataset = chartDatasets[activeTimeframe] || chartDatasets['1M'];
 
   // Super Solid 3D Ceramic Glass aesthetic matching the 3D solid sidebar
@@ -137,7 +137,7 @@ export const DashboardGrid: React.FC = () => {
                 </span>
                 <span className="inline-flex items-center gap-0.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 shadow-xs">
                   <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
-                  +18.4%
+                  +23.1% (+27.4% YTD)
                 </span>
               </div>
 
@@ -148,95 +148,103 @@ export const DashboardGrid: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between py-1.5 text-xs font-mono">
-                <span className="text-slate-400">PREV $12.45M</span>
-                <span className="text-emerald-600 font-bold">+$2,874,000.00</span>
+                <span className="text-slate-400">COMMITTED $12.45M</span>
+                <span className="text-emerald-600 font-bold">+$2,874,000.00 (+23.1%)</span>
               </div>
             </div>
 
-            {/* Middle: Clean Minimalist Allocation Track */}
+            {/* Middle: Clean Minimalist Allocation Track (Synchronized to CryptoView $6,397,000.00 = 41.7%) */}
             <div className="my-auto py-2.5 flex flex-col gap-1.5">
               <div className="flex items-center justify-between text-xs font-mono">
                 <span className="text-slate-400 font-bold">CRYPTO ALLOCATION</span>
-                <span className="text-indigo-600 font-extrabold">68.9%</span>
+                <span className="text-indigo-600 font-extrabold">41.7%</span>
               </div>
 
               {/* 3D Progress Rail */}
               <div className="relative w-full h-3 bg-slate-200/90 rounded-full overflow-hidden p-0.5 shadow-inner border border-slate-300/40 flex gap-1">
                 <div
                   className="h-full bg-gradient-to-r from-indigo-500 via-indigo-600 to-indigo-700 rounded-full shadow-[inset_0_1px_1px_rgba(255,255,255,0.7)] transition-all duration-700"
-                  style={{ width: '68.9%' }}
+                  style={{ width: '41.7%' }}
                 />
                 <div
                   className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full opacity-80"
-                  style={{ width: '31.1%' }}
+                  style={{ width: '58.3%' }}
                 />
               </div>
 
               <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 pt-0.5">
                 <span className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-indigo-600" />
-                  $10.56M CRYPTO
+                  $6.40M CRYPTO (41.7%)
                 </span>
                 <span className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  $4.76M FIAT
+                  $8.93M FIAT / TREASURY (58.3%)
                 </span>
               </div>
             </div>
 
-            {/* Bottom: 4 Logo-only Quick Actions Dock (Clean & Minimalist, No Text, No Divider Line) */}
+            {/* Bottom: 4 Synchronized Core Desk Launchers (Preserves exact dock layout & 3D solid styling) */}
             <div className="pt-2 flex items-center justify-between gap-2">
-              {/* 1. SEND */}
+              {/* 1. TRADING DESK */}
               <button
                 type="button"
-                onClick={() => setActiveModal('send')}
-                title="Send"
-                className="flex-1 h-10 sm:h-11 rounded-2xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] text-indigo-600 hover:text-indigo-800 flex items-center justify-center border-t-2 border-t-white border-x-[1.5px] border-slate-200/90 border-b-[3px] border-b-slate-300 shadow-[0_4px_8px_rgba(0,0,0,0.08),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-1px_1px_rgba(148,163,184,0.3)] hover:brightness-105 active:border-b-[1px] active:translate-y-[1.5px] transition-all cursor-pointer"
+                onClick={() => onNavigate ? onNavigate('trading') : setActiveModal('trade_order')}
+                title="Trading Desk • PnL +$384.5K (Buka Trading Operations)"
+                className="group relative flex-1 h-10 sm:h-11 rounded-2xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] text-indigo-600 hover:text-indigo-800 flex items-center justify-center border-t-2 border-t-white border-x-[1.5px] border-slate-200/90 border-b-[3px] border-b-slate-300 shadow-[0_4px_8px_rgba(0,0,0,0.08),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-1px_1px_rgba(148,163,184,0.3)] hover:brightness-105 active:border-b-[1px] active:translate-y-[1.5px] transition-all cursor-pointer"
               >
-                <Send className="w-4 h-4 stroke-[2.3]" />
+                <TrendingUp className="w-4 h-4 stroke-[2.3]" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 animate-pulse border border-white" />
               </button>
 
-              {/* 2. ADD FUNDS */}
+              {/* 2. FX FLOW DESK */}
               <button
                 type="button"
-                onClick={() => setActiveModal('add_funds')}
-                title="Add Funds"
-                className="flex-1 h-10 sm:h-11 rounded-2xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] text-emerald-600 hover:text-emerald-800 flex items-center justify-center border-t-2 border-t-white border-x-[1.5px] border-slate-200/90 border-b-[3px] border-b-slate-300 shadow-[0_4px_8px_rgba(0,0,0,0.08),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-1px_1px_rgba(148,163,184,0.3)] hover:brightness-105 active:border-b-[1px] active:translate-y-[1.5px] transition-all cursor-pointer"
+                onClick={() => onNavigate ? onNavigate('fx-flow') : setActiveModal('fx_swap')}
+                title="FX Flow Desk • $1.84M Flow (Buka FX Flow)"
+                className="group relative flex-1 h-10 sm:h-11 rounded-2xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] text-emerald-600 hover:text-emerald-800 flex items-center justify-center border-t-2 border-t-white border-x-[1.5px] border-slate-200/90 border-b-[3px] border-b-slate-300 shadow-[0_4px_8px_rgba(0,0,0,0.08),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-1px_1px_rgba(148,163,184,0.3)] hover:brightness-105 active:border-b-[1px] active:translate-y-[1.5px] transition-all cursor-pointer"
               >
-                <PlusCircle className="w-4 h-4 stroke-[2.3]" />
+                <ArrowLeftRight className="w-4 h-4 stroke-[2.3]" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-blue-500 animate-pulse border border-white" />
               </button>
 
-              {/* 3. PAY BILLS */}
+              {/* 3. CRYPTO VAULT */}
               <button
                 type="button"
-                onClick={() => setActiveModal('pay_bills')}
-                title="Pay Bills"
-                className="flex-1 h-10 sm:h-11 rounded-2xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] text-blue-600 hover:text-blue-800 flex items-center justify-center border-t-2 border-t-white border-x-[1.5px] border-slate-200/90 border-b-[3px] border-b-slate-300 shadow-[0_4px_8px_rgba(0,0,0,0.08),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-1px_1px_rgba(148,163,184,0.3)] hover:brightness-105 active:border-b-[1px] active:translate-y-[1.5px] transition-all cursor-pointer"
+                onClick={() => onNavigate ? onNavigate('crypto') : setActiveModal('vault_sign')}
+                title="Crypto Vault Desk • $6.40M On-Chain (41.7% AUM) (Buka Crypto & Cold Vault)"
+                className="group relative flex-1 h-10 sm:h-11 rounded-2xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] text-blue-600 hover:text-blue-800 flex items-center justify-center border-t-2 border-t-white border-x-[1.5px] border-slate-200/90 border-b-[3px] border-b-slate-300 shadow-[0_4px_8px_rgba(0,0,0,0.08),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-1px_1px_rgba(148,163,184,0.3)] hover:brightness-105 active:border-b-[1px] active:translate-y-[1.5px] transition-all cursor-pointer"
               >
-                <Receipt className="w-4 h-4 stroke-[2.3]" />
+                <Coins className="w-4 h-4 stroke-[2.3]" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-500 animate-pulse border border-white" />
               </button>
 
-              {/* 4. QR */}
+              {/* 4. GENESIS QUANT AI */}
               <button
                 type="button"
-                onClick={() => setActiveModal('qr')}
-                title="QR Scan & Pay"
-                className="flex-1 h-10 sm:h-11 rounded-2xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] text-amber-600 hover:text-amber-800 flex items-center justify-center border-t-2 border-t-white border-x-[1.5px] border-slate-200/90 border-b-[3px] border-b-slate-300 shadow-[0_4px_8px_rgba(0,0,0,0.08),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-1px_1px_rgba(148,163,184,0.3)] hover:brightness-105 active:border-b-[1px] active:translate-y-[1.5px] transition-all cursor-pointer"
+                onClick={() => onNavigate ? onNavigate('genesis') : setActiveModal('trade_order')}
+                title="Genesis Quant AI • Sharpe 3.55 (Buka Genesis AI Models)"
+                className="group relative flex-1 h-10 sm:h-11 rounded-2xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] text-amber-600 hover:text-amber-800 flex items-center justify-center border-t-2 border-t-white border-x-[1.5px] border-slate-200/90 border-b-[3px] border-b-slate-300 shadow-[0_4px_8px_rgba(0,0,0,0.08),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-1px_1px_rgba(148,163,184,0.3)] hover:brightness-105 active:border-b-[1px] active:translate-y-[1.5px] transition-all cursor-pointer"
               >
-                <QrCode className="w-4 h-4 stroke-[2.3]" />
+                <Sparkles className="w-4 h-4 stroke-[2.3]" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-indigo-500 animate-pulse border border-white" />
               </button>
             </div>
           </div>
 
           {/* Treasury Section Divided into 2 Blocks (Side-by-Side Under Total AUM - Square Shape) */}
           <div ref={treasuryRef} className="grid grid-cols-2 gap-2 sm:gap-2.5">
-            {/* Block 1: Treasury Arbitrage Settlement (Square 1:1) */}
-            <div className={`${glassCard} w-full aspect-square flex flex-col justify-between overflow-hidden p-2.5 sm:p-3`}>
+            {/* Block 1: Treasury Arbitrage Settlement (Square 1:1 - Synchronized to FX Flow) */}
+            <div
+              onClick={() => onNavigate?.('fx-flow')}
+              title="Klik untuk membuka menu FX Flow & Arbitrage Desk"
+              className={`${glassCard} w-full aspect-square flex flex-col justify-between overflow-hidden p-2.5 sm:p-3 cursor-pointer hover:border-indigo-300 hover:brightness-105 active:translate-y-[1px] group`}
+            >
               <div>
                 <div className="flex items-center justify-between gap-1 mb-1">
                   <div className="flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                    <span className="text-[9px] font-bold tracking-wider text-slate-400 uppercase font-mono truncate">
+                    <span className="text-[9px] font-bold tracking-wider text-slate-400 group-hover:text-indigo-600 uppercase font-mono truncate transition-colors">
                       TREASURY ARB
                     </span>
                   </div>
@@ -246,7 +254,7 @@ export const DashboardGrid: React.FC = () => {
                 </div>
 
                 <div className="my-1">
-                  <div className="text-base sm:text-lg font-black text-slate-800 font-mono tracking-tight">
+                  <div className="text-base sm:text-lg font-black text-slate-800 font-mono tracking-tight group-hover:text-indigo-900 transition-colors">
                     +$245.0K
                   </div>
                   <div className="text-[9px] font-bold text-slate-500 font-mono truncate mt-0.5">
@@ -262,17 +270,23 @@ export const DashboardGrid: React.FC = () => {
 
               <div className="flex items-center justify-between pt-1 border-t border-slate-200/70 text-[9px] font-mono text-slate-500 mt-1">
                 <span>RECONCILED</span>
-                <span className="text-emerald-600 font-bold">100%</span>
+                <span className="text-emerald-600 font-bold flex items-center gap-0.5">
+                  100% <ChevronRight className="w-2.5 h-2.5 opacity-60" />
+                </span>
               </div>
             </div>
 
-            {/* Block 2: Validator & Staking Yield (Square 1:1) */}
-            <div className={`${glassCard} w-full aspect-square flex flex-col justify-between overflow-hidden p-2.5 sm:p-3`}>
+            {/* Block 2: Validator & Staking Yield (Square 1:1 - Synchronized to Crypto) */}
+            <div
+              onClick={() => onNavigate?.('crypto')}
+              title="Klik untuk membuka menu Crypto & Staking Nodes"
+              className={`${glassCard} w-full aspect-square flex flex-col justify-between overflow-hidden p-2.5 sm:p-3 cursor-pointer hover:border-indigo-300 hover:brightness-105 active:translate-y-[1px] group`}
+            >
               <div>
                 <div className="flex items-center justify-between gap-1 mb-1">
                   <div className="flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-                    <span className="text-[9px] font-bold tracking-wider text-slate-400 uppercase font-mono truncate">
+                    <span className="text-[9px] font-bold tracking-wider text-slate-400 group-hover:text-indigo-600 uppercase font-mono truncate transition-colors">
                       STAKING YIELD
                     </span>
                   </div>
@@ -282,7 +296,7 @@ export const DashboardGrid: React.FC = () => {
                 </div>
 
                 <div className="my-1">
-                  <div className="text-base sm:text-lg font-black text-slate-800 font-mono tracking-tight">
+                  <div className="text-base sm:text-lg font-black text-slate-800 font-mono tracking-tight group-hover:text-indigo-900 transition-colors">
                     +$42.5K
                   </div>
                   <div className="text-[9px] font-bold text-slate-500 font-mono truncate mt-0.5">
@@ -298,19 +312,25 @@ export const DashboardGrid: React.FC = () => {
 
               <div className="flex items-center justify-between pt-1 border-t border-slate-200/70 text-[9px] font-mono text-slate-500 mt-1">
                 <span>GAS 12 GWEI</span>
-                <span className="text-indigo-600 font-bold">ACTIVE</span>
+                <span className="text-indigo-600 font-bold flex items-center gap-0.5">
+                  ACTIVE <ChevronRight className="w-2.5 h-2.5 opacity-60" />
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Block Tambahan Di Bawah Treasury: Singkatan Perusahaan Financial Global & Jumlah Investasi */}
-          <div className={`${glassCard} flex-1 min-h-0 flex flex-col justify-between overflow-hidden p-3 sm:p-3.5`}>
+          {/* Block Tambahan Di Bawah Treasury: Singkatan Perusahaan Financial Global & Jumlah Investasi (Synchronized to Investor Desk) */}
+          <div
+            onClick={() => onNavigate?.('investor')}
+            title="Klik untuk membuka menu Investor LP Desk"
+            className={`${glassCard} flex-1 min-h-0 flex flex-col justify-between overflow-hidden p-3 sm:p-3.5 cursor-pointer hover:border-indigo-300 hover:brightness-105 active:translate-y-[1px] group`}
+          >
             {/* Header */}
             <div>
               <div className="flex items-center justify-between gap-1 mb-1">
                 <div className="flex items-center gap-1.5 min-w-0">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
-                  <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase font-mono truncate">
+                  <span className="text-[10px] font-bold tracking-wider text-slate-500 group-hover:text-indigo-700 uppercase font-mono truncate transition-colors">
                     INSTITUSI FINANCIAL GLOBAL
                   </span>
                 </div>
@@ -325,7 +345,7 @@ export const DashboardGrid: React.FC = () => {
                   <div className="text-[9px] font-bold text-slate-400 uppercase font-mono">
                     TOTAL INVESTASI INSTITUSIONAL
                   </div>
-                  <div className="text-xl sm:text-2xl font-black text-slate-800 font-mono tracking-tight">
+                  <div className="text-xl sm:text-2xl font-black text-slate-800 font-mono tracking-tight group-hover:text-indigo-900 transition-colors">
                     {GLOBAL_INSTITUTIONAL_INVESTMENTS.totalInvestment}
                   </div>
                 </div>
@@ -377,7 +397,9 @@ export const DashboardGrid: React.FC = () => {
             {/* Footer Bar */}
             <div className="flex items-center justify-between pt-1.5 border-t border-slate-200/70 text-[9px] font-mono text-slate-500 mt-1 flex-shrink-0">
               <span className="text-slate-400">KONSORSIUM RESMI</span>
-              <span className="text-emerald-600 font-bold">100% TERVERIFIKASI</span>
+              <span className="text-emerald-600 font-bold flex items-center gap-0.5">
+                100% TERVERIFIKASI (INVESTOR DESK →)
+              </span>
             </div>
           </div>
         </div>
@@ -386,12 +408,16 @@ export const DashboardGrid: React.FC = () => {
         {/* RIGHT COLUMN: 2 TOP KPI CARDS + 2 MIDDLE SPLIT VISUAL CARDS  */}
         {/* ------------------------------------------------------------ */}
         <div className="lg:col-span-8 xl:col-span-8 flex flex-col gap-3 h-full flex-1 min-h-0">
-          {/* Top Row in Right Column: 3 Split Executive KPI Cards */}
+          {/* Top Row in Right Column: 3 Split Executive KPI Cards (Synchronized to Trading & Crypto) */}
           <div ref={topRowRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {/* 1. Net PnL + Micro Sparkline */}
-            <div className={glassCard}>
+            {/* 1. Net PnL + Micro Sparkline (Synchronized to Trading Desk) */}
+            <div
+              onClick={() => onNavigate?.('trading')}
+              title="Klik untuk membuka menu Trading Operations Desk"
+              className={`${glassCard} cursor-pointer hover:border-indigo-300 hover:brightness-105 active:translate-y-[1px] group`}
+            >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono">
+                <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 group-hover:text-indigo-600 uppercase font-mono transition-colors">
                   NET PNL • 30D
                 </span>
                 <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-500/10 text-blue-600 border border-blue-500/20 shadow-xs">
@@ -401,7 +427,7 @@ export const DashboardGrid: React.FC = () => {
               </div>
 
               <div className="flex items-end justify-between gap-1 my-1">
-                <div className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight font-mono">
+                <div className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight font-mono group-hover:text-indigo-900 transition-colors">
                   +$384,500
                 </div>
 
@@ -432,14 +458,20 @@ export const DashboardGrid: React.FC = () => {
 
               <div className="flex items-center justify-between pt-2 border-t border-slate-200/70 text-[11px] font-mono">
                 <span className="text-slate-400">WIN 74.2%</span>
-                <span className="text-slate-700 font-bold">SHARPE 2.84</span>
+                <span className="text-slate-700 font-bold flex items-center gap-0.5">
+                  SHARPE 3.55 <ChevronRight className="w-2.5 h-2.5 opacity-60" />
+                </span>
               </div>
             </div>
 
-            {/* 2. BTC Holding Balance & Fiat Equivalent */}
-            <div className={glassCard}>
+            {/* 2. BTC Holding Balance & Fiat Equivalent (Synchronized to Crypto Desk) */}
+            <div
+              onClick={() => onNavigate?.('crypto')}
+              title="Klik untuk membuka menu Crypto & Digital Assets Desk"
+              className={`${glassCard} cursor-pointer hover:border-amber-300 hover:brightness-105 active:translate-y-[1px] group`}
+            >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono">
+                <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 group-hover:text-amber-700 uppercase font-mono transition-colors">
                   BTC HOLDINGS
                 </span>
                 <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-600 border border-amber-500/20 shadow-xs">
@@ -449,21 +481,27 @@ export const DashboardGrid: React.FC = () => {
               </div>
 
               <div className="my-1">
-                <div className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight font-mono">
+                <div className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight font-mono group-hover:text-amber-900 transition-colors">
                   35.50 BTC
                 </div>
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-slate-200/70 text-[11px] font-mono">
                 <span className="text-slate-400">FIAT EQUIV.</span>
-                <span className="text-slate-800 font-black">≈ $2,425,000</span>
+                <span className="text-slate-800 font-black flex items-center gap-0.5">
+                  ≈ $2,425,000 <ChevronRight className="w-2.5 h-2.5 opacity-60" />
+                </span>
               </div>
             </div>
 
-            {/* 3. 24H Volume & Execution Velocity */}
-            <div className={glassCard}>
+            {/* 3. 24H Volume & Execution Velocity (Synchronized to Trading Desk) */}
+            <div
+              onClick={() => onNavigate?.('trading')}
+              title="Klik untuk membuka menu Trading Operations Desk"
+              className={`${glassCard} cursor-pointer hover:border-emerald-300 hover:brightness-105 active:translate-y-[1px] group`}
+            >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono">
+                <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 group-hover:text-emerald-700 uppercase font-mono transition-colors">
                   24H VOLUME
                 </span>
                 <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 shadow-xs">
@@ -473,7 +511,7 @@ export const DashboardGrid: React.FC = () => {
               </div>
 
               <div className="flex items-end justify-between gap-1 my-1">
-                <div className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight font-mono">
+                <div className="text-xl xl:text-2xl font-black text-slate-800 tracking-tight font-mono group-hover:text-emerald-900 transition-colors">
                   $3,250,000
                 </div>
 
@@ -489,7 +527,9 @@ export const DashboardGrid: React.FC = () => {
 
               <div className="flex items-center justify-between pt-2 border-t border-slate-200/70 text-[11px] font-mono">
                 <span className="text-slate-400">FILL 99.98%</span>
-                <span className="text-emerald-600 font-bold">12ms SPEED</span>
+                <span className="text-emerald-600 font-bold flex items-center gap-0.5">
+                  12ms SPEED <ChevronRight className="w-2.5 h-2.5 opacity-60" />
+                </span>
               </div>
             </div>
           </div>
@@ -747,8 +787,12 @@ export const DashboardGrid: React.FC = () => {
                   </div>
                 </div>
 
-                {/* 1 Blok di Bawahnya: Super Solid 3D, Lebar Penuh Sama, Cukup untuk 1 Nama Skill dan Profitnya */}
-                <div className="flex-shrink-0 flex items-center justify-between py-2 sm:py-2.5 px-3 sm:px-3.5 min-h-[50px] sm:min-h-[54px] bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] backdrop-blur-xl rounded-xl sm:rounded-2xl border-t-[2.5px] border-t-white border-x-[1.5px] border-slate-200/90 border-b-[3.5px] border-b-slate-300 shadow-[0_12px_24px_-4px_rgba(15,23,42,0.12),inset_0_2px_1px_rgba(255,255,255,1),inset_0_-2px_2.5px_rgba(148,163,184,0.3)] overflow-hidden">
+                {/* 1 Blok di Bawahnya: Super Solid 3D, Lebar Penuh Sama (Synchronized to Genesis Quant AI) */}
+                <div
+                  onClick={() => onNavigate?.('genesis')}
+                  title="Klik untuk membuka menu Genesis Quant AI Engine"
+                  className="flex-shrink-0 flex items-center justify-between py-2 sm:py-2.5 px-3 sm:px-3.5 min-h-[50px] sm:min-h-[54px] bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] backdrop-blur-xl rounded-xl sm:rounded-2xl border-t-[2.5px] border-t-white border-x-[1.5px] border-slate-200/90 border-b-[3.5px] border-b-slate-300 shadow-[0_12px_24px_-4px_rgba(15,23,42,0.12),inset_0_2px_1px_rgba(255,255,255,1),inset_0_-2px_2.5px_rgba(148,163,184,0.3)] overflow-hidden cursor-pointer hover:border-indigo-300 hover:brightness-105 active:translate-y-[1px] group"
+                >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="w-7.5 h-7.5 sm:w-8 sm:h-8 rounded-xl bg-gradient-to-b from-[#ffffff] to-[#e4eaf4] text-indigo-600 border-t border-t-white border-x border-slate-200 border-b-2 border-b-slate-300 shadow-[0_2px_4px_rgba(0,0,0,0.06),inset_0_1px_1px_white] flex items-center justify-center flex-shrink-0">
                       <Zap className="w-4 h-4 stroke-[2.4] fill-indigo-500/20" />
@@ -756,11 +800,11 @@ export const DashboardGrid: React.FC = () => {
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5 leading-none mb-1">
                         <span className="text-[9px] font-bold text-indigo-600 uppercase tracking-wider font-mono">
-                          STRATEGY SKILL
+                          STRATEGY SKILL • GENESIS AI
                         </span>
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       </div>
-                      <div className="text-xs sm:text-[13px] font-black text-slate-800 tracking-tight truncate font-mono leading-none">
+                      <div className="text-xs sm:text-[13px] font-black text-slate-800 tracking-tight truncate font-mono leading-none group-hover:text-indigo-900 transition-colors">
                         QUANT MOMENTUM & FLASH ARBITRAGE
                       </div>
                     </div>
@@ -774,8 +818,8 @@ export const DashboardGrid: React.FC = () => {
                       <span className="text-xs sm:text-sm font-black text-emerald-600 tracking-tight">
                         +$384,250
                       </span>
-                      <span className="text-[8px] sm:text-[9px] font-bold text-emerald-700 bg-gradient-to-b from-emerald-50 to-emerald-100/90 px-1.5 py-0.5 rounded-md border-t border-t-emerald-200 border-b border-b-emerald-600/30 shadow-[0_1px_2px_rgba(16,185,129,0.15)]">
-                        +31.4%
+                      <span className="text-[8px] sm:text-[9px] font-bold text-emerald-700 bg-gradient-to-b from-emerald-50 to-emerald-100/90 px-1.5 py-0.5 rounded-md border-t border-t-emerald-200 border-b border-b-emerald-600/30 shadow-[0_1px_2px_rgba(16,185,129,0.15)] flex items-center gap-0.5">
+                        +31.4% <ChevronRight className="w-2.5 h-2.5" />
                       </span>
                     </div>
                   </div>
@@ -785,15 +829,19 @@ export const DashboardGrid: React.FC = () => {
 
             {/* Right Column in Middle Row: Allocation Square + New Elongated Block Underneath */}
             <div className="w-full lg:w-[250px] xl:w-[270px] flex-shrink-0 flex flex-col gap-3 h-full justify-between min-h-0">
-              {/* Visual 2: "lingkaran bentuknya kotak di tepi" (Bentuk Persegi 1:1, Tidak Terlalu Lebar) */}
-              <div className={`${glassCard} w-full aspect-square flex-shrink-0 flex flex-col justify-between`}>
+              {/* Visual 2: "lingkaran bentuknya kotak di tepi" (Bentuk Persegi 1:1 - Synchronized to Admin & Governance) */}
+              <div
+                onClick={() => onNavigate?.('admin')}
+                title="Klik untuk membuka menu Admin & Risk Governance Desk"
+                className={`${glassCard} w-full aspect-square flex-shrink-0 flex flex-col justify-between cursor-pointer hover:border-indigo-300 hover:brightness-105 active:translate-y-[1px] group`}
+              >
                 <div className="flex items-center justify-between gap-1 mb-0.5">
                   <div>
-                    <span className="text-[10px] font-bold tracking-wider text-slate-400 uppercase font-mono">
-                      ALLOCATION
+                    <span className="text-[10px] font-bold tracking-wider text-slate-400 group-hover:text-indigo-600 uppercase font-mono transition-colors">
+                      ALLOCATION MATRIX
                     </span>
                     <div className="flex items-baseline gap-1 mt-0.5">
-                      <span className="text-xl sm:text-2xl font-black text-slate-800 font-mono">
+                      <span className="text-xl sm:text-2xl font-black text-slate-800 font-mono group-hover:text-indigo-900 transition-colors">
                         78.4%
                       </span>
                       <span className="text-[9px] font-bold text-emerald-600 bg-emerald-500/10 px-1 py-0.2 rounded-full border border-emerald-500/20 font-mono">
@@ -803,13 +851,13 @@ export const DashboardGrid: React.FC = () => {
                   </div>
 
                   <div className="px-1.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-200/80 text-[9px] font-mono font-bold text-indigo-700">
-                    MATRIX
+                    ADMIN DESK
                   </div>
                 </div>
 
                 {/* Square Donut (Squircle Radial Gauge) Visual */}
                 <div className="flex items-center justify-center my-auto">
-                  <div className="relative w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center">
+                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
                     <svg viewBox="0 0 160 160" className="w-full h-full transform -rotate-90">
                       <defs>
                         <linearGradient id="outerSquareGrad" x1="0" y1="0" x2="1" y2="1">
@@ -879,38 +927,88 @@ export const DashboardGrid: React.FC = () => {
 
                     {/* Center Readout inside the Square Donut */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center font-mono text-center pointer-events-none">
-                      <span className="text-lg sm:text-xl font-black text-slate-800 leading-none">
+                      <span className="text-base sm:text-lg font-black text-slate-800 leading-none">
                         78.4%
                       </span>
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
                         UTILIZED
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Square Legend Breakdown */}
-                <div className="flex items-center justify-between pt-1.5 border-t border-slate-200/70 text-[11px] font-mono text-slate-600">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-gradient-to-br from-indigo-500 to-cyan-400" />
-                    LIQUID 78%
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-gradient-to-br from-emerald-500 to-emerald-400" />
-                    YIELD 62%
-                  </span>
+                {/* Synchronized Desk Badges (Security, Server, Legal, Report) */}
+                <div className="pt-1.5 border-t border-slate-200/70 flex flex-col gap-1">
+                  <div className="flex items-center justify-between text-[9.5px] font-mono text-slate-600">
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-sm bg-gradient-to-br from-indigo-500 to-cyan-400" />
+                      LIQUID 78%
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-sm bg-gradient-to-br from-emerald-500 to-emerald-400" />
+                      YIELD 62%
+                    </span>
+                  </div>
+
+                  {/* 4 Clickable Micro Desks Chips */}
+                  <div className="grid grid-cols-2 gap-1 pt-0.5 text-[8px] font-mono">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); onNavigate?.('security'); }}
+                      className="flex items-center justify-between px-1.5 py-0.5 rounded-md bg-white/90 hover:bg-indigo-50 border border-slate-200/90 text-slate-700 hover:text-indigo-700 transition-colors cursor-pointer"
+                    >
+                      <span className="flex items-center gap-0.5 font-bold">
+                        <ShieldCheck className="w-2.5 h-2.5 text-emerald-600" /> SEC
+                      </span>
+                      <span className="text-[7.5px] text-emerald-600 font-bold">DEFCON 5</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); onNavigate?.('server'); }}
+                      className="flex items-center justify-between px-1.5 py-0.5 rounded-md bg-white/90 hover:bg-indigo-50 border border-slate-200/90 text-slate-700 hover:text-indigo-700 transition-colors cursor-pointer"
+                    >
+                      <span className="flex items-center gap-0.5 font-bold">
+                        <Server className="w-2.5 h-2.5 text-indigo-600" /> NODE
+                      </span>
+                      <span className="text-[7.5px] text-indigo-600 font-bold">1.08ms</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); onNavigate?.('legal'); }}
+                      className="flex items-center justify-between px-1.5 py-0.5 rounded-md bg-white/90 hover:bg-indigo-50 border border-slate-200/90 text-slate-700 hover:text-indigo-700 transition-colors cursor-pointer"
+                    >
+                      <span className="flex items-center gap-0.5 font-bold">
+                        <Scale className="w-2.5 h-2.5 text-amber-600" /> LAW
+                      </span>
+                      <span className="text-[7.5px] text-emerald-600 font-bold">5/5 OK</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); onNavigate?.('report'); }}
+                      className="flex items-center justify-between px-1.5 py-0.5 rounded-md bg-white/90 hover:bg-indigo-50 border border-slate-200/90 text-slate-700 hover:text-indigo-700 transition-colors cursor-pointer"
+                    >
+                      <span className="flex items-center gap-0.5 font-bold">
+                        <FileBarChart className="w-2.5 h-2.5 text-blue-600" /> AUDIT
+                      </span>
+                      <span className="text-[7.5px] text-blue-600 font-bold">Q3 NAV</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Block Tambahan Di Bawahnya: Trader (Live Feed) */}
-              <div className={`${glassCard} w-full flex-1 min-h-0 flex flex-col justify-between overflow-hidden p-3 sm:p-3.5`}>
+              {/* Block Tambahan Di Bawahnya: Trader (Live Feed - Synchronized to Workforce) */}
+              <div
+                onClick={() => onNavigate?.('workforce')}
+                title="Klik untuk membuka menu Workforce & Desk Personnel"
+                className={`${glassCard} w-full flex-1 min-h-0 flex flex-col justify-between overflow-hidden p-3 sm:p-3.5 cursor-pointer hover:border-indigo-300 hover:brightness-105 active:translate-y-[1px] group`}
+              >
                 <div className="flex flex-col flex-1 min-h-0">
                   {/* Header: Title "Trader" */}
                   <div className="flex items-center justify-between gap-1 mb-2 flex-shrink-0">
                     <div className="flex items-center gap-1.5 min-w-0">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
-                      <span className="text-xs font-black tracking-wider text-slate-800 uppercase font-mono">
-                        Trader
+                      <span className="text-xs font-black tracking-wider text-slate-800 group-hover:text-indigo-700 uppercase font-mono transition-colors">
+                        Trader Desk • Workforce
                       </span>
                     </div>
                     <span className="text-[9px] font-bold text-indigo-600 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-200/80 font-mono flex-shrink-0">
@@ -980,7 +1078,9 @@ export const DashboardGrid: React.FC = () => {
                 {/* Footer Status */}
                 <div className="flex items-center justify-between pt-1.5 border-t border-slate-200/70 text-[9px] font-mono text-slate-500 mt-1 flex-shrink-0">
                   <span className="text-slate-500 font-bold">TOTAL: {tradeCount} ORDER</span>
-                  <span className="text-emerald-600 font-black">99.98% FILLED</span>
+                  <span className="text-emerald-600 font-black flex items-center gap-0.5">
+                    48 TRADER (WORKFORCE →)
+                  </span>
                 </div>
               </div>
             </div>
@@ -989,12 +1089,12 @@ export const DashboardGrid: React.FC = () => {
       </div>
 
       {/* ============================================================== */}
-      {/* QUICK ACTION INTERACTIVE MODAL OVERLAYS                        */}
+      {/* QUICK ACTION INTERACTIVE MODAL OVERLAYS (INSTITUTIONAL DESK)  */}
       {/* ============================================================== */}
       {activeModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in"
-          onClick={() => setActiveModal(null)}
+          onClick={() => { setActiveModal(null); setOrderSubmitted(false); }}
         >
           <div
             className="w-full max-w-md bg-gradient-to-b from-white via-slate-50 to-[#eef4fb] rounded-[28px] border-t-2 border-t-white border-x-[1.5px] border-slate-200/90 border-b-[4px] border-b-slate-400 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] p-5 sm:p-6"
@@ -1004,26 +1104,26 @@ export const DashboardGrid: React.FC = () => {
             <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 mb-4">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-2xl bg-indigo-500/10 text-indigo-600 flex items-center justify-center border border-indigo-200 shadow-xs">
-                  {activeModal === 'send' && <Send className="w-4 h-4 stroke-[2.5]" />}
-                  {activeModal === 'add_funds' && <PlusCircle className="w-4 h-4 stroke-[2.5]" />}
-                  {activeModal === 'pay_bills' && <Receipt className="w-4 h-4 stroke-[2.5]" />}
-                  {activeModal === 'qr' && <QrCode className="w-4 h-4 stroke-[2.5]" />}
+                  {activeModal === 'trade_order' && <TrendingUp className="w-4 h-4 stroke-[2.5]" />}
+                  {activeModal === 'deposit' && <PlusCircle className="w-4 h-4 stroke-[2.5]" />}
+                  {activeModal === 'fx_swap' && <ArrowLeftRight className="w-4 h-4 stroke-[2.5]" />}
+                  {activeModal === 'vault_sign' && <ShieldCheck className="w-4 h-4 stroke-[2.5]" />}
                 </div>
                 <div>
                   <h3 className="text-base font-extrabold text-slate-800 font-mono">
-                    {activeModal === 'send' && 'SEND ASSETS'}
-                    {activeModal === 'add_funds' && 'ADD FUNDS'}
-                    {activeModal === 'pay_bills' && 'PAY BILLS & INVOICES'}
-                    {activeModal === 'qr' && 'QR CODE SCAN & PAY'}
+                    {activeModal === 'trade_order' && 'FAST ORDER ROUTING'}
+                    {activeModal === 'deposit' && 'PRIME CUSTODY INFLOW'}
+                    {activeModal === 'fx_swap' && 'FX LIQUIDITY SWAP'}
+                    {activeModal === 'vault_sign' && 'MULTI-SIG HSM SIGNER'}
                   </h3>
                   <span className="text-[10px] text-slate-400 font-mono">
-                    INSTANT SETTLEMENT • T+0
+                    INSTITUTIONAL DESK • T+0 SETTLEMENT
                   </span>
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => setActiveModal(null)}
+                onClick={() => { setActiveModal(null); setOrderSubmitted(false); }}
                 className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -1031,131 +1131,148 @@ export const DashboardGrid: React.FC = () => {
             </div>
 
             {/* Modal Content Based on Action */}
-            {activeModal === 'send' && (
+            {activeModal === 'trade_order' && (
               <div className="flex flex-col gap-3 font-mono">
                 <div>
                   <label className="text-[11px] font-bold text-slate-500 mb-1 block">
-                    RECIPIENT ADDRESS / ENS
+                    TARGET INSTRUMENT / MARKET
                   </label>
-                  <input
-                    type="text"
-                    defaultValue="0x91a...3c24"
-                    className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-800 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-                  />
+                  <select className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-800 outline-none focus:border-indigo-500">
+                    <option value="BTC">BTC/USD (CME Liquid Desk) - $96,420</option>
+                    <option value="NVDA">NVDA GLOBAL (Equities) - $142.50</option>
+                    <option value="XAU">XAU/USD (Spot Gold) - $2,845.20</option>
+                    <option value="ETH">ETH/USD (Native Desk) - $3,480.50</option>
+                  </select>
                 </div>
-                <div>
-                  <label className="text-[11px] font-bold text-slate-500 mb-1 block">
-                    AMOUNT (USD / ASSET)
-                  </label>
-                  <div className="relative">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-500 mb-1 block">
+                      SIDE
+                    </label>
+                    <div className="grid grid-cols-2 gap-1">
+                      <button type="button" className="py-2 rounded-xl bg-emerald-600 text-white font-black text-xs">
+                        BUY
+                      </button>
+                      <button type="button" className="py-2 rounded-xl bg-slate-200 text-slate-700 font-black text-xs hover:bg-slate-300">
+                        SELL
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-bold text-slate-500 mb-1 block">
+                      ALLOCATION (USD)
+                    </label>
                     <input
                       type="text"
-                      defaultValue="50,000.00"
-                      className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-800 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                      defaultValue="$50,000"
+                      className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-800 outline-none focus:border-indigo-500"
                     />
-                    <span className="absolute right-3 top-2 text-xs font-extrabold text-indigo-600">
-                      USD
-                    </span>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setActiveModal(null)}
-                  className="w-full mt-2 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md active:translate-y-0.5 transition-all cursor-pointer"
-                >
-                  CONFIRM TRANSFER
-                </button>
+
+                {orderSubmitted ? (
+                  <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
+                    <span className="text-xs font-bold text-emerald-800 block">✓ ORDER FILLED AT BEST PRICE (12ms)</span>
+                    <button
+                      type="button"
+                      onClick={() => { setActiveModal(null); onNavigate?.('trading'); }}
+                      className="mt-2 text-xs font-bold text-indigo-600 underline"
+                    >
+                      Buka Trading Desk untuk pantau posisi →
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setOrderSubmitted(true)}
+                    className="w-full mt-2 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-md active:translate-y-0.5 transition-all cursor-pointer"
+                  >
+                    KIRIM ORDER KE ORDERBOOK
+                  </button>
+                )}
               </div>
             )}
 
-            {activeModal === 'add_funds' && (
+            {activeModal === 'deposit' && (
               <div className="flex flex-col gap-3 font-mono">
                 <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
-                  <span className="text-xs font-bold text-emerald-800">WIRE TRANSFER / ACH</span>
+                  <div>
+                    <div className="text-xs font-bold text-emerald-800">CUSTODIAL PRIME WIRE</div>
+                    <div className="text-[10px] text-emerald-600">JP Morgan Chase / BNY Mellon Custody</div>
+                  </div>
                   <span className="text-[10px] font-bold bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded">
-                    FEE 0%
+                    T+0 INSTANT
                   </span>
                 </div>
                 <div>
                   <label className="text-[11px] font-bold text-slate-500 mb-1 block">
-                    DEPOSIT AMOUNT
+                    CAPITAL ALLOCATION AMOUNT
                   </label>
                   <input
                     type="text"
-                    defaultValue="$100,000.00"
+                    defaultValue="$250,000.00"
                     className="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-800 outline-none focus:border-emerald-500"
                   />
                 </div>
                 <button
                   type="button"
-                  onClick={() => setActiveModal(null)}
+                  onClick={() => { setActiveModal(null); onNavigate?.('investor'); }}
                   className="w-full mt-2 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md active:translate-y-0.5 transition-all cursor-pointer"
                 >
-                  PROCEED DEPOSIT
+                  KONFIRMASI INFLOW DANA (BUKA INVESTOR DESK)
                 </button>
               </div>
             )}
 
-            {activeModal === 'pay_bills' && (
+            {activeModal === 'fx_swap' && (
               <div className="flex flex-col gap-2.5 font-mono">
                 <div className="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between">
                   <div>
-                    <div className="text-xs font-bold text-slate-800">AWS CLOUD HPC CLUSTER</div>
-                    <div className="text-[10px] text-slate-400">INV #849102 • DUE TODAY</div>
+                    <div className="text-xs font-bold text-slate-800">USD → EUR LIQUIDITY ROUTE</div>
+                    <div className="text-[10px] text-slate-400">SPOT RATE 1.0842 • SPREAD 0.1 BPS</div>
                   </div>
-                  <span className="text-sm font-black text-slate-800">$18,450.00</span>
+                  <span className="text-sm font-black text-indigo-700">$500,000</span>
                 </div>
                 <div className="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between">
                   <div>
-                    <div className="text-xs font-bold text-slate-800">EQUINIX TYO DATA CENTER</div>
-                    <div className="text-[10px] text-slate-400">INV #229411 • DUE 3 DAYS</div>
+                    <div className="text-xs font-bold text-slate-800">USD → JPY ARBITRAGE SWAP</div>
+                    <div className="text-[10px] text-slate-400">SPOT RATE 152.40 • SETTLED</div>
                   </div>
-                  <span className="text-sm font-black text-slate-800">$12,300.00</span>
+                  <span className="text-sm font-black text-slate-800">$250,000</span>
                 </div>
                 <button
                   type="button"
-                  onClick={() => setActiveModal(null)}
+                  onClick={() => { setActiveModal(null); onNavigate?.('fx-flow'); }}
                   className="w-full mt-2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md active:translate-y-0.5 transition-all cursor-pointer"
                 >
-                  PAY SELECTED INVOICES
+                  EKSEKUSI FX SWAP (BUKA FX FLOW DESK)
                 </button>
               </div>
             )}
 
-            {activeModal === 'qr' && (
-              <div className="flex flex-col items-center gap-3 font-mono text-center">
-                <div className="w-44 h-44 bg-white p-3 rounded-2xl border-2 border-slate-200 shadow-sm flex items-center justify-center">
-                  <svg viewBox="0 0 45 45" className="w-full h-full">
-                    <rect x="2" y="2" width="12" height="12" fill="none" stroke="#1e293b" strokeWidth="2.5" />
-                    <rect x="5.5" y="5.5" width="5" height="5" fill="#1e293b" />
-                    <rect x="31" y="2" width="12" height="12" fill="none" stroke="#1e293b" strokeWidth="2.5" />
-                    <rect x="34.5" y="5.5" width="5" height="5" fill="#1e293b" />
-                    <rect x="2" y="31" width="12" height="12" fill="none" stroke="#1e293b" strokeWidth="2.5" />
-                    <rect x="5.5" y="34.5" width="5" height="5" fill="#1e293b" />
-                    <rect x="18" y="4" width="3" height="3" fill="#1e293b" />
-                    <rect x="24" y="6" width="3" height="3" fill="#1e293b" />
-                    <rect x="18" y="10" width="3" height="3" fill="#1e293b" />
-                    <rect x="6" y="18" width="3" height="3" fill="#1e293b" />
-                    <rect x="10" y="22" width="3" height="3" fill="#1e293b" />
-                    <rect x="18" y="18" width="8" height="8" rx="2" fill="#4f46e5" />
-                    <rect x="30" y="18" width="3" height="3" fill="#1e293b" />
-                    <rect x="36" y="22" width="3" height="3" fill="#1e293b" />
-                    <rect x="18" y="30" width="3" height="3" fill="#1e293b" />
-                    <rect x="24" y="36" width="3" height="3" fill="#1e293b" />
-                    <rect x="32" y="32" width="4" height="4" fill="#1e293b" />
-                    <rect x="38" y="38" width="4" height="4" fill="#1e293b" />
-                  </svg>
+            {activeModal === 'vault_sign' && (
+              <div className="flex flex-col gap-3 font-mono">
+                <div className="p-3 rounded-xl bg-indigo-50 border border-indigo-200">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-black text-indigo-900">MASTER COLD VAULT QUORUM</span>
+                    <span className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
+                      4/7 TERVERIFIKASI
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-600 block leading-relaxed">
+                    Modul HSM Thales Luna PCIe Level 4 aktif tanpa kunci tertahan. Kunci otoritas multi-sig siap untuk transaksi institusi.
+                  </span>
                 </div>
-                <div className="text-xs font-bold text-slate-800 break-all px-4">
-                  {walletAddress}
+                <div className="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between text-xs font-bold">
+                  <span className="text-slate-500">KAPASITAS COLD VAULT:</span>
+                  <span className="text-slate-900 font-black">$10,560,000.00</span>
                 </div>
                 <button
                   type="button"
-                  onClick={handleCopy}
-                  className="px-4 py-2 rounded-xl bg-slate-900 text-white font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md hover:bg-slate-800"
+                  onClick={() => { setActiveModal(null); onNavigate?.('security'); }}
+                  className="w-full mt-2 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md active:translate-y-0.5 transition-all cursor-pointer"
                 >
-                  {copiedAddress ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  {copiedAddress ? 'ADDRESS COPIED' : 'COPY WALLET ADDRESS'}
+                  KELOLA VAULT DI SECURITY DESK
                 </button>
               </div>
             )}
