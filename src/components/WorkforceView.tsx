@@ -16,7 +16,6 @@ import {
   Scale,
   CreditCard,
   Building2,
-  Lock,
 } from 'lucide-react';
 import {
   WORKFORCE_DIVISIONS,
@@ -202,14 +201,9 @@ export const WorkforceView: React.FC = () => {
                     </div>
 
                     <span
-                      className={`text-[7px] font-black px-1.5 py-0.2 rounded-full border font-mono flex-shrink-0 flex items-center gap-0.5 ${
-                        divisi.divisionId === 'DIV-2-TRADING'
-                          ? 'bg-rose-50 text-rose-700 border-rose-300'
-                          : divisi.bgBadge
-                      }`}
+                      className={`text-[7px] font-black px-1.5 py-0.2 rounded-full border font-mono flex-shrink-0 flex items-center gap-0.5 ${divisi.bgBadge}`}
                     >
-                      {divisi.divisionId === 'DIV-2-TRADING' && <Lock className="w-2 h-2" />}
-                      {divisi.divisionId === 'DIV-2-TRADING' ? 'DIKUNCI' : divisi.badge}
+                      {divisi.badge}
                     </span>
                   </div>
 

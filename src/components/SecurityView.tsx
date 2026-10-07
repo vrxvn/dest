@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   ShieldCheck,
-  Lock,
   KeyRound,
   AlertTriangle,
   Server,
@@ -41,7 +40,7 @@ export const SecurityView: React.FC = () => {
         <div className={glassCard}>
           <div className="flex items-center justify-between mb-0.5">
             <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5 text-emerald-600 stroke-[2.3]" />
+              <KeyRound className="w-3.5 h-3.5 text-emerald-600 stroke-[2.3]" />
               AIR-GAPPED COLD STORAGE
             </span>
             <span className="inline-flex items-center gap-0.5 px-2 py-0.2 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-mono">

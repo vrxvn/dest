@@ -23,9 +23,7 @@ import {
   ZoomOut,
   RotateCcw,
   SlidersHorizontal,
-  Lock,
   Pause,
-  ShieldAlert,
 } from 'lucide-react';
 import {
   TRADER_EMPLOYEES,
@@ -95,9 +93,9 @@ export const TradingOperations: React.FC = () => {
     return generateCandleData(84082.0, 36);
   });
 
-  // Indikator sinkronisasi real-time - DIHENTIKAN & DIKUNCI
-  const [lastSyncStr] = useState<string>('DIHENTIKAN (FROZEN)');
-  const [tickCounter] = useState<number>(0);
+  // Indikator sinkronisasi real-time - AKTIF & REAL-TIME
+  const [lastSyncStr, setLastSyncStr] = useState<string>('LIVE (0.8s FEED)');
+  const [tickCounter, setTickCounter] = useState<number>(0);
 
   // 1. Fetch static candles untuk instrumen terpilih
   const fetchCandlesForInstrument = useCallback(async (sym: string, tf: string) => {
@@ -145,9 +143,60 @@ export const TradingOperations: React.FC = () => {
     fetchCandlesForInstrument(selectedInstrument, selectedTimeframe);
   }, [selectedInstrument, selectedTimeframe, fetchCandlesForInstrument]);
 
-  // 2. Real-Time Price Poller & Tick Stream - TELAH DIHENTIKAN & DIKUNCI
+  // 2. Real-Time Price Poller & Tick Stream - AKTIF & BERJALAN PENUH
   useEffect(() => {
-    // Sesi trading telah dihentikan (HALTED) sesuai protokol kepatuhan
+    const interval = setInterval(() => {
+      setLivePrices((prev) => {
+        const next = { ...prev };
+        const syms = Object.keys(next);
+        const sym = syms[Math.floor(Math.random() * syms.length)];
+        const current = next[sym];
+        if (current) {
+          const deltaPct = (Math.random() - 0.49) * 0.0015;
+          const newPrice = Math.max(
+            0.01,
+            +(current.price * (1 + deltaPct)).toFixed(
+              sym.includes('EUR') ? 4 : sym.includes('JPY') ? 2 : sym === 'NVDA' ? 2 : 1
+            )
+          );
+          next[sym] = {
+            price: newPrice,
+            change24h: +(current.change24h + (deltaPct > 0 ? 0.02 : -0.02)).toFixed(2),
+            direction: deltaPct >= 0 ? 'UP' : 'DOWN',
+            lastTickTime: Date.now(),
+          };
+        }
+        return next;
+      });
+
+      setTickCounter((prev) => prev + 1);
+      setLastSyncStr(
+        new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      );
+
+      // Update lilin terakhir jika instrumen aktif
+      setCandles((prevCandles) => {
+        if (!prevCandles || prevCandles.length === 0) return prevCandles;
+        const lastIdx = prevCandles.length - 1;
+        const last = prevCandles[lastIdx];
+        const drift = (Math.random() - 0.48) * (last.close * 0.001);
+        const newClose = +(last.close + drift).toFixed(2);
+        const newHigh = Math.max(last.high, newClose);
+        const newLow = Math.min(last.low, newClose);
+        const updatedLast: CandleData = {
+          ...last,
+          close: newClose,
+          high: newHigh,
+          low: newLow,
+          volume: last.volume + Math.floor(Math.random() * 3),
+        };
+        const updated = [...prevCandles];
+        updated[lastIdx] = updatedLast;
+        return updated;
+      });
+    }, 1200);
+
+    return () => clearInterval(interval);
   }, [selectedInstrument]);
 
   // 3. Kalkulasi Real-Time Posisi Karyawan berdasarkan Live Market Price
@@ -303,56 +352,35 @@ export const TradingOperations: React.FC = () => {
 
   return (
     <div className="w-full h-full flex flex-col gap-2 sm:gap-2.5 overflow-hidden pr-0.5 pb-0.5 select-none font-mono">
-      {/* BANNER PERINGATAN: OPERASIONAL TRADING DIHENTIKAN & DIKUNCI TOTAL */}
-      <div className="p-2 sm:p-2.5 rounded-2xl bg-gradient-to-r from-rose-50 via-rose-100/60 to-rose-50 border-t-2 border-t-white border-x border-rose-200 border-b-2 border-b-rose-300 text-rose-900 flex items-center justify-between gap-2 shadow-xs shrink-0">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
-            <Lock className="w-4 h-4 stroke-[2.5]" />
-          </div>
-          <div className="min-w-0">
-            <div className="text-xs font-black uppercase tracking-tight flex items-center gap-1.5">
-              <span>OPERASIONAL TRADING TELAH DIHENTIKAN & DIKUNCI</span>
-              <span className="w-2 h-2 rounded-full bg-rose-600 animate-pulse" />
-            </div>
-            <div className="text-[10px] text-rose-700 font-medium truncate">
-              Chart pasar dihentikan (HALTED), live candlestick dibekukan, dan seluruh posisi serta data karyawan dikunci total (Ngeblur).
-            </div>
-          </div>
-        </div>
-        <span className="px-2.5 py-1 rounded-full bg-rose-600 text-white font-black text-[9px] uppercase tracking-wider flex items-center gap-1 flex-shrink-0 shadow-xs">
-          <ShieldAlert className="w-3 h-3" /> DEFCON 1 • LOCKED
-        </span>
-      </div>
-
       {/* ============================================================== */}
       {/* 1. BARIS ATAS: 4 KARTU KPI EXECUTIVE SURVEILLANCE              */}
       {/* ============================================================== */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-2.5 flex-shrink-0">
-        {/* Card 1: Total Karyawan Aktif - DIKUNCI */}
+        {/* Card 1: Total Karyawan Aktif - TERBUKA */}
         <div className={glassCard}>
           <div className="flex items-center justify-between mb-0.5">
             <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-500 uppercase font-mono flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5 text-rose-600 stroke-[2.3]" />
-              KARYAWAN TRADING (DIKUNCI)
+              <Users className="w-3.5 h-3.5 text-indigo-600 stroke-[2.3]" />
+              KARYAWAN TRADING (ONLINE)
             </span>
-            <span className="text-[9px] font-black text-rose-700 bg-rose-50 px-2 py-0.2 rounded-full border border-rose-200/80 font-mono flex items-center gap-1">
-              <Lock className="w-2.5 h-2.5" /> DIKUNCI TOTAL
+            <span className="text-[9px] font-black text-emerald-700 bg-emerald-50 px-2 py-0.2 rounded-full border border-emerald-200/80 font-mono flex items-center gap-1">
+              <CheckCircle2 className="w-2.5 h-2.5" /> 12 TERVERIFIKASI
             </span>
           </div>
 
           <div className="my-0.5">
             <div className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight font-mono flex items-baseline gap-1.5">
-              <span>0 Online</span>
-              <span className="text-xs font-semibold text-rose-600 flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-rose-500" />
-                12 Akun Dibekukan
+              <span>12 Online</span>
+              <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Semua Akun Aktif
               </span>
             </div>
           </div>
 
           <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[10px] font-mono">
             <span className="text-slate-400">TOTAL 5 DIVISI PASAR</span>
-            <span className="text-rose-700 font-extrabold">STATUS: DIHENTIKAN</span>
+            <span className="text-emerald-700 font-extrabold">STATUS: NORMAL BERJALAN</span>
           </div>
         </div>
 
@@ -719,8 +747,8 @@ export const TradingOperations: React.FC = () => {
                 <span className="text-slate-400">
                   WAKTU: <strong className="text-slate-700">{displayCandle.time}</strong>
                 </span>
-                <span className="px-1.5 py-0.2 rounded bg-rose-100 text-rose-800 font-bold flex items-center gap-1 font-mono">
-                  <Lock className="w-2.5 h-2.5" /> DIKUNCI / FROZEN
+                <span className="px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold flex items-center gap-1 font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> LIVE STREAMING
                 </span>
               </div>
             </div>
@@ -745,23 +773,7 @@ export const TradingOperations: React.FC = () => {
                 setHoveredCandle(null);
               }}
             >
-              {/* Frosted Blur Lock Overlay on Candlestick Chart */}
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-900/15 backdrop-blur-[3px] rounded-xl p-4 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-b from-white via-rose-50 to-rose-100 border-t border-t-white border-x border-rose-200 border-b-2 border-b-rose-300 shadow-[0_6px_16px_rgba(225,29,72,0.2)] flex items-center justify-center text-rose-600 mb-2">
-                  <Lock className="w-6 h-6 stroke-[2.4]" />
-                </div>
-                <div className="text-sm sm:text-base font-black text-slate-900 font-mono tracking-tight uppercase">
-                  GRAFIK TRADING DIHENTIKAN & DIKUNCI
-                </div>
-                <div className="text-xs font-mono text-slate-600 max-w-md mt-1 leading-snug">
-                  Sesi grafik live telah dihentikan (HALTED). Seluruh streaming lilin, tick harga, dan eksekusi orderbook dikunci dalam status proteksi.
-                </div>
-                <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/15 border border-rose-300/80 text-[10px] font-mono font-bold text-rose-700 shadow-xs">
-                  <ShieldAlert className="w-3 h-3" /> DEFCON 1 • SYSTEM FROZEN & LOCKED
-                </div>
-              </div>
-
-              <svg viewBox="0 0 1000 360" className="w-full h-full overflow-visible opacity-45 filter blur-[0.6px]">
+              <svg viewBox="0 0 1000 360" className="w-full h-full overflow-visible">
                 <defs>
                   <linearGradient id="chartAreaGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.25" />
@@ -1065,9 +1077,9 @@ export const TradingOperations: React.FC = () => {
               </div>
             </div>
 
-            {/* TABEL CONTENT SESUAI TAB AKTIF - DIKUNCI & NGEBLUR TOTAL */}
+            {/* TABEL CONTENT SESUAI TAB AKTIF - AKTIF & REAL-TIME */}
             <div className="flex-1 relative overflow-hidden my-1 pr-0.5 min-h-0">
-              <div className="w-full h-full overflow-x-auto overflow-y-auto custom-scrollbar filter blur-[5px] select-none pointer-events-none opacity-25">
+              <div className="w-full h-full overflow-x-auto overflow-y-auto custom-scrollbar">
               {/* TAB 1: POSISI BERJALAN KARYAWAN */}
               {activeTab === 'OPEN_POSITIONS' && (
                 <table className="w-full text-left font-mono text-[9px]">
@@ -1309,30 +1321,14 @@ export const TradingOperations: React.FC = () => {
                 </table>
               )}
               </div>
-
-              {/* Lock Overlay on Employee Tables */}
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-4 bg-slate-900/10 backdrop-blur-[4px] rounded-xl border border-slate-300/80 text-center">
-                <div className="w-11 h-11 rounded-2xl bg-gradient-to-b from-white via-rose-50 to-rose-100 border-t border-t-white border-x border-rose-200 border-b-2 border-b-rose-300 shadow-[0_4px_12px_rgba(225,29,72,0.18)] flex items-center justify-center text-rose-600 mb-1.5">
-                  <Lock className="w-5 h-5 stroke-[2.4]" />
-                </div>
-                <div className="text-xs sm:text-sm font-black text-slate-900 tracking-tight font-mono uppercase">
-                  DATA & POSISI KARYAWAN DIKUNCI TOTAL (NGEBLUR)
-                </div>
-                <div className="text-[9px] sm:text-[10px] font-mono text-slate-600 max-w-sm mt-0.5 leading-snug">
-                  Surveillance posisi live, pending order, dan riwayat trading seluruh karyawan telah disensor & dikunci demi protokol kepatuhan.
-                </div>
-                <div className="mt-2.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-300/80 text-[8.5px] font-mono font-bold text-rose-700">
-                  <ShieldAlert className="w-2.5 h-2.5" /> AKSES TRADER DIBEKUKAN • PROTOKOL PENGUNCIAN
-                </div>
-              </div>
             </div>
 
             {/* Footer Tabel */}
             <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[8px] font-mono text-slate-500 shrink-0">
-              <span className="text-rose-600 font-bold flex items-center gap-1">
-                <Lock className="w-2.5 h-2.5" /> DATA POSISI KARYAWAN DIBEKUKAN
+              <span className="text-emerald-600 font-bold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> DATA POSISI KARYAWAN AKTIF & REAL-TIME
               </span>
-              <span className="text-rose-700 font-bold">CIRCUIT BREAKER DIKUNCI TOTAL</span>
+              <span className="text-indigo-700 font-bold">SURVEILLANCE TERBUKA • T+0</span>
             </div>
           </div>
         </div>
@@ -1375,9 +1371,9 @@ export const TradingOperations: React.FC = () => {
             </div>
           </div>
 
-          {/* List Karyawan Trading - DIKUNCI TOTAL & NGEBLUR */}
+          {/* List Karyawan Trading - AKTIF & REAL-TIME */}
           <div className="flex-1 relative overflow-hidden pr-0.5 min-h-0">
-            <div className="w-full h-full overflow-y-auto space-y-1.5 pr-0.5 min-h-0 custom-scrollbar filter blur-[4px] select-none pointer-events-none opacity-25">
+            <div className="w-full h-full overflow-y-auto space-y-1.5 pr-0.5 min-h-0 custom-scrollbar">
             {TRADER_EMPLOYEES.map((trader) => {
               const isSelected = selectedTraderId === trader.id;
 
@@ -1480,30 +1476,14 @@ export const TradingOperations: React.FC = () => {
               );
             })}
             </div>
-
-            {/* Lock Overlay on Roster */}
-            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-3 bg-slate-900/10 backdrop-blur-[3px] rounded-xl border border-slate-300/80 text-center">
-              <div className="w-9 h-9 rounded-2xl bg-gradient-to-b from-white via-rose-50 to-rose-100 border-t border-t-white border-x border-rose-200 border-b-2 border-b-rose-300 shadow-[0_4px_10px_rgba(225,29,72,0.18)] flex items-center justify-center text-rose-600 mb-1.5">
-                <Lock className="w-4 h-4 stroke-[2.4]" />
-              </div>
-              <div className="text-[11px] font-black text-slate-900 font-mono uppercase">
-                ROSTER DIKUNCI
-              </div>
-              <div className="text-[8px] font-mono text-slate-600 mt-0.5">
-                12 Akun Karyawan Dibekukan
-              </div>
-              <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 border border-rose-200 text-[7.5px] font-mono font-bold text-rose-700">
-                <Lock className="w-2 h-2" /> RESTRICTED
-              </div>
-            </div>
           </div>
 
           {/* Footer Roster */}
           <div className="pt-1.5 border-t border-slate-200/80 mt-1 shrink-0 text-[8px] font-mono text-slate-500 flex items-center justify-between">
-            <span className="text-rose-600 font-bold flex items-center gap-1">
-              <Lock className="w-2.5 h-2.5" /> DIKUNCI
+            <span className="text-emerald-600 font-bold flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> ROSTER TERBUKA
             </span>
-            <span className="text-rose-700 font-bold">CIRCUIT BREAKER</span>
+            <span className="text-indigo-700 font-bold">12 TRADER AKTIF</span>
           </div>
         </div>
       </div>

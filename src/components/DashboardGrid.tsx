@@ -21,8 +21,6 @@ import {
   Copy,
   ChevronRight,
   ChevronDown,
-  Lock,
-  ShieldAlert,
   Pause,
   BarChart3,
   Award,
@@ -58,12 +56,12 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
   const [hoveredPointIndex, setHoveredPointIndex] = useState<number | null>(null);
   const [chartType, setChartType] = useState<'BAR_CLUSTERED' | 'STEP_STAIRCASE' | 'WATERFALL'>('BAR_CLUSTERED');
 
-  // Live Employee Global Trading Desk state - DIHENTIKAN / STOPPED & DIKUNCI
+  // Live Employee Global Trading Desk state - AKTIF & REAL-TIME
   const [employeeTrades] = useState<EmployeeTrade[]>(INITIAL_EMPLOYEE_TRADES);
   const tradeCount = 148;
 
-  // Quick Action Modal state (termasuk status locked_trading)
-  const [activeModal, setActiveModal] = useState<'trade_order' | 'deposit' | 'fx_swap' | 'vault_sign' | 'locked_trading' | null>(null);
+  // Quick Action Modal state
+  const [activeModal, setActiveModal] = useState<'trade_order' | 'deposit' | 'fx_swap' | 'vault_sign' | null>(null);
   const [orderSubmitted, setOrderSubmitted] = useState(false);
 
   // Synchronize bottom of Capital Flow card with bottom of Treasury & Staking blocks
@@ -130,9 +128,9 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
                   TOTAL AUM • USD
                 </span>
                 <div className="flex items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-rose-500/10 text-rose-600 border border-rose-500/25 shadow-xs font-mono">
-                    <Lock className="w-2.5 h-2.5" />
-                    TRADING DIKUNCI
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/25 shadow-xs font-mono">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    TRADING AKTIF
                   </span>
                   <span className="inline-flex items-center gap-0.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 shadow-xs">
                     <ArrowUpRight className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -186,18 +184,14 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
 
             {/* Bottom: 4 Synchronized Core Desk Launchers (Preserves exact dock layout & 3D solid styling) */}
             <div className="pt-2 flex items-center justify-between gap-2">
-              {/* 1. TRADING DESK (DIKUNCI / HALTED) */}
+              {/* 1. TRADING DESK (AKTIF / LIVE) */}
               <button
                 type="button"
-                onClick={() => setActiveModal('locked_trading')}
-                title="Trading Desk • DIKUNCI TOTAL & DIHENTIKAN (Klik untuk melihat protokol keamanan)"
-                className="group relative flex-1 h-10 sm:h-11 rounded-2xl bg-gradient-to-b from-[#fff5f5] via-[#fef2f2] to-[#fee2e2] text-rose-600 hover:text-rose-700 flex items-center justify-center border-t-2 border-t-white border-x-[1.5px] border-rose-200/90 border-b-[3px] border-b-rose-300 shadow-[0_4px_8px_rgba(225,29,72,0.12),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-1px_1px_rgba(254,202,202,0.4)] hover:brightness-105 active:border-b-[1px] active:translate-y-[1.5px] transition-all cursor-pointer"
+                onClick={() => onNavigate ? onNavigate('trading') : setActiveModal('trade_order')}
+                title="Trading Desk • +$384.5K PnL (Buka Trading Operations)"
+                className="group relative flex-1 h-10 sm:h-11 rounded-2xl bg-gradient-to-b from-[#ffffff] via-[#f8fafc] to-[#e6ecf4] text-indigo-600 hover:text-indigo-800 flex items-center justify-center border-t-2 border-t-white border-x-[1.5px] border-slate-200/90 border-b-[3px] border-b-slate-300 shadow-[0_4px_8px_rgba(0,0,0,0.08),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-1px_1px_rgba(148,163,184,0.3)] hover:brightness-105 active:border-b-[1px] active:translate-y-[1.5px] transition-all cursor-pointer"
               >
-                <div className="relative flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 stroke-[2.3] opacity-50" />
-                  <Lock className="w-2.5 h-2.5 text-rose-600 absolute -bottom-1 -right-1" />
-                </div>
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-rose-500 border border-white flex items-center justify-center" />
+                <TrendingUp className="w-4 h-4 stroke-[2.3]" />
               </button>
 
               {/* 2. FX FLOW DESK */}
@@ -413,19 +407,19 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
         <div className="lg:col-span-8 xl:col-span-8 flex flex-col gap-3 h-full flex-1 min-h-0">
           {/* Top Row in Right Column: 3 Split Executive KPI Cards (Synchronized to Trading & Crypto) */}
           <div ref={topRowRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {/* 1. Net PnL + Micro Sparkline (Synchronized to Trading Desk - HALTED) */}
+            {/* 1. Net PnL + Micro Sparkline (Synchronized to Trading Desk - AKTIF) */}
             <div
-              onClick={() => setActiveModal('locked_trading')}
-              title="Trading Operations • DIKUNCI & DIHENTIKAN"
-              className={`${glassCard} cursor-pointer hover:border-rose-300 hover:brightness-105 active:translate-y-[1px] group relative overflow-hidden`}
+              onClick={() => onNavigate ? onNavigate('trading') : setActiveModal('trade_order')}
+              title="Trading Operations • Buka Trading Desk"
+              className={`${glassCard} cursor-pointer hover:border-indigo-300 hover:brightness-105 active:translate-y-[1px] group relative overflow-hidden`}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 group-hover:text-rose-600 uppercase font-mono transition-colors">
-                  NET PNL • 30D (HALTED)
+                <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 group-hover:text-indigo-600 uppercase font-mono transition-colors">
+                  NET PNL • 30D (REAL-TIME)
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20 shadow-xs font-mono">
-                  <Lock className="w-2.5 h-2.5" />
-                  DIKUNCI
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 shadow-xs font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  AKTIF LIVE
                 </span>
               </div>
 
@@ -497,19 +491,19 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
               </div>
             </div>
 
-            {/* 3. 24H Volume & Execution Velocity (Synchronized to Trading Desk - HALTED) */}
+            {/* 3. 24H Volume & Execution Velocity (Synchronized to Trading Desk - AKTIF) */}
             <div
-              onClick={() => setActiveModal('locked_trading')}
-              title="Execution Desk • DIHENTIKAN"
-              className={`${glassCard} cursor-pointer hover:border-amber-300 hover:brightness-105 active:translate-y-[1px] group relative overflow-hidden`}
+              onClick={() => onNavigate ? onNavigate('trading') : setActiveModal('trade_order')}
+              title="Execution Desk • Buka Trading Desk"
+              className={`${glassCard} cursor-pointer hover:border-indigo-300 hover:brightness-105 active:translate-y-[1px] group relative overflow-hidden`}
             >
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 group-hover:text-amber-700 uppercase font-mono transition-colors">
-                  24H VOLUME (HALTED)
+                <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 group-hover:text-indigo-600 uppercase font-mono transition-colors">
+                  24H VOLUME (REAL-TIME)
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-700 border border-amber-500/20 shadow-xs font-mono">
-                  <Pause className="w-2.5 h-2.5" />
-                  DIHENTIKAN
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 shadow-xs font-mono">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  HIGH TICK
                 </span>
               </div>
 
@@ -677,16 +671,26 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
                       pct,
                     }));
 
-                    const makeSpline = (pts: { x: number; y: number }[]) =>
-                      pts.reduce((acc, curr, i, arr) => {
-                        if (i === 0) return `M ${curr.x},${curr.y}`;
-                        const prev = arr[i - 1];
-                        const cp1x = prev.x + (curr.x - prev.x) * 0.5;
-                        const cp1y = prev.y;
-                        const cp2x = prev.x + (curr.x - prev.x) * 0.5;
-                        const cp2y = curr.y;
-                        return `${acc} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${curr.x},${curr.y}`;
-                      }, '');
+                    const makeSpline = (pts: { x: number; y: number }[]) => {
+                      if (pts.length === 0) return '';
+                      if (pts.length === 1) return `M ${pts[0].x},${pts[0].y}`;
+                      let path = `M ${pts[0].x.toFixed(2)},${pts[0].y.toFixed(2)}`;
+                      const tension = 0.22;
+                      for (let i = 0; i < pts.length - 1; i++) {
+                        const p0 = i > 0 ? pts[i - 1] : pts[i];
+                        const p1 = pts[i];
+                        const p2 = pts[i + 1];
+                        const p3 = i < pts.length - 2 ? pts[i + 2] : p2;
+
+                        const cp1x = p1.x + (p2.x - p0.x) * tension;
+                        const cp1y = p1.y + (p2.y - p0.y) * tension;
+                        const cp2x = p2.x - (p3.x - p1.x) * tension;
+                        const cp2y = p2.y - (p3.y - p1.y) * tension;
+
+                        path += ` C ${cp1x.toFixed(2)},${cp1y.toFixed(2)} ${cp2x.toFixed(2)},${cp2y.toFixed(2)} ${p2.x.toFixed(2)},${p2.y.toFixed(2)}`;
+                      }
+                      return path;
+                    };
 
                     const dCurveIncome = makeSpline(coordsIncome);
                     const dCurveExpense = makeSpline(coordsExpense);
@@ -1261,31 +1265,30 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
                 </div>
               </div>
 
-              {/* Block Tambahan Di Bawahnya: Trader (KARYAWAN DIKUNCI TOTAL - NGEBLUR) */}
+              {/* Block Tambahan Di Bawahnya: Trader Desk Karyawan (TERBUKA & REAL-TIME) */}
               <div
-                onClick={() => setActiveModal('locked_trading')}
-                title="Akses Karyawan Desk • DIKUNCI TOTAL (Ngeblur)"
-                className={`${glassCard} w-full flex-1 min-h-0 flex flex-col justify-between overflow-hidden p-3 sm:p-3.5 relative cursor-pointer hover:border-rose-300 hover:brightness-105 active:translate-y-[1px] group`}
+                onClick={() => onNavigate ? onNavigate('trading') : setActiveModal('trade_order')}
+                title="Akses Karyawan Desk • Buka Roster Karyawan & Posisi"
+                className={`${glassCard} w-full flex-1 min-h-0 flex flex-col justify-between overflow-hidden p-3 sm:p-3.5 relative cursor-pointer hover:border-indigo-300 hover:brightness-105 active:translate-y-[1px] group`}
               >
                 <div className="flex flex-col flex-1 min-h-0 relative">
                   {/* Header: Title "Trader Desk • Karyawan" */}
                   <div className="flex items-center justify-between gap-1 mb-2 flex-shrink-0">
                     <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="w-2 h-2 rounded-full bg-rose-500 flex-shrink-0" />
-                      <span className="text-xs font-black tracking-wider text-rose-800 uppercase font-mono transition-colors">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                      <span className="text-xs font-black tracking-wider text-slate-800 uppercase font-mono transition-colors">
                         Trader Desk • Karyawan
                       </span>
                     </div>
-                    <span className="text-[9px] font-bold text-rose-700 bg-rose-500/10 px-2 py-0.5 rounded-full border border-rose-300 font-mono flex-shrink-0 flex items-center gap-1">
-                      <Lock className="w-2.5 h-2.5" />
-                      DIKUNCI TOTAL
+                    <span className="text-[9px] font-bold text-emerald-700 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-300 font-mono flex-shrink-0 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      12 TRADER AKTIF
                     </span>
                   </div>
 
-                  {/* Container with blurred trades + lock overlay */}
+                  {/* Container with active trades list */}
                   <div className="relative flex-1 min-h-0 overflow-hidden">
-                    {/* The employee trades list is totally blurred! */}
-                    <div className="filter blur-[5px] select-none pointer-events-none opacity-25 space-y-1.5 pr-0.5 min-h-0 overflow-hidden">
+                    <div className="space-y-1.5 pr-0.5 min-h-0 overflow-y-auto no-scrollbar">
                       {employeeTrades.slice(0, 6).map((trade, idx) => {
                         const isNegative = trade.floatingPnl.startsWith('-') || trade.isProfit === false;
                         return (
@@ -1319,32 +1322,16 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
                         );
                       })}
                     </div>
-
-                    {/* Prominent High-Tech Frosted Blur Lock Overlay */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center bg-slate-900/10 backdrop-blur-[4px] rounded-2xl border border-slate-300/80 shadow-inner z-10">
-                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-b from-white via-rose-50 to-rose-100 border-t border-t-white border-x border-rose-200 border-b-2 border-b-rose-300 shadow-[0_4px_12px_rgba(225,29,72,0.18)] flex items-center justify-center text-rose-600 mb-1.5">
-                        <Lock className="w-5 h-5 stroke-[2.4]" />
-                      </div>
-                      <div className="text-[11px] font-black text-slate-900 tracking-tight font-mono uppercase">
-                        AKSES KARYAWAN DIKUNCI TOTAL
-                      </div>
-                      <div className="text-[8.5px] font-mono text-slate-600 max-w-[210px] mt-0.5 leading-snug">
-                        Data identitas, floating order, dan operasional seluruh karyawan desk telah dibekukan & disensor.
-                      </div>
-                      <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-rose-50 border border-rose-200 text-[8px] font-mono font-bold text-rose-700">
-                        <ShieldAlert className="w-2.5 h-2.5 text-rose-600" /> DEFCON 1 • AKSES RESTRICTED
-                      </div>
-                    </div>
                   </div>
                 </div>
 
                 {/* Footer Status */}
                 <div className="flex items-center justify-between pt-1.5 border-t border-slate-200/70 text-[9px] font-mono text-slate-500 mt-1 flex-shrink-0">
-                  <span className="text-rose-600 font-bold flex items-center gap-1">
-                    <Lock className="w-2.5 h-2.5" /> 48 DESK KARYAWAN DIBEKUKAN
+                  <span className="text-emerald-600 font-bold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 48 DESK KARYAWAN AKTIF
                   </span>
-                  <span className="text-rose-700 font-black flex items-center gap-0.5">
-                    DIKUNCI TOTAL →
+                  <span className="text-indigo-700 font-black flex items-center gap-0.5">
+                    PANTAU DESK →
                   </span>
                 </div>
               </div>
@@ -1368,16 +1355,11 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
             {/* Modal Header */}
             <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 mb-4">
               <div className="flex items-center gap-2.5">
-                <div className={`w-9 h-9 rounded-2xl flex items-center justify-center border shadow-xs ${
-                  activeModal === 'locked_trading'
-                    ? 'bg-rose-500/10 text-rose-600 border-rose-300'
-                    : 'bg-indigo-500/10 text-indigo-600 border-indigo-200'
-                }`}>
+                <div className="w-9 h-9 rounded-2xl flex items-center justify-center border shadow-xs bg-indigo-500/10 text-indigo-600 border-indigo-200">
                   {activeModal === 'trade_order' && <TrendingUp className="w-4 h-4 stroke-[2.5]" />}
                   {activeModal === 'deposit' && <PlusCircle className="w-4 h-4 stroke-[2.5]" />}
                   {activeModal === 'fx_swap' && <ArrowLeftRight className="w-4 h-4 stroke-[2.5]" />}
                   {activeModal === 'vault_sign' && <ShieldCheck className="w-4 h-4 stroke-[2.5]" />}
-                  {activeModal === 'locked_trading' && <Lock className="w-4 h-4 stroke-[2.5]" />}
                 </div>
                 <div>
                   <h3 className="text-base font-extrabold text-slate-800 font-mono">
@@ -1385,12 +1367,9 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
                     {activeModal === 'deposit' && 'PRIME CUSTODY INFLOW'}
                     {activeModal === 'fx_swap' && 'FX LIQUIDITY SWAP'}
                     {activeModal === 'vault_sign' && 'MULTI-SIG HSM SIGNER'}
-                    {activeModal === 'locked_trading' && 'TRADING & KARYAWAN DIKUNCI'}
                   </h3>
                   <span className="text-[10px] text-slate-400 font-mono">
-                    {activeModal === 'locked_trading'
-                      ? 'SECURITY & RISK PROTOCOL • DEFCON 1'
-                      : 'INSTITUTIONAL DESK • T+0 SETTLEMENT'}
+                    INSTITUTIONAL DESK • T+0 SETTLEMENT
                   </span>
                 </div>
               </div>
@@ -1546,64 +1525,6 @@ export const DashboardGrid: React.FC<DashboardGridProps> = ({ onNavigate }) => {
                   className="w-full mt-2 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow-md active:translate-y-0.5 transition-all cursor-pointer"
                 >
                   KELOLA VAULT DI SECURITY DESK
-                </button>
-              </div>
-            )}
-
-            {activeModal === 'locked_trading' && (
-              <div className="flex flex-col gap-3 font-mono">
-                <div className="p-3.5 rounded-2xl bg-rose-50/90 border border-rose-200/90 text-left">
-                  <div className="flex items-center gap-2 mb-1.5">
-                    <div className="w-8 h-8 rounded-xl bg-rose-100 border border-rose-300 flex items-center justify-center text-rose-600">
-                      <Lock className="w-4 h-4 stroke-[2.5]" />
-                    </div>
-                    <div>
-                      <div className="text-xs font-black text-rose-900 uppercase">
-                        SISTEM TRADING & AKUN KARYAWAN DIKUNCI
-                      </div>
-                      <div className="text-[9px] text-rose-600 font-bold">
-                        DEFCON 1 • PROTOKOL HALT & BLUR AKTIF
-                      </div>
-                    </div>
-                  </div>
-                  <p className="text-[11px] text-slate-700 leading-relaxed mt-2">
-                    Sesuai instruksi kepatuhan risiko, operasional trading, chart streaming, dan seluruh aktivitas akun karyawan (trader) telah <strong className="text-rose-700 font-black">DIHENTIKAN (STOPPED)</strong> dan <strong className="text-rose-700 font-black">DIKUNCI TOTAL (LOCKED & NGEBLUR)</strong>.
-                  </p>
-                </div>
-
-                <div className="space-y-1.5 text-xs">
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                    <span className="text-slate-500 font-bold flex items-center gap-1.5">
-                      <Pause className="w-3.5 h-3.5 text-amber-600" /> Chart & Streaming:
-                    </span>
-                    <span className="text-rose-600 font-black bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
-                      DIHENTIKAN / FROZEN
-                    </span>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                    <span className="text-slate-500 font-bold flex items-center gap-1.5">
-                      <Lock className="w-3.5 h-3.5 text-rose-600" /> Karyawan & Trader Desk:
-                    </span>
-                    <span className="text-rose-600 font-black bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
-                      DIKUNCI TOTAL (NGEBLUR)
-                    </span>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                    <span className="text-slate-500 font-bold flex items-center gap-1.5">
-                      <ShieldAlert className="w-3.5 h-3.5 text-indigo-600" /> Eksekusi Order:
-                    </span>
-                    <span className="text-slate-700 font-black bg-slate-200 px-2 py-0.5 rounded">
-                      SUSPENDED (DISABLED)
-                    </span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveModal(null)}
-                  className="w-full mt-2 py-2.5 rounded-xl bg-gradient-to-b from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-white font-bold text-xs shadow-md active:translate-y-0.5 transition-all cursor-pointer"
-                >
-                  TUTUP PEMBERITAHUAN
                 </button>
               </div>
             )}

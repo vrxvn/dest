@@ -26,8 +26,8 @@ export const SYSTEM_SETTINGS: SystemSettingItem[] = [
   {
     key: 'EXEC_INTERACTION_MODE',
     scope: 'Order Terminal vs Analytics Interface',
-    value: 'READ-ONLY ANALYTICS',
-    status: 'LOCKED',
+    value: 'INTERACTIVE & ORDER ROUTING',
+    status: 'ACTIVE',
   },
   {
     key: 'DATA_FEED_SOURCE',

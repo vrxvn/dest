@@ -17,6 +17,7 @@ import {
   ExternalLink,
   CheckCircle2,
   X,
+  Zap,
 } from 'lucide-react';
 import {
   FOUR_MAJOR_DEVISA,
@@ -35,11 +36,14 @@ import { FxLiveStreamingRates } from './FxLiveStreamingRates';
 import { FxCentralBankRadar } from './FxCentralBankRadar';
 import { FxArbitrageScanner } from './FxArbitrageScanner';
 import { FxNewsTicker } from './FxNewsTicker';
+import { FxMarketSessionsCard } from './FxMarketSessionsCard';
+import { FxQuickSwapModal } from './FxQuickSwapModal';
 
 export const FxFlow: React.FC = () => {
   const [hoveredCurrency, setHoveredCurrency] = useState<number | null>(null);
   const [selectedDevisaCode, setSelectedDevisaCode] = useState<string>('USD');
   const [isWideExpandedModal, setIsWideExpandedModal] = useState<boolean>(false);
+  const [isQuickSwapOpen, setIsQuickSwapOpen] = useState<boolean>(false);
 
   // Live Real-Time FX Exchange Rate Engine from Public APIs
   const { liveRates, historicalApiSeries, apiProvider, lastUpdated, isFetching, refreshRates } = useFxLiveRates();
@@ -148,29 +152,8 @@ export const FxFlow: React.FC = () => {
           </div>
         </div>
 
-        {/* Card 4: CLS Match Rate */}
-        <div className={glassCard}>
-          <div className="flex items-center justify-between mb-0.5">
-            <span className="text-[10px] xl:text-[11px] font-bold tracking-wider text-slate-400 uppercase font-mono flex items-center gap-1.5">
-              <Building2 className="w-3.5 h-3.5 text-amber-500 stroke-[2.3]" />
-              CLS SETTLEMENT FIDELITY
-            </span>
-            <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[9px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-mono">
-              ZERO-HERSTATT
-            </span>
-          </div>
-
-          <div className="my-0.5">
-            <div className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight font-mono">
-              99.98%
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[10px] font-mono">
-            <span className="text-slate-400">18 CURRENCIES</span>
-            <span className="text-indigo-600 font-extrabold">PVP GUARANTEED</span>
-          </div>
-        </div>
+        {/* Card 4: Global FX Market Sessions (Replacing Static CLS Card) */}
+        <FxMarketSessionsCard glassCardClassName={glassCard} />
       </section>
 
       {/* ============================================================== */}
@@ -352,26 +335,40 @@ export const FxFlow: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Pasangan Mata Uang Terkait Devisa Ini */}
-                <div className="mt-0.5">
-                  <div className="flex items-center justify-between text-[7.5px] font-black text-slate-400 uppercase font-mono mb-0.5">
-                    <span>INTERBANK ({activeDevisa.code})</span>
-                    <span className="text-slate-500 font-normal">REAL-TIME LIQUIDITY</span>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 text-[8px] font-mono">
-                    {activeDevisa.interbankPairs.map((p) => (
-                      <div key={p.pair} className="p-1 rounded-lg bg-slate-50 border border-slate-200/80 flex items-center justify-between">
-                        <div>
-                          <span className="font-black text-slate-800 block leading-tight">{p.pair}</span>
-                          <span className="text-[7px] text-slate-500 font-bold">{p.rate}</span>
-                        </div>
-                        <div className="text-right">
-                          <span className={`font-black text-[7.5px] ${p.isUp ? 'text-emerald-600' : 'text-rose-600'}`}>
-                            {p.change}
-                          </span>
-                        </div>
+                {/* Dealing Desk Interactive Quick Action & Carry Yield Bar (Replacing duplicate interbank list) */}
+                <div className="mt-1 p-2 rounded-xl bg-gradient-to-r from-indigo-50/90 via-white to-emerald-50/80 border border-slate-200 shadow-2xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-7 h-7 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                      <ArrowLeftRight className="w-3.5 h-3.5 stroke-[2.4]" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] font-black uppercase text-slate-900 tracking-tight">
+                          DEALING DESK • SWAP {activeDevisa.code}
+                        </span>
+                        <span className="text-[7.5px] font-black px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                          T+0 READY
+                        </span>
                       </div>
-                    ))}
+                      <div className="text-[8px] text-slate-500 font-mono flex items-center gap-2 truncate">
+                        <span>CARRY: <strong className="text-emerald-700">+3.85% p.a.</strong></span>
+                        <span>•</span>
+                        <span>ROLL: <strong className="text-slate-700">+$142.50/day</strong></span>
+                        <span>•</span>
+                        <span>SPREAD: <strong className="text-indigo-700">0.2 pips</strong></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setIsQuickSwapOpen(true)}
+                      className="px-3 py-1 rounded-xl bg-gradient-to-b from-indigo-600 to-indigo-800 hover:from-indigo-500 hover:to-indigo-700 text-white font-black text-[9px] uppercase tracking-wider shadow-xs hover:brightness-105 active:translate-y-[0.5px] transition-all cursor-pointer flex items-center gap-1"
+                    >
+                      <Zap className="w-3 h-3" />
+                      <span>EKSEKUSI SWAP</span>
+                    </button>
                   </div>
                 </div>
               </div>
@@ -408,6 +405,15 @@ export const FxFlow: React.FC = () => {
           <FxNewsTicker glassCardClassName={`${glassCard} mb-0`} />
         </div>
       </div>
+
+      {/* MODAL QUICK SWAP & DEALING TERMINAL */}
+      <FxQuickSwapModal
+        isOpen={isQuickSwapOpen}
+        onClose={() => setIsQuickSwapOpen(false)}
+        initialFromCurrency={activeDevisa.code}
+        initialToCurrency={activeDevisa.code === 'USD' ? 'EUR' : 'USD'}
+        liveRates={liveRates}
+      />
 
       {/* MODAL / OVERLAY WIDE VIEW LAYAR PENUH */}
       {isWideExpandedModal && (

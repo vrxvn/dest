@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Lock, ShieldCheck, ArrowUpRight, ArrowDownRight, RefreshCw, KeyRound, Radio } from 'lucide-react';
+import { ShieldCheck, ArrowUpRight, ArrowDownRight, RefreshCw, KeyRound, Radio } from 'lucide-react';
 
 export interface VaultCoinItem {
   asset: string;
@@ -106,7 +106,7 @@ export const ColdVaultCustody: React.FC<ColdVaultCustodyProps> = ({
       <div className="flex flex-wrap items-center justify-between gap-1 mb-1 pb-1 border-b border-slate-200/80 flex-shrink-0">
         <div>
           <div className="flex items-center gap-1.5">
-            <Lock className="w-3.5 h-3.5 text-indigo-600 stroke-[2.3]" />
+            <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 stroke-[2.3]" />
             <span className="text-[10px] font-black tracking-wider text-slate-800 uppercase font-mono leading-tight">
               COLD VAULT CUSTODY (KOIN SAJA)
             </span>

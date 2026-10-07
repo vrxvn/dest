@@ -15,7 +15,6 @@ import {
   X,
   FileText,
   Search,
-  Lock,
   Layers,
   Briefcase,
   ExternalLink,
@@ -255,11 +254,11 @@ export const InvestorView: React.FC = () => {
     return (
       <div className="inline-flex flex-col items-center px-1.5 py-0.5 rounded-lg bg-emerald-50 border border-emerald-300 text-emerald-800 shadow-2xs">
         <div className="flex items-center gap-1">
-          <Lock className="w-2.5 h-2.5 text-emerald-600 stroke-[2.5]" />
+          <ShieldCheck className="w-2.5 h-2.5 text-emerald-600 stroke-[2.5]" />
           <span className="font-black text-[8px] leading-tight text-emerald-950">{expiry}</span>
         </div>
         <span className="text-[6.5px] font-black text-emerald-700 uppercase tracking-tighter">
-          AMAN • {statusText.toUpperCase()}
+          TERBUKA • {statusText.toUpperCase()}
         </span>
       </div>
     );

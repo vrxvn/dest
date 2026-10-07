@@ -90,8 +90,17 @@ const STATUS_LEGENDS = [
 ];
 
 export default function App() {
-  // Pertama kali buka web langsung memunculkan Dashboard (Overview)
-  const [activeItem, setActiveItem] = useState<SidebarMenuItem>(SIDEBAR_MENU_SCHEMA[0]);
+  // Dukungan URL hash agar reload tetap berada di menu aktif (e.g. #genesis)
+  const [activeItem, setActiveItem] = useState<SidebarMenuItem>(() => {
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+      const match =
+        SIDEBAR_MENU_SCHEMA.find((m) => m.id === hash || m.path.includes(hash)) ||
+        SIDEBAR_BOTTOM_SCHEMA.find((m) => m.id === hash);
+      if (match) return match;
+    }
+    return SIDEBAR_MENU_SCHEMA[0];
+  });
   const [showDeskHubModal, setShowDeskHubModal] = useState(false);
 
   const handleNavigate = (menuId: string) => {
@@ -100,6 +109,9 @@ export default function App() {
       SIDEBAR_BOTTOM_SCHEMA.find((m) => m.id === menuId);
     if (target) {
       setActiveItem(target);
+      if (typeof window !== 'undefined') {
+        window.location.hash = target.id;
+      }
     }
   };
 
@@ -150,6 +162,9 @@ export default function App() {
             setShowDeskHubModal(true);
           } else {
             setActiveItem(item);
+            if (typeof window !== 'undefined') {
+              window.location.hash = item.id;
+            }
           }
         }}
       />
