@@ -209,6 +209,32 @@ export const TOTAL_DIVIDEND_WITHDRAWN = '$1,240,000.00';
 export const TOTAL_DIVIDEND_REINVESTED = '$610,000.00';
 export const TOTAL_EXTERNAL_CAPITAL_INFLOW = '$2,500,000.00';
 
+// Komposisi Diversifikasi LP Berdasarkan Tipe Institusi
+export const LP_CONCENTRATION_BY_TYPE = [
+  { type: 'Sovereign Wealth Funds (SWF)', pct: 34.5, amount: '$4,300,000', color: '#6366f1' },
+  { type: 'Global Private Equity & Asset Mgrs', pct: 24.1, amount: '$3,000,000', color: '#0ea5e9' },
+  { type: 'University Endowments', pct: 12.0, amount: '$1,500,000', color: '#10b981' },
+  { type: 'Multi-Family Wealth Offices', pct: 16.5, amount: '$2,050,000', color: '#f59e0b' },
+  { type: 'Public Pension Reserve Funds', pct: 12.9, amount: '$1,600,000', color: '#a855f7' },
+];
+
+// Metrik Waterfall 2/20 & Carried Interest (Hurdle Rate 6.0%)
+export const WATERFALL_METRICS = {
+  totalGrossProfit: '$3,592,500.00',
+  preferredHurdle6Pct: '$747,000.00',
+  gpCatchUp20Pct: '$186,750.00',
+  lpSplit80Pct: '$2,127,000.00',
+  gpCarriedInterest20Pct: '$531,750.00',
+  totalLpNetProfit: '$2,874,000.00',
+  totalGpHurdleEarned: '$718,500.00',
+  highWaterMarkStatus: 'ACHIEVED (+$2.87M above peak)',
+  quarterlyGateCapPct: '5.0%',
+  quarterlyGateMaxAmount: '$766,200.00',
+  activeRedemptionRequests: '$372,000.00',
+  availableGateBuffer: '$394,200.00',
+  liquiditySafetyRating: 'AAA (100% SEC Reg D Compliant)',
+};
+
 export const INITIAL_TRANSACTIONS: CapitalTransaction[] = [
   {
     id: 'tx-001',
@@ -321,5 +347,161 @@ export const INITIAL_TRANSACTIONS: CapitalTransaction[] = [
     status: 'SCHEDULED',
     bankChannel: 'Mitsubishi UFJ Trust Fedwire',
     referenceNote: 'Jadwal Setoran Modal Tahap II (Q4 2026)',
+  },
+];
+
+export interface LpDocumentItem {
+  id: string;
+  title: string;
+  category: 'AUDIT' | 'LEGAL' | 'TAX' | 'PERFORMANCE';
+  fileSize: string;
+  date: string;
+  issuer: string;
+  checksum: string;
+  description: string;
+}
+
+export const LP_DOCUMENTS: LpDocumentItem[] = [
+  {
+    id: 'doc-001',
+    title: 'Aether Fund III - Q3 2026 Audited Financial Statement',
+    category: 'AUDIT',
+    fileSize: '4.8 MB',
+    date: '30 Sep 2026',
+    issuer: 'Deloitte & Touche LLP',
+    checksum: 'SHA256: 9b2d8...f41e',
+    description: 'Laporan keuangan triwulanan yang diaudit secara independen, verifikasi NAV $15.32M dan cadangan kas.',
+  },
+  {
+    id: 'doc-002',
+    title: 'Private Placement Memorandum (PPM) - SEC Reg D 506(c)',
+    category: 'LEGAL',
+    fileSize: '8.2 MB',
+    date: '15 Jan 2026',
+    issuer: 'Gibson, Dunn & Crutcher LLP',
+    checksum: 'SHA256: 4a7c1...8e33',
+    description: 'Dokumen penawaran resmi restricted institutional investor, struktur master-feeder Delaware & Cayman.',
+  },
+  {
+    id: 'doc-003',
+    title: 'Schedule K-1 (Form 1065) Partner Tax Reporting Package',
+    category: 'TAX',
+    fileSize: '2.4 MB',
+    date: '15 Mar 2026',
+    issuer: 'PricewaterhouseCoopers (PwC)',
+    checksum: 'SHA256: 1c3f9...d288',
+    description: 'Paket pelaporan pajak mitra US & deklarasi withholding foreign investor W-8BEN-E.',
+  },
+  {
+    id: 'doc-004',
+    title: 'Monthly LP Performance & Alpha Attribution (September 2026)',
+    category: 'PERFORMANCE',
+    fileSize: '3.1 MB',
+    date: '02 Oct 2026',
+    issuer: 'Aether Quant Risk Committee',
+    checksum: 'SHA256: 7d9e4...b12a',
+    description: 'Rincian alpha kuantitatif, analisis Sharpe 3.55, drawdown 2.18%, dan dekomposisi faktor macro.',
+  },
+  {
+    id: 'doc-005',
+    title: 'BNY Mellon Trust Custodian Safekeeping Confirmation',
+    category: 'AUDIT',
+    fileSize: '1.9 MB',
+    date: '28 Sep 2026',
+    issuer: 'The Bank of New York Mellon',
+    checksum: 'SHA256: 6e1a2...c905',
+    description: 'Sertifikat kustodian pihak ketiga independen atas aset sekuritas dan margin liquidity balance.',
+  },
+  {
+    id: 'doc-006',
+    title: 'Cayman Islands Monetary Authority (CIMA) Fund Registration',
+    category: 'LEGAL',
+    fileSize: '1.5 MB',
+    date: '01 Feb 2026',
+    issuer: 'Maples and Calder / CIMA',
+    checksum: 'SHA256: 8f4b0...e771',
+    description: 'Sertifikat registrasi reksa dana luar negeri berlisensi Mutual Funds Act (Revised).',
+  },
+];
+
+export interface DividendWaterfallQuarter {
+  quarter: string;
+  recordDate: string;
+  payoutDate: string;
+  projectedGross: string;
+  hurdleAmount: string;
+  netLpDistribution: string;
+  status: 'PAID' | 'READY_FOR_PAYOUT' | 'PROJECTED';
+}
+
+export const DIVIDEND_WATERFALL_CALENDAR: DividendWaterfallQuarter[] = [
+  {
+    quarter: 'Q1 2026',
+    recordDate: '15 Mar 2026',
+    payoutDate: '31 Mar 2026',
+    projectedGross: '$680,000.00',
+    hurdleAmount: '$186,750.00',
+    netLpDistribution: '$544,000.00',
+    status: 'PAID',
+  },
+  {
+    quarter: 'Q2 2026',
+    recordDate: '15 Jun 2026',
+    payoutDate: '30 Jun 2026',
+    projectedGross: '$820,000.00',
+    hurdleAmount: '$186,750.00',
+    netLpDistribution: '$656,000.00',
+    status: 'PAID',
+  },
+  {
+    quarter: 'Q3 2026',
+    recordDate: '15 Sep 2026',
+    payoutDate: '30 Sep 2026',
+    projectedGross: '$980,000.00',
+    hurdleAmount: '$186,750.00',
+    netLpDistribution: '$784,000.00',
+    status: 'READY_FOR_PAYOUT',
+  },
+  {
+    quarter: 'Q4 2026 (Est)',
+    recordDate: '15 Dec 2026',
+    payoutDate: '31 Dec 2026',
+    projectedGross: '$1,110,000.00',
+    hurdleAmount: '$186,750.00',
+    netLpDistribution: '$888,000.00',
+    status: 'PROJECTED',
+  },
+];
+
+export const LP_TIER_CONFIG = [
+  {
+    tier: 'Founder Tier',
+    minCommitment: '$3,000,000+',
+    mgmtFee: '1.5%',
+    carriedInterest: '15.0%',
+    hurdle: '6.0% Hurdle',
+    lockup: '36 Bulan',
+    investorsCount: 1,
+    color: 'purple',
+  },
+  {
+    tier: 'Class A LP',
+    minCommitment: '$1,500,000 - $3,000,000',
+    mgmtFee: '2.0%',
+    carriedInterest: '20.0%',
+    hurdle: '6.0% Hurdle',
+    lockup: '24 Bulan',
+    investorsCount: 3,
+    color: 'indigo',
+  },
+  {
+    tier: 'Class B LP',
+    minCommitment: '$500,000 - $1,500,000',
+    mgmtFee: '2.0%',
+    carriedInterest: '20.0%',
+    hurdle: '6.0% Hurdle',
+    lockup: '12 Bulan',
+    investorsCount: 4,
+    color: 'slate',
   },
 ];

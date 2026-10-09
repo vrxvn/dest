@@ -1379,126 +1379,199 @@ export const GenesisView: React.FC = () => {
       {/* 3. LOWER AREA: PIPELINE TABLE, FACTOR RADAR, LIVE SIGNALS & SOR */}
       {/* ============================================================== */}
       <section className="grid grid-cols-1 xl:grid-cols-12 gap-2 sm:gap-2.5 flex-1 min-h-0 pb-0">
-        {/* Left (5 Columns): GENESIS INCUBATED ALGORITHMIC PIPELINE Table */}
-        <div className={`xl:col-span-5 ${glassCard} flex flex-col justify-between h-full min-h-0 overflow-hidden p-2.5 sm:p-3`}>
-          <div className="flex-1 min-h-0 flex flex-col justify-between">
-            <div className="flex items-center justify-between gap-2 mb-1 pb-1 border-b border-slate-200/80 shrink-0">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase text-slate-800">
-                  GENESIS INCUBATED ALGORITHMIC PIPELINE
-                </span>
-                <span className="text-[8px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.2 rounded-full border border-indigo-200 font-mono">
+        {/* Left (5 Columns): SPLIT INTO 2 DISTINCT BLOCKS */}
+        <div className="xl:col-span-5 grid grid-cols-1 lg:grid-cols-12 gap-2 h-full min-h-0">
+          {/* Block 1 (7 Cols): GENESIS INCUBATED ALGORITHMIC PIPELINE Table */}
+          <div className={`lg:col-span-7 ${glassCard} flex flex-col justify-between h-full min-h-0 overflow-hidden p-2.5 sm:p-3`}>
+            <div className="flex-1 min-h-0 flex flex-col justify-between">
+              <div className="flex items-center justify-between gap-1 mb-1 pb-1 border-b border-slate-200/80 shrink-0">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <Workflow className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                  <span className="text-[10px] font-black uppercase text-slate-800 truncate">
+                    ALGORITHMIC PIPELINE
+                  </span>
+                </div>
+                <span className="text-[7.5px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.2 rounded-full border border-indigo-200 font-mono shrink-0">
                   {filteredModels.length} MODELS
                 </span>
               </div>
 
-              {/* Stage Filter Selector & Register Button */}
-              <div className="flex items-center gap-1">
-                <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl border border-slate-200 text-[7.5px]">
-                  {['ALL', 'LIVE PRODUCTION', 'PAPER ALPHA', 'BACKTEST STRESS', 'RESEARCH'].map((st) => (
-                    <button
-                      key={st}
-                      type="button"
-                      onClick={() => setSelectedStage(st)}
-                      className={`px-1.5 py-0.5 rounded-lg font-black transition-all cursor-pointer ${
-                        selectedStage === st
-                          ? 'bg-indigo-600 text-white shadow-xs'
-                          : 'text-slate-600 hover:text-slate-900'
-                      }`}
-                    >
-                      {st === 'ALL' ? 'SEMUA' : st.replace('LIVE ', '')}
-                    </button>
-                  ))}
-                </div>
+              {/* Stage Filter Buttons */}
+              <div className="flex items-center gap-1 mb-1 bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[7px] font-mono shrink-0">
+                {['ALL', 'LIVE PRODUCTION', 'PAPER ALPHA', 'RESEARCH'].map((st) => (
+                  <button
+                    key={st}
+                    type="button"
+                    onClick={() => setSelectedStage(st)}
+                    className={`px-1.5 py-0.5 rounded font-black transition-all cursor-pointer ${
+                      selectedStage === st
+                        ? 'bg-indigo-600 text-white shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    {st === 'ALL' ? 'ALL' : st.replace('LIVE ', '').replace(' ALPHA', '')}
+                  </button>
+                ))}
+              </div>
 
-                <button
-                  type="button"
-                  onClick={() => setIsNewModelModalOpen(true)}
-                  className="px-2 py-0.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[7.5px] uppercase tracking-wider shadow-xs flex items-center gap-1 cursor-pointer transition-all"
-                  title="Daftarkan model baru ke pipeline"
-                >
-                  <Plus className="w-2.5 h-2.5 stroke-[2.5]" />
-                  <span className="hidden sm:inline">DAFTARKAN MODEL</span>
-                </button>
+              {/* Table of Models - Flex-1 with overflow-y-auto */}
+              <div className="flex-1 min-h-[90px] overflow-y-auto custom-scrollbar">
+                <table className="w-full text-left text-[8.5px] font-mono">
+                  <thead>
+                    <tr className="border-b border-slate-200 text-[7px] font-black uppercase text-slate-400">
+                      <th className="py-1 px-1">Model</th>
+                      <th className="py-1 px-1 text-right">Sharpe</th>
+                      <th className="py-1 px-1 text-right">Win Rate</th>
+                      <th className="py-1 px-1 text-center">Stage</th>
+                      <th className="py-1 px-1 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {filteredModels.map((m) => (
+                      <tr
+                        key={m.id}
+                        onClick={() => {
+                          setSelectedModel(m);
+                          setIsModalOpen(true);
+                        }}
+                        className="hover:bg-indigo-50/40 cursor-pointer transition-colors"
+                      >
+                        <td className="py-1 px-1">
+                          <div className="font-black text-slate-800 leading-tight">{m.name}</div>
+                          <span className="text-[7px] text-slate-400 block leading-none truncate max-w-[110px]">
+                            {m.assetClass} • {m.architecture}
+                          </span>
+                        </td>
+                        <td className="py-1 px-1 text-right font-black text-indigo-700">
+                          {m.sharpeRatio}
+                        </td>
+                        <td className="py-1 px-1 text-right text-slate-700 font-bold">
+                          {m.winRate}
+                        </td>
+                        <td className="py-1 px-1 text-center">
+                          <span
+                            className={`inline-block px-1 py-0.2 rounded text-[6.5px] font-black border ${
+                              m.stage === 'LIVE PRODUCTION'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                                : m.stage === 'PAPER ALPHA'
+                                ? 'bg-blue-50 text-blue-700 border-blue-300'
+                                : 'bg-amber-50 text-amber-700 border-amber-300'
+                            }`}
+                          >
+                            {m.stage.replace('LIVE ', '')}
+                          </span>
+                        </td>
+                        <td className="py-1 px-1 text-right">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedModel(m);
+                              setIsModalOpen(true);
+                            }}
+                            className="px-1.5 py-0.5 rounded bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 font-bold text-[7px] cursor-pointer"
+                          >
+                            SIMULASI
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            {/* Table of Models - Flex-1 with overflow-y-auto */}
-            <div className="flex-1 min-h-[90px] overflow-y-auto custom-scrollbar">
-              <table className="w-full text-left text-[9px] font-mono">
-                <thead>
-                  <tr className="border-b border-slate-200 text-[7.5px] font-black uppercase text-slate-400">
-                    <th className="py-1 px-1">Model & Arsitektur</th>
-                    <th className="py-1 px-1">Aset</th>
-                    <th className="py-1 px-1 text-right">Sharpe / Sortino</th>
-                    <th className="py-1 px-1 text-right">Win Rate</th>
-                    <th className="py-1 px-1 text-right">Backtest PnL</th>
-                    <th className="py-1 px-1 text-center">Stage</th>
-                    <th className="py-1 px-1 text-right">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredModels.map((m) => (
-                    <tr
-                      key={m.id}
-                      onClick={() => {
-                        setSelectedModel(m);
-                        setIsModalOpen(true);
-                      }}
-                      className="hover:bg-indigo-50/40 cursor-pointer transition-colors"
-                    >
-                      <td className="py-1 px-1">
-                        <div className="font-black text-slate-800">{m.name}</div>
-                        <span className="text-[7.5px] text-slate-400 block leading-none truncate max-w-[150px]">
-                          {m.architecture}
-                        </span>
-                      </td>
-                      <td className="py-1 px-1">
-                        <span className="text-[7.5px] font-black px-1.5 py-0.2 rounded bg-slate-100 border border-slate-200">
-                          {m.assetClass}
-                        </span>
-                      </td>
-                      <td className="py-1 px-1 text-right font-black text-indigo-700">
-                        {m.sharpeRatio} <span className="text-[7.5px] text-slate-400 font-normal">/ {m.sortinoRatio}</span>
-                      </td>
-                      <td className="py-1 px-1 text-right text-slate-700 font-bold">{m.winRate}</td>
-                      <td className="py-1 px-1 text-right font-black text-emerald-600">{m.backtestPnl}</td>
-                      <td className="py-1 px-1 text-center">
-                        <span
-                          className={`inline-block px-1.5 py-0.2 rounded text-[7px] font-black border ${
-                            m.stage === 'LIVE PRODUCTION'
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                              : m.stage === 'PAPER ALPHA'
-                              ? 'bg-blue-50 text-blue-700 border-blue-300'
-                              : 'bg-amber-50 text-amber-700 border-amber-300'
-                          }`}
-                        >
-                          {m.stage}
-                        </span>
-                      </td>
-                      <td className="py-1 px-1 text-right">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedModel(m);
-                            setIsModalOpen(true);
-                          }}
-                          className="px-2 py-0.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 font-bold text-[7.5px] cursor-pointer"
-                        >
-                          SIMULASI
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[7.5px] text-slate-500 mt-0.5 shrink-0 font-mono">
+              <span>KLIK MODEL DETAIL</span>
+              <span className="text-emerald-700 font-bold">Total: {filteredModels.length} Algo</span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-1 border-t border-slate-200/80 text-[8px] text-slate-500 mt-0.5 shrink-0">
-            <span>KLIK MODEL UNTUK SIMULASI STRES</span>
-            <span className="text-emerald-700 font-bold">Total PnL: +$1,852,000.00</span>
+          {/* Block 2 (5 Cols): MODEL CAPITAL ALLOCATION & INCUBATION TELEMETRY */}
+          <div className={`lg:col-span-5 ${glassCard} flex flex-col justify-between h-full min-h-0 overflow-hidden p-2.5 sm:p-3`}>
+            <div className="flex-1 min-h-0 flex flex-col justify-between">
+              <div className="flex items-center justify-between gap-1 mb-1 pb-1 border-b border-slate-200/80 shrink-0">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <Layers className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                  <span className="text-[10px] font-black uppercase text-slate-800 truncate">
+                    INCUBATION TELEMETRY
+                  </span>
+                </div>
+                <span className="text-[7.5px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200 font-mono shrink-0">
+                  $15.0M TOTAL
+                </span>
+              </div>
+
+              {/* Stage Allocation Progress Bars */}
+              <div className="space-y-1.5 my-1 text-[8px] font-mono">
+                <div>
+                  <div className="flex items-center justify-between text-[7.5px] mb-0.5">
+                    <span className="font-bold text-slate-700 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      Live Production
+                    </span>
+                    <span className="font-black text-emerald-700">$10.8M (72%)</span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: '72%' }} />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between text-[7.5px] mb-0.5">
+                    <span className="font-bold text-slate-700 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                      Paper Alpha Test
+                    </span>
+                    <span className="font-black text-blue-700">$3.2M (21%)</span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                    <div className="h-full bg-blue-500 rounded-full" style={{ width: '21%' }} />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between text-[7.5px] mb-0.5">
+                    <span className="font-bold text-slate-700 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                      Research & Backtest
+                    </span>
+                    <span className="font-black text-amber-700">$1.0M (7%)</span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                    <div className="h-full bg-amber-500 rounded-full" style={{ width: '7%' }} />
+                  </div>
+                </div>
+              </div>
+
+              {/* 3 Metric Summary Badges */}
+              <div className="grid grid-cols-3 gap-1 my-1 text-center text-[7.5px] font-mono">
+                <div className="p-1 rounded-lg bg-white border border-slate-200/90 shadow-2xs">
+                  <span className="text-[6.5px] text-slate-400 block uppercase">MEAN WIN</span>
+                  <span className="font-black text-slate-800">81.2%</span>
+                </div>
+                <div className="p-1 rounded-lg bg-white border border-slate-200/90 shadow-2xs">
+                  <span className="text-[6.5px] text-slate-400 block uppercase">MAX SHARPE</span>
+                  <span className="font-black text-indigo-700">4.12</span>
+                </div>
+                <div className="p-1 rounded-lg bg-emerald-50 border border-emerald-200/90 shadow-2xs">
+                  <span className="text-[6.5px] text-emerald-700 block uppercase">BACKTEST</span>
+                  <span className="font-black text-emerald-800">+$1.85M</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Action: Register New Model */}
+            <div className="pt-1 border-t border-slate-200/80 mt-0.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsNewModelModalOpen(true)}
+                className="w-full py-1 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[7.5px] uppercase tracking-wider shadow-xs flex items-center justify-center gap-1 cursor-pointer transition-all font-mono"
+              >
+                <Plus className="w-3 h-3 stroke-[2.5]" />
+                <span>DAFTARKAN MODEL BARU</span>
+              </button>
+            </div>
           </div>
         </div>
 
